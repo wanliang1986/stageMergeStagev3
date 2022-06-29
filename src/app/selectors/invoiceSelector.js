@@ -1,5 +1,42 @@
 import { createSelector } from 'reselect';
+import moment from 'moment-timezone';
 import Immutable from 'immutable';
+
+const getInvoice = (state) => state.model.invoice;
+
+export const getDataForInvoiceTable = createSelector(
+  [getInvoice],
+  (invoiceListFromStore) => {
+    const invoiceList = invoiceListFromStore
+      .toList()
+      .map((invoice) => Immutable.fromJS(invoice))
+      .map((invoice) => {
+        return Immutable.fromJS({
+          id: invoice.get('id'),
+          invoiceNo: invoice.get('invoiceNo'),
+          subInvoiceNo: invoice.get('subInvoiceNo'),
+          invoiceDate: moment(invoice.get('createdDate').slice(0, 10))
+            .format()
+            .slice(0, 10),
+          createdDate: moment(invoice.get('createdDate').slice(0, 10))
+            .format()
+            .slice(0, 10),
+          employeeName: invoice.get('talentName'),
+          status: invoice.get('status'),
+          type: invoice.get('placementType'),
+          invoiceAmount: invoice.get('amountDue'),
+          dueAmount: invoice.get('dueAmount'),
+          balance: invoice.get('balance'),
+          billingCompany: invoice.get('customerName'),
+          division: invoice.getIn(['division', 'name']),
+          divisionId: invoice.get('divisionId'),
+        });
+      });
+
+    console.log('[selector]', invoiceList);
+    return invoiceList;
+  }
+);
 
 const getHistory = (state) =>
   JSON.stringify(state.router.location.state) || '{}';
@@ -65,8 +102,6 @@ export const makeGetInvoiceList = () => {
                 if (
                   sort[0] !== 'id' &&
                   sort[0] !== 'dueAmount' &&
-                  sort[0] !== 'receivedAmount' &&
-                  sort[0] !== 'balance' &&
                   sort[0] !== 'divisionId'
                 ) {
                   a = a ? a.toLowerCase() : '';

@@ -6,7 +6,6 @@ import { withStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import { searchLocation } from '../../../../../apn-sdk/client';
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import { withTranslation } from 'react-i18next';
 const styles = {
   root: {
     width: '100%',
@@ -196,9 +195,7 @@ class Location extends React.Component {
                   disableUnderline: true,
                 }}
                 inputProps={{ ...params.inputProps, autoComplete: 'nope' }}
-                placeholder={this.props.t(
-                  'tab:Enter a city/state/country name'
-                )}
+                placeholder="Enter a city/state/country name"
                 onChange={this.fetchLocationList}
               />
             );
@@ -215,6 +212,4 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default withTranslation('tab')(
-  connect(mapStateToProps)(withStyles(styles)(Location))
-);
+export default connect(mapStateToProps)(withStyles(styles)(Location));

@@ -6,7 +6,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { withStyles } from '@material-ui/core';
 import PrimaryButton from '../../components/particial/PrimaryButton';
-import { withTranslation } from 'react-i18next';
+
 const styles = {};
 
 class MyDialog extends Component {
@@ -24,14 +24,10 @@ class MyDialog extends Component {
       SubmitBtnMsg,
       CancelBtnShow,
       SubmitBtnShow,
-      ipgViewDetail,
-      ipgDelete,
-      ipgCreate,
       CancelBtnVariant,
       SumbitBtnVariant,
       disableBackdropClick,
       creating,
-      disableEnforceFocus,
     } = this.props;
     return (
       <Dialog
@@ -43,7 +39,6 @@ class MyDialog extends Component {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
         disableBackdropClick={disableBackdropClick}
-        disableEnforceFocus={disableEnforceFocus}
       >
         <DialogTitle id="alert-dialog-title">{modalTitle}</DialogTitle>
         <DialogContent>
@@ -87,112 +82,10 @@ class MyDialog extends Component {
           ) : (
             ''
           )}
-          {ipgCreate ? (
-            <div style={{ display: 'flex' }}>
-              <Button
-                onClick={() => {
-                  this.props.handleCancel();
-                }}
-                color="primary"
-              >
-                {this.props.t('tab:Cancel')}
-              </Button>
-              <PrimaryButton
-                type="button"
-                style={{ minWidth: 100 }}
-                processing={creating}
-                name="submit"
-                onClick={() => {
-                  this.props.handleConfirm();
-                }}
-              >
-                {this.props.t('tab:Confirm')}
-              </PrimaryButton>
-            </div>
-          ) : (
-            ''
-          )}
-          {ipgDelete ? (
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                width: '100%',
-              }}
-            >
-              <div style={{ display: 'flex' }}>
-                <Button
-                  onClick={() => {
-                    this.props.handleCancelClose();
-                  }}
-                  color="primary"
-                >
-                  {this.props.t('tab:Cancel')}
-                </Button>
-                <PrimaryButton
-                  type="button"
-                  style={{ minWidth: 100, marginLeft: 147 }}
-                  processing={creating}
-                  name="submit"
-                  onClick={() => {
-                    this.props.handleCloseJob();
-                  }}
-                >
-                  {this.props.t('tab:Delete Posted Job')}
-                </PrimaryButton>
-              </div>
-              <Button
-                variant="outlined"
-                onClick={() => {
-                  this.props.handleViewDetail();
-                }}
-                color="primary"
-              >
-                {this.props.t('tab:View Job Details')}
-              </Button>
-            </div>
-          ) : (
-            ''
-          )}
-
-          {ipgViewDetail ? (
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                width: '100%',
-              }}
-            >
-              <PrimaryButton
-                type="button"
-                style={{ minWidth: 100 }}
-                processing={creating}
-                name="submit"
-                onClick={() => {
-                  this.props.handleCancel();
-                }}
-              >
-                {this.props.t('tab:Close')}
-              </PrimaryButton>
-              <Button
-                variant="outlined"
-                onClick={() => {
-                  this.props.handleViewDetail();
-                }}
-                color="primary"
-              >
-                {this.props.t('tab:View Job Details')}
-              </Button>
-            </div>
-          ) : (
-            ''
-          )}
-
-          {}
         </DialogActions>
       </Dialog>
     );
   }
 }
 
-export default withTranslation('tab')(withStyles(styles)(MyDialog));
+export default withStyles(styles)(MyDialog);

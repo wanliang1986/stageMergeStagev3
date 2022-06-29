@@ -8,7 +8,6 @@ import { showErrorMessage } from '../../../../../actions';
 import {
   selectStartToOpen,
   addStartContractRate,
-  OpenOnboarding,
 } from '../../../../../actions/startActions';
 import { mapOfferLetterParams, swichRate } from '../../../../../../utils';
 
@@ -25,8 +24,6 @@ import FormReactSelectContainer from '../../../../../components/particial/FormRe
 import SecondaryButton from '../../../../../components/particial/SecondaryButton';
 import PrimaryButton from '../../../../../components/particial/PrimaryButton';
 import FormTextArea from '../../../../../components/particial/FormTextArea';
-
-import { showOnboarding } from '../../../../../../utils/index';
 
 const rateUnitTypeOptions = [
   { label: 'Yearly', value: 'YEARLY' },
@@ -149,24 +146,6 @@ class Contract extends React.Component {
             Immutable.fromJS(this.props.start).merge(
               Immutable.fromJS({ startContractRates })
             )
-          )
-        );
-
-        let hasOnboardingBtn = showOnboarding(
-          Immutable.fromJS(this.props.start).merge(
-            Immutable.fromJS({ startContractRates })
-          )
-        );
-        dispatch(
-          OpenOnboarding(
-            Immutable.fromJS(this.props.start)
-              .merge(Immutable.fromJS(startContractRates))
-              .get('applicationId'),
-            'openStart',
-            Immutable.fromJS(this.props.start).merge(
-              Immutable.fromJS(startContractRates)
-            ),
-            hasOnboardingBtn
           )
         );
         return Immutable.fromJS(startContractRates).last().get('id');
@@ -503,7 +482,7 @@ class Contract extends React.Component {
             <div className="row expanded">
               <div className="small-6 columns">
                 <FormReactSelectContainer
-                  label={t('field:Tax Burden Rate')}
+                  label="Tax Burden Rate"
                   isRequired
                   errorMessage={t(errorMessage.get('taxBurdenRate'))}
                 >
@@ -527,7 +506,7 @@ class Contract extends React.Component {
 
               <div className="small-6 columns">
                 <FormReactSelectContainer
-                  label={t('field:MSP Rate')}
+                  label="MSP Rate"
                   isRequired
                   errorMessage={t(errorMessage.get('mspRate'))}
                 >
@@ -552,7 +531,7 @@ class Contract extends React.Component {
             <div className="row expanded">
               <div className="small-6 columns">
                 <FormReactSelectContainer
-                  label={t('field:Immigration Cost')}
+                  label="Immigration Cost"
                   isRequired
                   errorMessage={t(errorMessage.get('immigrationCost'))}
                 >

@@ -15,8 +15,6 @@ import clsx from 'clsx';
 
 import {
   getPipelineReportByCompany,
-  getPipelineReportByCompanyV2,
-  getPipelineReportByCompanyUsers,
   getPipelineReportByCompanyExcel,
   getPipelineReportByCompanyFilters,
   getJobCountries,
@@ -63,33 +61,12 @@ class Reports extends React.PureComponent {
       selectedUserCountry: '',
       countryOptions: [{ value: '', label: 'All' }],
       userOptions: [{ value: '', label: 'All' }],
-      selectedUserId: '',
       selectedJobCountry: '',
 
       loading: true,
 
       filteredIndex: Immutable.List(),
       colSortDirs: {},
-
-      roleOptions: [
-        {
-          label: 'All',
-          value: '',
-        },
-        {
-          label: 'Recruiter',
-          value: 'RECRUITER',
-        },
-        {
-          label: 'AM',
-          value: 'AM',
-        },
-        {
-          label: 'Sourcer',
-          value: 'SOURCER',
-        },
-      ],
-      selectedUserRole: '',
     };
 
     this.filteredList = Immutable.List();
@@ -97,8 +74,9 @@ class Reports extends React.PureComponent {
 
   componentDidMount() {
     this.fetchData();
+    this.fetchFilters();
     this.getJobCountriesList();
-    this.getUsersList();
+    this.getUserCountriesList();
   }
 
   getJobCountriesList = () => {
@@ -111,36 +89,11 @@ class Reports extends React.PureComponent {
       });
     });
   };
-
-  getUsersList = () => {
-    const { selectedJobCountry, range } = this.state;
-
-    range[1] = dateFns.endOfDay(range[1]);
-    const from_date = range[0].toISOString();
-    const to_date = range[1].toISOString();
-
-    let curlBody = {
-      from_date,
-      to_date,
-      selectedJobCountry,
-    };
-    this.setState({
-      userOptions: [
-        {
-          value: '',
-          label: 'All',
-        },
-      ],
-      selectedUserId: '',
-
-      selectedUserRole: '',
-    });
-    getPipelineReportByCompanyUsers(curlBody).then((res) => {
-      let arr = res.map((item, index) => {
-        return { value: item.id, label: `${item.firstName} ${item.lastName}` };
+  getUserCountriesList = () => {
+    getUserCountries().then((res) => {
+      let arr = res.response.map((item, index) => {
+        return { value: item, label: item };
       });
-
-      console.log(arr);
       this.setState({
         userOptions: this.state.userOptions.concat(arr),
       });
@@ -148,130 +101,40 @@ class Reports extends React.PureComponent {
   };
 
   fetchData = (
-    selectedUserRole,
-    selectedUserId,
+    selectedRecruiter,
+    selectedUserCountry,
     selectedJobCountry,
     blockTimerPromise = Promise.resolve()
   ) => {
-    console.log(selectedUserRole);
     const { range } = this.state;
     range[1] = dateFns.endOfDay(range[1]);
     const from_date = range[0].toISOString();
     const to_date = range[1].toISOString();
     this.candidateTask = makeCancelable(
-      getPipelineReportByCompanyV2({
+      getPipelineReportByCompany({
         from_date,
         to_date,
-        selectedUserRole,
-        selectedUserId,
+        selectedRecruiter,
+        selectedUserCountry,
         selectedJobCountry,
       })
     );
-
-    // getPipelineReportByCompany({
-    //   from_date,
-    //   to_date,
-    //   selectedRecruiter,
-    //   selectedUserCountry,
-    //   selectedJobCountry,
-    // })
     this.candidateTask.promise
       .then((data) => {
         const { colSortDirs } = this.state;
         const dataList = Immutable.fromJS(data);
-
-        let footerData = data.reduce(
-          (res, value) => {
-            if (value.appliedActivityId) {
-              res.appliedActivityId = res.appliedActivityId.union(
-                Immutable.List(value.appliedActivityId.split(','))
-              );
-            }
-            if (value.submittedActivityId) {
-              res.submittedActivityId = res.submittedActivityId.union(
-                Immutable.List(value.submittedActivityId.split(','))
-              );
-            }
-            if (value.pipelineUpdateSubmittedActivityId) {
-              res.pipelineUpdateSubmittedActivityId =
-                res.pipelineUpdateSubmittedActivityId.union(
-                  Immutable.List(
-                    value.pipelineUpdateSubmittedActivityId.split(',')
-                  )
-                );
-            }
-            if (value.interviewActivityId) {
-              res.interviewActivityId = res.interviewActivityId.union(
-                Immutable.List(value.interviewActivityId.split(','))
-              );
-            }
-            if (value.offeredActivityId) {
-              res.offeredActivityId = res.offeredActivityId.union(
-                Immutable.List(value.offeredActivityId.split(','))
-              );
-            }
-            if (value.offerAcceptedActivityId) {
-              res.offerAcceptedActivityId = res.offerAcceptedActivityId.union(
-                Immutable.List(value.offerAcceptedActivityId.split(','))
-              );
-            }
-            if (value.startedActivityId) {
-              res.startedActivityId = res.startedActivityId.union(
-                Immutable.List(value.startedActivityId.split(','))
-              );
-            }
-            return res;
-          },
-          {
-            appliedActivityId: Immutable.Set(),
-            submittedActivityId: Immutable.Set(),
-            pipelineUpdateSubmittedActivityId: Immutable.Set(),
-            interviewActivityId: Immutable.Set(),
-            offeredActivityId: Immutable.Set(),
-            offerAcceptedActivityId: Immutable.Set(),
-            startedActivityId: Immutable.Set(),
-            // candidateQuitCount: 0,
-            // clientRejectedCount: 0,
-            // offerRejectedCount: 0,
-            // shortlistedByClientCount: 0,
-          }
-        );
-        footerData = {
-          company: this.props.t('tab:Grand Total'),
-          appliedCount: footerData.appliedActivityId.size,
-          appliedActivityId: footerData.appliedActivityId.join(','),
-          submittedCount: footerData.submittedActivityId.size,
-          submittedActivityId: footerData.submittedActivityId.join(','),
-          pipelineUpdateSubmittedCount:
-            footerData.pipelineUpdateSubmittedActivityId.size,
-          pipelineUpdateSubmittedActivityId:
-            footerData.pipelineUpdateSubmittedActivityId.join(','),
-          interviewCount: footerData.interviewActivityId.size,
-          interviewActivityId: footerData.interviewActivityId.join(','),
-          offeredCount: footerData.offeredActivityId.size,
-          offeredActivityId: footerData.offeredActivityId.join(','),
-          offerAcceptedCount: footerData.offerAcceptedActivityId.size,
-          offerAcceptedActivityId: footerData.offerAcceptedActivityId.join(','),
-          startedCount: footerData.startedActivityId.size,
-          startedActivityId: footerData.startedActivityId.join(','),
-        };
-
-        console.log('footerData::::', footerData);
         let filteredIndex = getIndexList(dataList);
         const columnKey = Object.keys(colSortDirs)[0];
         if (columnKey) {
-          // const preIndex = filteredIndex.pop();
+          const preIndex = filteredIndex.pop();
           let sortDir = colSortDirs[columnKey];
-          filteredIndex = sortList(filteredIndex, dataList, columnKey, sortDir);
+          filteredIndex = sortList(preIndex, dataList, columnKey, sortDir).push(
+            preIndex.size
+          );
         }
 
         blockTimerPromise.then(() =>
-          this.setState({
-            loading: false,
-            dataList,
-            filteredIndex,
-            footerData: Immutable.Map(footerData),
-          })
+          this.setState({ loading: false, dataList, filteredIndex })
         );
       })
       .catch((reason) => {
@@ -285,21 +148,14 @@ class Reports extends React.PureComponent {
   };
 
   downloadData = () => {
-    const { range, selectedUserRole, selectedUserId, selectedJobCountry } =
-      this.state;
+    const { range } = this.state;
     range[1] = dateFns.endOfDay(range[1]);
     const from_date = range[0].toISOString();
     const to_date = range[1].toISOString();
     const { dispatch } = this.props;
 
     this.setState({ generating: true });
-    getPipelineReportByCompanyExcel({
-      from_date,
-      to_date,
-      selectedUserRole,
-      selectedUserId,
-      selectedJobCountry,
-    })
+    getPipelineReportByCompanyExcel({ from_date, to_date })
       .catch(() =>
         dispatch({
           type: ActionTypes.ADD_MESSAGE,
@@ -312,33 +168,75 @@ class Reports extends React.PureComponent {
       .finally(() => this.setState({ generating: false }));
   };
 
+  fetchFilters = () => {
+    const { range } = this.state;
+    range[1] = dateFns.endOfDay(range[1]);
+    const from_date = range[0].toISOString();
+    const to_date = range[1].toISOString();
+    const { dispatch } = this.props;
+    getPipelineReportByCompanyFilters({
+      from_date,
+      to_date,
+    }).then((filters) => {
+      this.setState({
+        recruiterOptions: [{ value: '', label: 'All' }].concat(
+          (filters.recruiterList || []).map((u) => ({
+            value: u.id,
+            label: this._formatUserName(u),
+          }))
+        ),
+      });
+    });
+  };
+
   handleDateRangeChange = (range) => {
-    const { selectedUserRole, selectedUserId, selectedJobCountry } = this.state;
+    const { selectedRecruiter, selectedUserCountry, selectedJobCountry } =
+      this.state;
     this.setState({ range }, () => {
       this.fetchData(
-        selectedUserRole,
-        selectedUserId,
+        selectedRecruiter,
+        selectedUserCountry,
         selectedJobCountry,
         this._blockTimer()
       );
-
-      this.getUsersList();
+      this.fetchFilters();
     });
+  };
+
+  handleRecruiterChange = (selectedRecruiter) => {
+    selectedRecruiter = selectedRecruiter || '';
+    this.setState({ selectedRecruiter });
+    const { selectedUserCountry, selectedJobCountry } = this.state;
+    this.fetchData(
+      selectedRecruiter,
+      selectedUserCountry,
+      selectedJobCountry,
+      this._blockTimer()
+    );
+  };
+
+  handleUserCountryChange = (selectedUserCountry) => {
+    selectedUserCountry = selectedUserCountry || '';
+    this.setState({ selectedUserCountry });
+    const { selectedRecruiter, selectedJobCountry } = this.state;
+    this.fetchData(
+      selectedRecruiter,
+      selectedUserCountry,
+      selectedJobCountry,
+      this._blockTimer()
+    );
   };
 
   handleJobCountryChange = (selectedJobCountry) => {
     selectedJobCountry = selectedJobCountry || '';
-    this.setState({ selectedJobCountry }, () => {
-      const { selectedUserRole, selectedUserId, selectedJobCountry } =
-        this.state;
-      this.fetchData(
-        selectedUserRole,
-        selectedUserId,
-        selectedJobCountry,
-        this._blockTimer()
-      );
-      this.getUsersList();
-    });
+    this.setState({ selectedJobCountry });
+    const { selectedRecruiter, selectedUserCountry } = this.state;
+    this.fetchData(
+      selectedRecruiter,
+      selectedUserCountry,
+      selectedJobCountry,
+      this._blockTimer()
+    );
   };
 
   handleClickActivityCount = ({
@@ -380,11 +278,11 @@ class Reports extends React.PureComponent {
 
   onSortChange = (columnKey, sortDir) => {
     const { filteredIndex, dataList } = this.state;
-    // const preIndex = filteredIndex.pop();
+    const preIndex = filteredIndex.pop();
 
     let indexList;
     indexList = sortDir
-      ? sortList(filteredIndex, dataList, columnKey, sortDir)
+      ? sortList(preIndex, dataList, columnKey, sortDir).push(preIndex.size)
       : getIndexList(dataList);
 
     this.setState({
@@ -397,66 +295,6 @@ class Reports extends React.PureComponent {
 
   handleCloseDialog = () => {
     this.setState({ openActivityDetail: null });
-  };
-
-  //单选role add by bill
-  handleUserRoleChange = (selectedUserRole) => {
-    console.log(selectedUserRole);
-    // 如果role选择全部 那么userId 也需要被重置
-    if (!selectedUserRole) {
-      this.setState({
-        selectedUserId: '',
-      });
-    }
-
-    this.setState(
-      {
-        selectedUserRole,
-      },
-      () => {
-        const { selectedUserRole, selectedUserId, selectedJobCountry } =
-          this.state;
-        this.fetchData(
-          selectedUserRole,
-          selectedUserId,
-          selectedJobCountry,
-          this._blockTimer()
-        );
-      }
-    );
-  };
-
-  handleUserChange = (selectedUserId) => {
-    // 如果user选择全部 则UserRole默认选择成Recruiter
-    if (!selectedUserId) {
-      this.setState({
-        selectedUserRole: '',
-      });
-    } else {
-      // 如果user 选择的不是全部 是具体的某一个人
-      // 而且selectedUserRole也为空 则自动选择默认的Role-RECRUITER
-      if (!this.state.selectedUserRole) {
-        this.setState({
-          selectedUserRole: 'RECRUITER',
-        });
-      }
-    }
-
-    this.setState(
-      {
-        selectedUserId,
-      },
-      () => {
-        const { selectedUserRole, selectedUserId, selectedJobCountry } =
-          this.state;
-        this.fetchData(
-          selectedUserRole,
-          selectedUserId,
-          selectedJobCountry,
-          this._blockTimer()
-        );
-      }
-    );
   };
 
   render() {
@@ -472,15 +310,8 @@ class Reports extends React.PureComponent {
       openActivityDetail,
       filteredIndex,
       colSortDirs,
-      range,
-
-      // role
-      roleOptions,
-      selectedUserRole,
-
-      // user
       userOptions,
-      selectedUserId,
+      range,
     } = this.state;
     const isZH = i18n.language.match('zh');
     const filteredList = filteredIndex.map((index) => dataList.get(index));
@@ -497,7 +328,7 @@ class Reports extends React.PureComponent {
       >
         <div>
           <Typography variant="h5" className="item-padding">
-            {t('tab:Pipeline Analytics by Company')}
+            {t('message:Pipeline Analytics by Company')}
           </Typography>
 
           <div
@@ -522,7 +353,21 @@ class Reports extends React.PureComponent {
                 />
               </div>
             </div>
-
+            <div>
+              <div style={{ minWidth: 168, height: 53 }}>
+                <FormReactSelectContainer label={t('field:Recruiter')}>
+                  <Select
+                    value={selectedRecruiter}
+                    options={recruiterOptions}
+                    simpleValue
+                    onChange={this.handleRecruiterChange}
+                    autoBlur={true}
+                    searchable={false}
+                    clearable={false}
+                  />
+                </FormReactSelectContainer>
+              </div>
+            </div>
             <div>
               <div style={{ minWidth: 168, height: 53 }}>
                 <FormReactSelectContainer label={t('field:Job country')}>
@@ -539,33 +384,16 @@ class Reports extends React.PureComponent {
               </div>
             </div>
 
-            {/* 新增user  */}
             <div>
               <div style={{ minWidth: 168, height: 53 }}>
-                <FormReactSelectContainer label={t('field:User')}>
+                <FormReactSelectContainer label={t('field:User Country')}>
                   <Select
-                    value={selectedUserId}
+                    value={selectedUserCountry}
                     options={userOptions}
-                    onChange={this.handleUserChange}
+                    simpleValue
+                    onChange={this.handleUserCountryChange}
                     autoBlur={true}
-                    simpleValue
-                    clearable={false}
-                  />
-                </FormReactSelectContainer>
-              </div>
-            </div>
-
-            {/* 新增 单选role select */}
-            <div>
-              <div style={{ minWidth: 150, height: 53 }}>
-                <FormReactSelectContainer label={t('field:Role')}>
-                  <Select
-                    disabled={selectedUserId ? false : true}
-                    value={selectedUserRole}
-                    options={roleOptions}
-                    simpleValue
-                    onChange={this.handleUserRoleChange}
-                    autoBlur
+                    // searchable={false}
                     clearable={false}
                   />
                 </FormReactSelectContainer>
@@ -600,7 +428,6 @@ class Reports extends React.PureComponent {
               onClickActivity={this.handleClickActivityCount}
               colSortDirs={colSortDirs}
               onSortChange={this.onSortChange}
-              footerData={this.state.footerData}
             />
           )}
         </div>

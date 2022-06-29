@@ -205,35 +205,33 @@ class CommissionsByRecruiters extends React.Component {
                 {t('nav:commission')}
               </MuiLink>
               <Typography color="inherit">
-                {t('tab:Commission by Recruiters')}
+                {t('Commission by Recruiters')}
               </Typography>
             </Breadcrumbs>
           </div>
 
           <div className="horizontal-layout align-middle">
-            <Typography variant="subtitle2">
-              {t('tab:Hire Start Date')}
-            </Typography>
+            <Typography variant="subtitle2">Hire Start Date</Typography>
             <DateRangePicker
               placement="bottomEnd"
               value={range}
               ranges={[
                 {
-                  label: t('tab:This Month'),
+                  label: 'This Month',
                   value: [
                     dateFns.startOfMonth(new Date()),
                     dateFns.endOfMonth(new Date()),
                   ],
                 },
                 {
-                  label: t('tab:This Quarter'),
+                  label: 'This Quarter',
                   value: [
                     dateFns.startOfQuarter(new Date()),
                     dateFns.endOfQuarter(new Date()),
                   ],
                 },
                 {
-                  label: t('tab:This Year'),
+                  label: 'This Year',
                   value: [
                     dateFns.startOfYear(new Date()),
                     dateFns.endOfYear(new Date()),

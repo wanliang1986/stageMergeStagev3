@@ -24,7 +24,7 @@ import Skills from './skills';
 import CandidatePrefence from './CandidatePreference';
 import EducationInfor from './educationInfor';
 import ProjectDes from './projectDes';
-import { distSelect, distSelectZh } from '../../../../../apn-sdk/newSearch';
+import { distSelect } from '../../../../../apn-sdk/newSearch';
 import { getNewOptions } from '../../../../actions/newCandidate';
 
 const styles = {
@@ -33,7 +33,6 @@ const styles = {
     overflowX: 'hidden',
     paddingRight: 8,
     flex: 1,
-    zIndex: 1, // fix scrollbar z-index while use overlay
   },
   shadowTop: {
     position: 'absolute',
@@ -102,18 +101,12 @@ class CandidateReviewForm extends React.Component {
       distSelect(65),
       distSelect(92),
       distSelect(117),
-      distSelectZh(1),
-      distSelectZh(117),
     ]).then((res) => {
       this.props.dispatch(getNewOptions(['jobFounctionList', res[0].response]));
       this.props.dispatch(getNewOptions(['languageList', res[1].response]));
       this.props.dispatch(getNewOptions(['degreeList', res[2].response]));
       this.props.dispatch(getNewOptions(['workAuthList', res[3].response]));
       this.props.dispatch(getNewOptions(['industryList', res[4].response]));
-      this.props.dispatch(
-        getNewOptions(['jobFounctionListZh', res[5].response])
-      );
-      this.props.dispatch(getNewOptions(['industryListZh', res[6].response]));
     });
   };
 
@@ -144,10 +137,7 @@ class CandidateReviewForm extends React.Component {
         return (
           <div className="vertical-layout columns">
             <div id="basicInfo"></div>
-            <Typography variant="h6">
-              {t('common:Basic Information')}
-            </Typography>
-
+            <Typography variant="h6">{'Basic Information'}</Typography>
             <BasicInfoForm
               basicInfo={candidate}
               talentFormRef={this.talentForm}
@@ -249,15 +239,15 @@ class CandidateReviewForm extends React.Component {
     let { candidate } = this.state;
     const basicForm = this.talentForm.current;
     let errorMessage = BasicInfoForm.validateForm(basicForm, this.props.t);
+    this.scrollToAnchor(errorMessage);
     if (errorMessage) {
-      this.scrollToAnchor(errorMessage);
       return this.setState({ errorMessage });
     }
+    candidate = Immutable.Map(BasicInfoForm.getTalentBasicFromForm(basicForm));
     this.setState({
       processing: true,
       checkingDuplication: true,
     });
-    candidate = Immutable.Map(BasicInfoForm.getTalentBasicFromForm(basicForm));
 
     let newCandidate = candidate.toJS();
     let contactArr = newCandidate.contacts;
@@ -294,7 +284,8 @@ class CandidateReviewForm extends React.Component {
     });
 
     // 先判断该候选人在talent库中是否存在，存在提示，不存在创建
-    searchTalentByContacts(contactArr)
+    let newContactObj = { contacts: contactArr };
+    searchTalentByContacts(newContactObj)
       .then(({ response }) => {
         if (response.length === 0) {
           this.props
@@ -380,7 +371,7 @@ class CandidateReviewForm extends React.Component {
         <Dialog open={checkingDuplication}>
           <DialogContent>
             <Loading />
-            <Typography>{t('action:Checking Duplication')}</Typography>
+            <Typography>{'Checking Duplication'}</Typography>
           </DialogContent>
         </Dialog>
         <DuplicatedTalentList

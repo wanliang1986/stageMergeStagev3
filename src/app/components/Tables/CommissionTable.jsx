@@ -14,14 +14,14 @@ import {
   style,
   HEADER_HEIGHT,
   ROW_HEIGHT,
-  HEADER_WITHFILTER_HEIGHT
+  HEADER_WITHFILTER_HEIGHT,
 } from './params';
 
 const currencyMap = {
   USD: '$',
   CNY: '¥',
   null: '',
-  undefined: ''
+  undefined: '',
 };
 
 const columns = [
@@ -31,21 +31,21 @@ const columns = [
     flexGrow: 3,
     col: 'talentName',
     fixed: true,
-    sortable: true
+    sortable: true,
   },
   {
     colName: 'jobTitle',
     colWidth: 340,
     flexGrow: 1,
     col: 'jobTitle',
-    sortable: true
+    sortable: true,
   },
   {
     colName: 'company',
     colWidth: 160,
     flexGrow: 1,
     col: 'company',
-    sortable: true
+    sortable: true,
   },
 
   {
@@ -55,7 +55,7 @@ const columns = [
     col: 'grossMargin',
     type: 'money',
     sortable: true,
-    disableSearch: true
+    disableSearch: true,
   },
   {
     colName: 'receivedAmount',
@@ -64,14 +64,14 @@ const columns = [
     col: 'receivedAmount',
     type: 'money',
     sortable: true,
-    disableSearch: true
+    disableSearch: true,
   },
 
   {
     colName: 'teamMember',
     colWidth: 220,
     flexGrow: 2,
-    col: 'teamMember'
+    col: 'companyProjectTeamUsers',
   },
   {
     colName: 'startDate',
@@ -79,18 +79,18 @@ const columns = [
     col: 'startDate',
     type: 'date',
     sortable: true,
-    disableSearch: true
-  }
+    disableSearch: true,
+  },
 ];
 
 const cellStyle = {
   fontSize: 15,
   color: '#505050',
   textTransform: 'capitalize',
-  paddingLeft: 4
+  paddingLeft: 4,
 };
 
-const CommissionCell = props => {
+const CommissionCell = (props) => {
   const { data, rowIndex, column, loadMore, ...otherprops } = props;
   const id = data.getIn([rowIndex, 'id']);
   if (!id) {
@@ -101,13 +101,13 @@ const CommissionCell = props => {
     return <Cell {...otherprops}>loading...</Cell>;
   }
 
-  if (column.col === 'teamMember') {
+  if (column.col === 'companyProjectTeamUsers') {
     const startCommissions = data.getIn([rowIndex, 'startCommissions']);
     return (
       <Cell {...otherprops} style={cellStyle}>
         <TeamMemberTooltip commissions={startCommissions} key={id}>
           {startCommissions
-            .map(c => c.get('userFullName'))
+            .map((c) => c.get('userFullName'))
             .toSet()
             .toList()
             .join()}
@@ -129,7 +129,7 @@ const CommissionCell = props => {
   if (column.col === 'jobTitle' && data.getIn([rowIndex, 'jobId'])) {
     const title = `#${data.getIn([rowIndex, 'jobId'])} - ${data.getIn([
       rowIndex,
-      column.col
+      column.col,
     ])}`;
     return (
       <Cell {...otherprops} style={cellStyle}>
@@ -155,7 +155,7 @@ class InvoiceTable extends React.PureComponent {
           return columnWidths;
         },
         {}
-      )
+      ),
     };
   }
 
@@ -167,8 +167,8 @@ class InvoiceTable extends React.PureComponent {
     this.setState(({ columnWidths }) => ({
       columnWidths: {
         ...columnWidths,
-        [columnKey]: newColumnWidth
-      }
+        [columnKey]: newColumnWidth,
+      },
     }));
   };
 
@@ -184,7 +184,7 @@ class InvoiceTable extends React.PureComponent {
       onScrollEnd,
       scrollLeft,
       scrollTop,
-      filters
+      filters,
     } = this.props;
 
     // console.log('[Invoice Table Data]', commissionList.toJS());
@@ -258,7 +258,7 @@ class InvoiceTable extends React.PureComponent {
 }
 
 InvoiceTable.propTypes = {
-  commissionList: PropTypes.instanceOf(Immutable.List).isRequired
+  commissionList: PropTypes.instanceOf(Immutable.List).isRequired,
 };
 
 export default withStyles(style)(InvoiceTable);

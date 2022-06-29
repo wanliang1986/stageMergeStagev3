@@ -1,6 +1,11 @@
 import React from 'react';
 import memoizeOne from 'memoize-one';
+import { connect } from 'react-redux';
+import PrimaryButton from '../../particial/PrimaryButton';
+
 import { getApplicationStatusLabel } from '../../../constants/formOptions';
+import { ApplicationsCancelEliminate } from '../../../../apn-sdk/newApplication';
+import { updateCancelElimanateApplication } from '../../../actions/applicationActions';
 
 import Button from '@material-ui/core/Button';
 import Popover from '@material-ui/core/Popover';
@@ -10,8 +15,8 @@ import MenuList from '@material-ui/core/MenuList';
 import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 
-import AddActivity from '../forms/AddActivity';
-import { withTranslation } from 'react-i18next';
+import AddActivityV3 from '../forms/AddActivityV3';
+
 class NextStepsButton extends React.Component {
   constructor(props) {
     super(props);
@@ -19,16 +24,35 @@ class NextStepsButton extends React.Component {
       menuOpen: false,
       formOpen: false,
       toStatus: null,
+      processing: false,
     };
     this.anchorRef = React.createRef();
   }
 
   handleOpenForm = (toStatus) => {
-    this.setState({
-      menuOpen: false,
-      formOpen: true,
-      toStatus,
-    });
+    const { application, dispatch } = this.props;
+    // 取消淘汰
+    if (toStatus === 'ELIMINATED_CANCEL') {
+      this.setState({
+        menuOpen: false,
+        processing: true,
+      });
+      dispatch(updateCancelElimanateApplication(application.get('id')))
+        .then(() => {
+          this.setState({
+            processing: false,
+          });
+        })
+        .catch((err) => {
+          throw err;
+        });
+    } else {
+      this.setState({
+        menuOpen: false,
+        formOpen: true,
+        toStatus,
+      });
+    }
   };
 
   handleOpenMenu = () => {
@@ -53,14 +77,49 @@ class NextStepsButton extends React.Component {
   };
 
   render() {
-    const { menuOpen, formOpen, toStatus } = this.state;
+    const { menuOpen, formOpen, toStatus, processing } = this.state;
     const { application, ...props } = this.props;
-    const step = getNextStepsByStatus(application.get('status'));
+    let nodeType;
+    let eliminated = application
+      .get('talentRecruitmentProcessNodes')
+      .toJS()
+      .filter((x) => x.nodeStatus === 'ELIMINATED');
+    let active = application
+      .get('talentRecruitmentProcessNodes')
+      .toJS()
+      .filter((x) => x.nodeStatus === 'ACTIVE');
+    let onBoard = application
+      .get('talentRecruitmentProcessNodes')
+      .toJS()
+      .filter((x) => x.nodeType === 'ON_BOARD');
+    if (eliminated && eliminated.length > 0) {
+      nodeType = eliminated[0];
+    } else if (active && active.length > 0) {
+      nodeType = active[0];
+    } else {
+      nodeType = onBoard[0];
+    }
+    let step;
+    if (
+      application.get('jobType') === 'PAY_ROLL' &&
+      application.get('talentRecruitmentProcessNodes').size === 2
+    ) {
+      step = getNextStepsByStatusPayroll(nodeType, application);
+    } else {
+      step = getNextStepsByStatus(nodeType, application);
+    }
     return (
       <div>
-        <Button
+        <PrimaryButton
+          processing={processing}
           color={'primary'}
-          ref={this.anchorRef}
+          style={{
+            cursor: 'pointer',
+            textAlign: 'right',
+            backgroundColor: 'rgb(0,0,0,0)',
+            color: '#3398dc',
+          }}
+          buttonRef={this.anchorRef}
           onClick={this.handleToggleMenu}
           endIcon={
             step.menu.length > 0 ? (
@@ -72,12 +131,12 @@ class NextStepsButton extends React.Component {
             ) : null
           }
         >
-          {this.props.t(
-            `tab:${getApplicationStatusLabel(
-              application.get('status')
-            ).toLowerCase()}`
+          {getApplicationStatusLabel(
+            nodeType.nodeStatus === 'ELIMINATED'
+              ? nodeType.nodeStatus
+              : nodeType.nodeType
           )}
-        </Button>
+        </PrimaryButton>
 
         {/* 下拉框内容 */}
         <Popover
@@ -100,13 +159,13 @@ class NextStepsButton extends React.Component {
                 key={option.value}
                 onClick={() => this.handleOpenForm(option.value)}
               >
-                {this.props.t(`tab:${option.label.toLowerCase()}`)}
+                {option.label}
               </MenuItem>
             ))}
           </MenuList>
         </Popover>
 
-        <AddActivity
+        <AddActivityV3
           open={formOpen}
           onClose={this.handleCloseForm}
           application={application}
@@ -119,87 +178,131 @@ class NextStepsButton extends React.Component {
   }
 }
 
-export default withTranslation('tab')(NextStepsButton);
+export default connect()(NextStepsButton);
 
-const getNextStepsByStatus = memoizeOne((status) => {
-  switch (status) {
-    case 'Applied':
-    case 'Called_Candidate':
-    case 'Meet_Candidate_In_Person':
-    // case 'Internal_Rejected':
-    case 'Qualified':
-      return {
-        menu: [
-          { value: 'Submitted', label: 'Submitted To Client' },
-          { value: 'Called_Candidate', label: 'Called Candidate' },
-          {
-            value: 'Meet_Candidate_In_Person',
-            label: 'Meet Candidate In Person',
-          },
-          { value: 'Qualified', label: 'Qualified by AM' },
-          { value: 'updateResume', label: 'Update Resume' },
-          { value: 'addNote', label: 'Add Note To Current Status' },
-          { value: 'updateUserRoles', label: 'Update User Roles' },
-          { value: 'Internal_Rejected', label: 'Rejected by AM' },
-          { value: 'Candidate_Quit', label: 'Candidate Rejected Job' },
-        ],
-      };
+const getNextStepsByStatus = memoizeOne((item, application) => {
+  //versionsFlag = true 为通用版本
+  const versionsFlag = application
+    .get('talentRecruitmentProcessNodes')
+    .toJS()
+    .some((x) => {
+      return x.nodeType === 'COMMISSION';
+    });
+  // 淘汰是一个状态  而其他是一个流程
+  if (item.nodeStatus === 'ELIMINATED') {
+    return {
+      menu: [{ value: 'ELIMINATED_CANCEL', label: '取消淘汰' }],
+    };
+  } else {
+    switch (item.nodeType) {
+      case 'SUBMIT_TO_JOB':
+        return {
+          menu: [
+            { value: 'SUBMIT_TO_CLIENT', label: '推荐至客户' },
+            { value: 'REJECTED_BY_CANDIDATE', label: '候选人拒绝' },
+            { value: 'REJECTED_BY_CLIENT', label: '客户淘汰' },
+            { value: 'INTERNAL_REJECT', label: '内部淘汰' },
+          ],
+        };
+      case 'SUBMIT_TO_CLIENT':
+        return {
+          menu: [
+            { value: 'INTERVIEW', label: '面试' },
+            { value: 'REJECTED_BY_CANDIDATE', label: '候选人拒绝' },
+            { value: 'REJECTED_BY_CLIENT', label: '客户淘汰' },
+            { value: 'INTERNAL_REJECT', label: '内部淘汰' },
+          ],
+        };
+      case 'INTERVIEW':
+        return {
+          menu: [
+            { value: 'OFFER', label: 'Offer' },
+            // 如果面试达到12轮 就不能添加面试了
+            application.get('interviews').toJS().length < 12
+              ? { value: 'INTERVIEW', label: '面试' }
+              : '',
+            { value: 'REJECTED_BY_CANDIDATE', label: '候选人拒绝' },
+            { value: 'REJECTED_BY_CLIENT', label: '客户淘汰' },
+            { value: 'INTERNAL_REJECT', label: '内部淘汰' },
+          ],
+        };
+      case 'OFFER':
+        // 普通和定制不同 普通的下一步是COMMISSION 定制的下一步是OFFER_ACCEPT
+        return {
+          menu: [
+            versionsFlag
+              ? { value: 'COMMISSION', label: '业绩分配' }
+              : { value: 'OFFER_ACCEPT', label: '接受offer' },
+            { value: 'REJECTED_BY_CANDIDATE', label: '候选人拒绝' },
+            { value: 'REJECTED_BY_CLIENT', label: '客户淘汰' },
+            { value: 'INTERNAL_REJECT', label: '内部淘汰' },
+            ,
+          ],
+        };
+      case 'OFFER_ACCEPT':
+      case 'COMMISSION':
+        return {
+          menu: [
+            { value: 'ON_BOARD', label: '入职' },
+            { value: 'REJECTED_BY_CANDIDATE', label: '候选人拒绝' },
+            { value: 'REJECTED_BY_CLIENT', label: '客户淘汰' },
+            { value: 'INTERNAL_REJECT', label: '内部淘汰' },
+          ],
+        };
+      case 'ON_BOARD':
+        return {
+          menu: [
+            { value: 'ON_BOARD', label: '更新入职信息' },
+            { value: 'REJECTED_BY_CANDIDATE', label: '候选人拒绝' },
+            { value: 'REJECTED_BY_CLIENT', label: '客户淘汰' },
+            { value: 'INTERNAL_REJECT', label: '内部淘汰' },
+          ],
+        };
+      default:
+        return {
+          menu: [],
+        };
+    }
+  }
+});
 
-    case 'Submitted':
-    case 'Shortlisted_By_Client':
-      return {
-        menu: [
-          { value: 'Interview', label: 'Interview' },
-          { value: 'Shortlisted_By_Client', label: 'Shortlisted By Client' },
-          { value: 'addNote', label: 'Add Note To Current Status' },
-          { value: 'updateCommissions', label: 'Update Commissions' },
-          { value: 'Client_Rejected', label: 'Rejected by Client' },
-          { value: 'Candidate_Quit', label: 'Candidate Rejected Job' },
-        ],
-      };
-
-    case 'Interview':
-      return {
-        menu: [
-          { value: 'Offered', label: 'Offered By Client' },
-          { value: 'Interview', label: 'Add Interview' },
-          { value: 'addNote', label: 'Add Note To Current Status' },
-          { value: 'updateCommissions', label: 'Update Commissions' },
-          { value: 'Client_Rejected', label: 'Rejected by Client' },
-          { value: 'Candidate_Quit', label: 'Candidate Rejected Job' },
-        ],
-      };
-    case 'Offered':
-      return {
-        menu: [
-          { value: 'Offer_Accepted', label: 'Offer Accepted' },
-          { value: 'Offer_Rejected', label: 'Offer Declined' },
-          { value: 'addNote', label: 'Add Note To Current Status' },
-          { value: 'updateCommissions', label: 'Update Commissions' },
-        ],
-      };
-    case 'Offer_Accepted':
-      return {
-        menu: [
-          { value: 'Offer_Accepted', label: 'Update Offer' },
-          { value: 'addNote', label: 'Add Note To Current Status' },
-          { value: 'Offer_Rejected', label: 'Offer Declined' },
-        ],
-      };
-    case 'Offer_Rejected':
-    case 'FAIL_TO_ONBOARD':
-      return {
-        menu: [
-          {
-            value: 'Offer_Accepted',
-            label: 'Offer Accepted',
-          },
-          { value: 'addNote', label: 'Add Note To Current Status' },
-        ],
-      };
-    default:
-      return {
-        menu: [],
-      };
+const getNextStepsByStatusPayroll = memoizeOne((item, application) => {
+  //versionsFlag = true 为通用版本
+  const versionsFlag = application
+    .get('talentRecruitmentProcessNodes')
+    .toJS()
+    .some((x) => {
+      return x.nodeType === 'COMMISSION';
+    });
+  // 淘汰是一个状态  而其他是一个流程
+  if (item.nodeStatus === 'ELIMINATED') {
+    return {
+      menu: [{ value: 'ELIMINATED_CANCEL', label: '取消淘汰' }],
+    };
+  } else {
+    switch (item.nodeType) {
+      case 'SUBMIT_TO_JOB':
+        return {
+          menu: [
+            { value: 'ON_BOARD', label: '入职' },
+            { value: 'REJECTED_BY_CANDIDATE', label: '候选人拒绝' },
+            { value: 'REJECTED_BY_CLIENT', label: '客户淘汰' },
+            { value: 'INTERNAL_REJECT', label: '内部淘汰' },
+          ],
+        };
+      case 'ON_BOARD':
+        return {
+          menu: [
+            { value: 'ON_BOARD', label: '更新入职信息' },
+            { value: 'REJECTED_BY_CANDIDATE', label: '候选人拒绝' },
+            { value: 'REJECTED_BY_CLIENT', label: '客户淘汰' },
+            { value: 'INTERNAL_REJECT', label: '内部淘汰' },
+          ],
+        };
+      default:
+        return {
+          menu: [],
+        };
+    }
   }
 });

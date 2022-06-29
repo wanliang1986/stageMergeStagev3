@@ -40,11 +40,10 @@ const defaultState = fromJS({
   stopFlag: false,
   statusFlag: false,
   pageModel: '',
-  orderStatus: [],
-  unSelectStatus: false,
-  filterArrIndex: [1],
-  generalTo: '',
-  candidatesIdStatus: false,
+  interviewIndex: null, //这个参数是流程当中回显看是点击的第几次面试
+  positionPageSection: [], //流程部分提交至job获取页面配置信息
+  recruitmentProcessId: null, //流程第一步通过api获取这个id
+  editFlag: false, //此时是否是编辑还是新增 true是编辑，false是新增
 });
 
 export default function (state = defaultState, action = {}) {
@@ -112,12 +111,10 @@ export default function (state = defaultState, action = {}) {
 
     case ActionTypes.NEW_CANDIDATE_DETAIL:
       return state.set('candidateDetail', action.candidateDetail);
-    case ActionTypes.BASIC_INFORMATION_DETAILS:
-      return state.set('basicInformationDetail', action.basicInformationDetail);
+
     case ActionTypes.NEW_CANDIDATE_SELECT_OPTION:
       return state.set('dialogSelectOption', action.payload);
-    case ActionTypes.ADDRES_ID:
-      return state.set('addredataId', action.id);
+
     case ActionTypes.NEW_CANDIDATE_SELECT_ID:
       return state.set('dialogSelectID', action.payload);
 
@@ -126,8 +123,6 @@ export default function (state = defaultState, action = {}) {
 
     case ActionTypes.NEW_CANDIDATE_GENERAL:
       return state.set('general', action.payload);
-    case ActionTypes.GENER_VALUE_TO:
-      return state.set('generalTo', action.payload);
     case ActionTypes.NEW_CANDIDATE_GENERAL_RESET:
       return state.set('general', '');
     case ActionTypes.NEW_CANDIDATE_RELATIONS:
@@ -166,22 +161,14 @@ export default function (state = defaultState, action = {}) {
       return state.set('addCommonPoolEmailStatus', action.payload);
     case ActionTypes.ADD_REPLACE_STATUS:
       return state.set('statusFlag', action.payload);
-    case ActionTypes.ORDER_STATES:
-      return state.set('orderStatus', action.payload);
-    case ActionTypes.ORDER_STATES_DELETE:
-      return state.set('orderStatus', []);
-    case ActionTypes.UN_SELECT_STATUS:
-      return state.set('unSelectStatus', action.payload);
-    case ActionTypes.SELECT_TO_STATUS:
-      return state.set('selectToStatus', action.payload);
-    case ActionTypes.SELECT_TO_STATUS_EMPTY:
-      return state.set('selectToStatus', []);
-    case ActionTypes.FILTER_ARR_INDEX:
-      return state.set('filterArrIndex', action.payload);
-    case ActionTypes.CANDIDATES_ID_STATUS:
-      return state.set('candidatesIdStatus', action.payload);
-    case ActionTypes.APP_LICATION_ID:
-      return state.set('applicationid', action.payload);
+    case ActionTypes.EDIT_INTERVIEW_INDEX:
+      return state.set('interviewIndex', action.payload);
+    case ActionTypes.APPLICATION_POSITION_SECTION:
+      return state.set('positionPageSection', action.payload);
+    case ActionTypes.APPLICATION_RECRUITMENTID_GET:
+      return state.set('recruitmentProcessId', action.payload);
+    case ActionTypes.APPLICATION_EDITFLAG:
+      return state.set('editFlag', action.payload);
     default:
       return state;
   }

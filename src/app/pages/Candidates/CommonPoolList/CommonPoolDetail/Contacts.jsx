@@ -16,10 +16,6 @@ import ButtonBase from '@material-ui/core/ButtonBase';
 import Avatar from '@material-ui/core/Avatar';
 import Paper from '@material-ui/core/Paper';
 import Dialog from '@material-ui/core/Dialog';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import PrimaryButton from '../../../../components/particial/PrimaryButton';
 import Typography from '@material-ui/core/Typography';
 import Snackbar from '@material-ui/core/Snackbar';
 import Person from '@material-ui/icons/Person';
@@ -35,12 +31,6 @@ import AddBoxIcon from '@material-ui/icons/AddBox';
 import LockIcon from '@material-ui/icons/Lock';
 import LockOpenIcon from '@material-ui/icons/LockOpen';
 import { WeChat, LinkedIn, Facebook } from '../../../../components/Icons';
-
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
-
-import MyDialog from '../../../../components/Dialog/myDialog';
-import AddCompanyContactsTemplate from '../../../../components/Dialog/DialogTemplates/AddCompanyContacts';
 
 const styles = {
   root: {
@@ -108,10 +98,6 @@ class CandidateContacts extends React.PureComponent {
       unLockSorryStatu: true,
       open: false,
       errmsg: '',
-      anchorEl: null,
-      addContact: false,
-      loading: false,
-      addSuccessMseesge: false,
     };
   }
   // 点击添加图标添加到candidates
@@ -141,11 +127,6 @@ class CandidateContacts extends React.PureComponent {
             type: ActionTypes.ADD_REPLACE_STATUS,
             payload: false,
           });
-
-          this.setState({
-            anchorEl: null,
-          });
-
           // let obj = {
           //   emailStatus: commonPoolStatus,
           //   id: commonPoolDetailData.esId,
@@ -155,10 +136,6 @@ class CandidateContacts extends React.PureComponent {
             .then((res) => {
               console.log('重新查询详情数据成功后的res======', res);
               let { response } = res;
-              dispatch({
-                type: ActionTypes.COMMON_POOL_DETAIL,
-                payload: response,
-              });
               // RequeryData(response);
             });
         }
@@ -272,30 +249,9 @@ class CandidateContacts extends React.PureComponent {
   JumpLinkeIn = (item) => {
     const { commonPoolDetailData } = this.props;
     if (commonPoolDetailData && commonPoolDetailData.purchased) {
-      window.open(externalUrl(item.details), '_blank');
+      const w = window.open('about:blank');
+      w.location.href = item.details;
     }
-  };
-
-  ///
-
-  open = (event) => {
-    this.setState({
-      anchorEl: event.currentTarget,
-    });
-  };
-
-  handleClose = () => {
-    this.setState({
-      anchorEl: null,
-    });
-  };
-  addCompanyContact = () => {
-    const { commonPoolDetailData } = this.props;
-    console.log(commonPoolDetailData);
-    this.setState({
-      addContact: true,
-      anchorEl: null,
-    });
   };
   render() {
     const {
@@ -305,10 +261,8 @@ class CandidateContacts extends React.PureComponent {
       detailFlag,
       creditTransactionId,
       addFlag,
-      t,
     } = this.props;
-    const { addStatu, open, errmsg, addContact, loading, addSuccessMseesge } =
-      this.state;
+    const { addStatu, open, errmsg } = this.state;
     let phoneArr = [];
     let phoneText = [];
     let emailArr = [];
@@ -331,34 +285,33 @@ class CandidateContacts extends React.PureComponent {
     emailText.push(emailArr.join(','));
     phoneText.push(phoneArr.join(','));
     return (
-      <>
-        <Paper className={classes.root}>
-          <div className="flex-container">
-            <div className="">
-              <Avatar className={classes.avatar}>
-                <Person className={classes.avatarIcon} />
-              </Avatar>
-            </div>
+      <Paper className={classes.root}>
+        <div className="flex-container">
+          <div className="">
+            <Avatar className={classes.avatar}>
+              <Person className={classes.avatarIcon} />
+            </Avatar>
+          </div>
+          <div
+            className="flex-child-auto flex-dir-column"
+            style={{ overflow: 'hidden' }}
+          >
             <div
-              className="flex-child-auto flex-dir-column"
-              style={{ overflow: 'hidden' }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
             >
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                }}
+              <Typography
+                variant="h6"
+                style={{ textTransform: 'capitalize', marginRight: '16px' }}
               >
-                <Typography
-                  variant="h6"
-                  style={{ textTransform: 'capitalize', marginRight: '16px' }}
-                >
-                  {commonPoolDetailData && commonPoolDetailData.fullName}
-                </Typography>
-                <div>
-                  <span style={{ marginRight: '5px' }}>
-                    {/* {commonPoolDetailData && commonPoolDetailData.purchased ? (
+                {commonPoolDetailData && commonPoolDetailData.fullName}
+              </Typography>
+              <Typography>
+                <span style={{ marginRight: '5px' }}>
+                  {commonPoolDetailData && commonPoolDetailData.purchased ? (
                     commonPoolDetailData.id ? (
                       <AddBoxIcon
                         style={{ color: '#a0a0a0', cursor: 'pointer' }}
@@ -379,167 +332,101 @@ class CandidateContacts extends React.PureComponent {
                     <AddBoxIcon
                       style={{ color: '#a0a0a0', cursor: 'pointer' }}
                     ></AddBoxIcon>
-                  )} */}
-                    {commonPoolDetailData && commonPoolDetailData.purchased ? (
-                      //   commonPoolDetailData.id ? (
-                      //     <AddBoxIcon
-                      //       style={{ color: '#a0a0a0', cursor: 'pointer' }}
-                      //     ></AddBoxIcon>
-                      //   ) : addFlag ? (
-                      //     <Tooltip title={'Add to “My Candidates”'}>
-                      //       <AddBoxIcon
-                      //         onClick={this.addMyCandidates}
-                      //         style={{ color: '#3598dc', cursor: 'pointer' }}
-                      //       ></AddBoxIcon>
-                      //     </Tooltip>
-                      //   ) : (
-                      //     <AddBoxIcon
-                      //       style={{ color: '#a0a0a0', cursor: 'pointer' }}
-                      //     ></AddBoxIcon>
-                      //   )
-
-                      <span>
-                        <AddBoxIcon
-                          onClick={this.open}
-                          style={{ color: '#3598dc', cursor: 'pointer' }}
-                        ></AddBoxIcon>
-                        <Menu
-                          style={
-                            commonPoolDetailData.id
-                              ? { marginTop: '72px', marginLeft: '20px' }
-                              : { marginTop: '38px', marginLeft: '20px' }
-                          }
-                          anchorEl={this.state.anchorEl}
-                          keepMounted
-                          open={Boolean(this.state.anchorEl)}
-                          onClose={this.handleClose}
-                          // anchorOrigin={{
-                          //   vertical: 'bottom',
-                          //   horizontal: 'left',
-                          // }}
-                          transformOrigin={{
-                            vertical: 'top',
-                            horizontal: 'right',
+                  )}
+                </span>
+                <span>
+                  {commonPoolDetailData && commonPoolDetailData.purchased ? (
+                    <LockOpenIcon
+                      style={{ color: '#a0a0a0', cursor: 'pointer' }}
+                    ></LockOpenIcon>
+                  ) : (
+                    <Tooltip title={'Unlock Talent Contact 1 Credit Cost'}>
+                      <LockIcon
+                        onClick={this.unlockPurchase}
+                        style={{ color: '#3598dc', cursor: 'pointer' }}
+                      ></LockIcon>
+                    </Tooltip>
+                  )}
+                </span>
+              </Typography>
+            </div>
+            <div className={classes.itemContainer}>
+              <Mail />
+              {emailText &&
+                emailText.map((item) => {
+                  return (
+                    <div style={{ width: '85%' }}>
+                      <Tooltip title={item}>
+                        <Typography
+                          style={{
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
                           }}
                         >
-                          <MenuItem
-                            disabled={commonPoolDetailData.id}
-                            onClick={() => {
-                              this.addMyCandidates();
-                            }}
-                          >
-                            Add to “My Candidates”
-                          </MenuItem>
-
-                          <MenuItem
-                            onClick={() => {
-                              this.addCompanyContact();
-                            }}
-                          >
-                            Add to “Company-Contacts”
-                          </MenuItem>
-                        </Menu>
-                      </span>
-                    ) : (
-                      <AddBoxIcon
-                        style={{ color: '#a0a0a0', cursor: 'pointer' }}
-                      ></AddBoxIcon>
-                    )}
-                  </span>
-                  <span>
-                    {commonPoolDetailData && commonPoolDetailData.purchased ? (
-                      <LockOpenIcon
-                        style={{ color: '#a0a0a0', cursor: 'pointer' }}
-                      ></LockOpenIcon>
-                    ) : (
-                      <Tooltip title={'Unlock Talent Contact 1 Credit Cost'}>
-                        <LockIcon
-                          onClick={this.unlockPurchase}
-                          style={{ color: '#3598dc', cursor: 'pointer' }}
-                        ></LockIcon>
+                          {item}
+                        </Typography>
                       </Tooltip>
-                    )}
-                  </span>
-                </div>
-              </div>
-              <div className={classes.itemContainer}>
-                <Mail />
-                {emailText &&
-                  emailText.map((item, index) => {
-                    return (
-                      <div style={{ width: '85%' }} key={index}>
-                        <Tooltip title={item}>
-                          <Typography
-                            style={{
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap',
-                            }}
-                          >
-                            {item}
-                          </Typography>
-                        </Tooltip>
-                      </div>
-                    );
-                  })}
-              </div>
-              <div className={classes.itemContainer}>
-                <Phone />
-                {phoneText &&
-                  phoneText.map((item, index) => {
-                    return (
-                      <div style={{ width: '85%' }} key={index}>
-                        <Tooltip title={item}>
-                          <Typography
-                            style={{
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap',
-                            }}
-                          >
-                            {item}
-                          </Typography>
-                        </Tooltip>
-                      </div>
-                    );
-                  })}
-              </div>
-              <div>
-                {linkedArr &&
-                  linkedArr.map((item, index) => {
-                    return (
-                      <div
-                        className={classes.itemContainer}
-                        style={{ width: '85%' }}
-                        key={'linked' + index}
-                      >
-                        <LinkedIn
+                    </div>
+                  );
+                })}
+            </div>
+            <div className={classes.itemContainer}>
+              <Phone />
+              {phoneText &&
+                phoneText.map((item) => {
+                  return (
+                    <div style={{ width: '85%' }}>
+                      <Tooltip title={item}>
+                        <Typography
                           style={{
-                            width: 16,
-                            verticalAlign: 'middle',
-                            marginLeft: '2px',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
                           }}
-                          htmlColor={'#0d77b7'}
-                        />
-                        <Tooltip title={item.contact}>
-                          <Typography
-                            style={{
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap',
-                              cursor: 'pointer',
-                            }}
-                            onClick={() => this.JumpLinkeIn(item)}
-                          >
-                            {item.contact}
-                          </Typography>
-                        </Tooltip>
-                        &nbsp;&nbsp;
-                      </div>
-                    );
-                  })}
-              </div>
-              {/* {commonPoolDetailData &&
+                        >
+                          {item}
+                        </Typography>
+                      </Tooltip>
+                    </div>
+                  );
+                })}
+            </div>
+            <div>
+              {linkedArr &&
+                linkedArr.map((item) => {
+                  return (
+                    <div
+                      className={classes.itemContainer}
+                      style={{ width: '85%' }}
+                    >
+                      <LinkedIn
+                        style={{
+                          width: 16,
+                          verticalAlign: 'middle',
+                          marginLeft: '2px',
+                        }}
+                        htmlColor={'#0d77b7'}
+                      />
+                      <Tooltip title={item.contact}>
+                        <Typography
+                          style={{
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            cursor: 'pointer',
+                          }}
+                          onClick={() => this.JumpLinkeIn(item)}
+                        >
+                          {item.contact}
+                        </Typography>
+                      </Tooltip>
+                      &nbsp;&nbsp;
+                    </div>
+                  );
+                })}
+            </div>
+            {/* {commonPoolDetailData &&
               commonPoolDetailData.contacts.map((item) => {
                 if (item.type === 'PHONE') {
                   return (
@@ -614,48 +501,10 @@ class CandidateContacts extends React.PureComponent {
                   );
                 }
               })} */}
-            </div>
-            <Snackbar open={open} message={errmsg} />
           </div>
-        </Paper>
-        <Dialog open={addContact} fullWidth maxWidth="sm">
-          <AddCompanyContactsTemplate
-            t={t}
-            handleClose={(status) => {
-              if (status) {
-                this.setState({ addContact: false, addSuccessMseesge: true });
-              } else {
-                this.setState({ addContact: false });
-              }
-            }}
-            contact={commonPoolDetailData}
-            // sendContact={(obj) => {
-            //   this.sendContact(obj);
-            // }}
-            // t={t}
-          />
-        </Dialog>
-        <Dialog open={addSuccessMseesge} fullWidth maxWidth="sm">
-          <DialogTitle>
-            {'Successfully added to “Company-Contacts”'}
-          </DialogTitle>
-          <DialogContent>
-            Now you can check this candidate in “Company-Contacts” list and edit
-            this contact.
-          </DialogContent>
-          <DialogActions>
-            <div className="horizontal-layout">
-              <PrimaryButton
-                onClick={() => {
-                  this.setState({ addSuccessMseesge: false });
-                }}
-              >
-                {t('action:close')}
-              </PrimaryButton>
-            </div>
-          </DialogActions>
-        </Dialog>
-      </>
+          <Snackbar open={open} message={errmsg} />
+        </div>
+      </Paper>
     );
   }
 }

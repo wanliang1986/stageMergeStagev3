@@ -88,7 +88,7 @@ class JobBasicForm extends React.PureComponent {
   };
 
   componentDidMount() {
-    //console.timeEnd('job form');
+    console.timeEnd('job form');
     // this.fetchClientList();
     this.fetchBriefUsersList();
     if (this.state.companyId) {
@@ -223,7 +223,7 @@ class JobBasicForm extends React.PureComponent {
   };
 
   render() {
-    //console.time('job form');
+    console.time('job form');
     const {
       t,
       classes,
@@ -303,12 +303,6 @@ class JobBasicForm extends React.PureComponent {
               label={t('field:department')}
               defaultValue={job.get('department')}
               disabled={disabled}
-              errorMessage={
-                errorMessage ? errorMessage.get('department') : null
-              }
-              onBlur={() => {
-                if (removeErrorMsgHandler) removeErrorMsgHandler('department');
-              }}
             />
           </div>
         </div>
@@ -333,7 +327,7 @@ class JobBasicForm extends React.PureComponent {
                     }}
                     simpleValue
                     disabled={disabled}
-                    placeholder={t('tab:select')}
+                    placeholder="Select category"
                     noResultsText={''}
                     autoBlur={true}
                     clearable={false}
@@ -401,11 +395,7 @@ class JobBasicForm extends React.PureComponent {
                 addressLine = item.city;
               }
               if (item.province) {
-                if (item.city) {
-                  addressLine = addressLine + ', ' + item.province;
-                } else {
-                  addressLine = item.province;
-                }
+                addressLine = addressLine + ', ' + item.province;
               }
               if (item.country) {
                 addressLine = addressLine + ', ' + item.country;

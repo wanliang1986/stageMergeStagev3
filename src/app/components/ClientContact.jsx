@@ -7,7 +7,6 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import FormReactSelectContainer from './particial/FormReactSelectContainer';
 import { connect } from 'react-redux';
 import { getClientContactArrayByCompany } from '../selectors/clientSelector';
-import { withTranslation } from 'react-i18next';
 const styles = {
   root: {
     width: '100%',
@@ -65,7 +64,7 @@ class ClientContact extends Component {
                 }}
                 color="primary"
               >
-                {this.props.t('tab:Add Contact')}
+                Add Contact
               </Button>
             </div>
           </div>
@@ -145,6 +144,4 @@ const mapStateToProps = (state, props) => {
   });
   return { clientList };
 };
-export default withTranslation('tab')(
-  connect(mapStateToProps)(withStyles(styles)(ClientContact))
-);
+export default connect(mapStateToProps)(withStyles(styles)(ClientContact));

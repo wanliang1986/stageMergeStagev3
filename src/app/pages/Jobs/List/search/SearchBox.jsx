@@ -25,15 +25,12 @@ import {
   getAdvincedFilter,
 } from '../../../../../utils/search';
 
-import { withTranslation } from 'react-i18next';
-
 const styles = {
   root: {
     borderRadius: '10px',
   },
   left_box: {
     width: '90%',
-    marginRight: 15,
     '& .list_box': {
       display: 'flex !important',
       alignItems: 'center !important',
@@ -215,7 +212,7 @@ class SearchBox extends Component {
   // 删除检索条件
   handleDelete = (data, e) => {
     let items = columns.filter((item) => {
-      return data.split(':')[0] === item.colName;
+      return data.indexOf(item.colName) > -1;
     })[0];
     this.props.dispatch(deleteFilter({ type: items.field }));
   };
@@ -405,7 +402,7 @@ class SearchBox extends Component {
                 color="primary"
                 onClick={this.handleAdvanced}
               >
-                {this.props?.t('tab:Advanced Filters')}
+                Advanced Filters
               </Button>
               <Button
                 style={{ width: '100%', height: 28 }}
@@ -413,7 +410,7 @@ class SearchBox extends Component {
                 color="primary"
                 onClick={this.handleSaved}
               >
-                {this.props?.t('tab:Saved Filters')}
+                Saved Filters
               </Button>
             </div>
           </div>
@@ -442,6 +439,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default withTranslation('tab')(
-  connect(mapStateToProps)(withStyles(styles)(SearchBox))
-);
+export default connect(mapStateToProps)(withStyles(styles)(SearchBox));

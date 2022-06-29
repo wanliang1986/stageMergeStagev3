@@ -43,7 +43,7 @@ class AddEmailBlastButton extends React.Component {
           size="small"
           onClick={() => this.setState({ openEmailBlast: true })}
         >
-          {t('tab:Add to a email blast group')}
+          {'Add to a email blast group'}
         </PotentialButton>
         <Dialog
           open={openEmailBlast}

@@ -20,6 +20,8 @@ const getUsersToJobsRelations = (state) =>
   state.relationModel.usersToJobsRelations;
 const getResumes = (state) => state.model.talentResumes;
 const getUsers = (state) => state.model.users;
+const getApplicationCommissions = (state) =>
+  state.relationModel.applicationCommissions;
 
 const getMergedApplications = createSelector(
   [
@@ -29,10 +31,21 @@ const getMergedApplications = createSelector(
     getUsers,
     getUsersToJobsRelations,
     getJobId,
+    getJobs,
   ],
-  (applications, talents, resumes, users, usersToJobsRelations, jobId) => {
+  (
+    applications,
+    talents,
+    resumes,
+    users,
+    usersToJobsRelations,
+    jobId,
+    jobs
+  ) => {
     return applications
       .map((application) => {
+        const job = jobs.get(application.get('jobId').toString());
+
         const talent = talents.get(String(application.get('talentId')));
         const sales = usersToJobsRelations
           .toList()
@@ -79,6 +92,10 @@ const getMergedApplications = createSelector(
             //         }
             //       ) + ' / year'
             //     : 'N/A',
+            filterStatus: filterItem(
+              application.get('talentRecruitmentProcessNodes')
+            ),
+            jobType: job && job.get('jobType'),
             expectedPayRate:
               talent &&
               talent.get('preferredCurrency') &&
@@ -104,6 +121,24 @@ const getMergedApplications = createSelector(
   }
 );
 
+const filterItem = (item) => {
+  let items = item && item.toJS();
+  let nodeType;
+  let eliminated = items.filter((x) => x.nodeStatus === 'ELIMINATED');
+  let active = items.filter((x) => x.nodeStatus === 'ACTIVE');
+  let onBoard = items.filter((x) => x.nodeType === 'ON_BOARD');
+  if (eliminated && eliminated.length > 0) {
+    nodeType = eliminated[0].nodeStatus;
+    return nodeType;
+  } else if (active && active.length > 0) {
+    nodeType = active[0].nodeType;
+    return nodeType;
+  } else {
+    nodeType = onBoard[0].nodeType;
+    return nodeType;
+  }
+};
+
 const getApplicationList = createSelector(
   [getJobId, getMergedApplications],
   (jobId, applications) => {
@@ -125,8 +160,9 @@ export const getApplicationListByTalent = createSelector(
     getResumes,
     getUsers,
     getCurrentTenantId,
+    getTalents,
   ],
-  (talentId, applications, jobs, resumes, users, tenantId) => {
+  (talentId, applications, jobs, resumes, users, tenantId, talents) => {
     return applications
       .filter((application) => {
         return (
@@ -136,6 +172,7 @@ export const getApplicationListByTalent = createSelector(
         );
       })
       .map((application) => {
+        const talent = talents.get(String(application.get('talentId')));
         const job = jobs.get(application.get('jobId').toString());
         return application.merge(
           Immutable.Map({
@@ -156,6 +193,7 @@ export const getApplicationListByTalent = createSelector(
             companyName: job && job.get('companyName'),
             jobType: job && job.get('jobType'),
             code: job && job.get('code'),
+            fullName: talent && talent.get('fullName'),
           })
         );
       })
@@ -230,11 +268,63 @@ export const getApplicationJobListByTalent = createSelector(
 );
 
 export const getApplicationCommissionsByApplicationId = createSelector(
-  [getApplicationId, getApplications],
-  (applicationId, getApplications) => {
-    return getApplications.getIn([
-      String(applicationId),
-      'applicationCommissions',
-    ]);
+  [getApplicationId, getApplicationCommissions],
+  (applicationId, applicationCommissions) => {
+    return applicationCommissions
+      .filter((ac) => ac.get('applicationId') === applicationId)
+      .toList();
+  }
+);
+
+export const getApplicationPositionListByTalent = createSelector(
+  [getTalentId, getApplications, getJobs, getUsers, getCurrentTenantId],
+  (talentId, applications, jobs, users, tenantId) => {
+    return applications
+      .filter((application) => {
+        return (
+          application.get('status') !== 'Watching' &&
+          application.get('talentId') === Number(talentId) &&
+          application.get('tenantId') === tenantId
+        );
+      })
+      .map((application) => {
+        const job = jobs.get(application.get('jobId').toString());
+        return application.merge(
+          Immutable.Map({
+            user: formatUserName(users.get(String(application.get('userId')))),
+            applyToUser: formatUserName(
+              users.get(String(application.get('applyToUserId')))
+            ),
+            lastModifiedUser: formatUserName(
+              users.get(String(application.get('lastModifiedUser')))
+            ),
+            createdDate: application.get('createdDate'),
+            lastModifiedDate: application.get('lastModifiedDate'),
+            jobId: application.get('jobId'),
+            title: job && job.get('title'),
+            company: job && job.get('company'),
+            companyName: job && job.get('companyName'),
+            jobType: job && job.get('jobType'),
+            code: job && job.get('code'),
+            assignedUsers: job && job.get('assignedUsers'),
+            jobStatus: job && job.get('status'),
+          })
+        );
+      })
+      .sortBy(
+        (application) => application.get('lastModifiedDate'),
+        (a, b) => {
+          if (a < b) {
+            return 1;
+          }
+          if (a > b) {
+            return -1;
+          }
+          if (a === b) {
+            return 0;
+          }
+        }
+      )
+      .toList();
   }
 );

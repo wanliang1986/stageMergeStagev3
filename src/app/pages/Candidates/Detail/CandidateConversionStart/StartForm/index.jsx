@@ -278,10 +278,10 @@ class StartForm extends React.Component {
             <div className="row expanded">
               <Typography
                 variant="subtitle1"
-                style={{ margin: '10px 0', flexGrow: 1, width: '500px' }}
+                style={{ margin: '10px 0', flexGrow: 1 }}
               >
-                <span style={{ fontWeight: 550 }}>{t('tab:Invoice Info')}</span>
-                ({t('tab:invoiceTip')})
+                <span style={{ fontWeight: 550 }}>Invoice Info </span>
+                (Input by AM. The information will be displayed on the invoice.)
               </Typography>
               <div className="small-6 columns">
                 <FormInput
@@ -291,7 +291,7 @@ class StartForm extends React.Component {
                     start.startClientInfo && start.startClientInfo.clientName
                   }
                   name="clientName"
-                  label={t('tab:Client Name')}
+                  label={'Client Name'}
                   isRequired
                   onChange={() => this._removeErrorMsgHandler('clientName')}
                 />
@@ -304,7 +304,7 @@ class StartForm extends React.Component {
                     start.startClientInfo.clientDivision
                   }
                   name="clientDivision"
-                  label={t('tab:Client Division')}
+                  label={'Client Division'}
                 />
               </div>
             </div>
@@ -318,7 +318,7 @@ class StartForm extends React.Component {
                     start.startClientInfo && start.startClientInfo.clientAddress
                   }
                   name="clientAddress"
-                  label={t('tab:Client Address')}
+                  label={'Client Address'}
                   onChange={(e) => this._removeErrorMsgHandler('clientAddress')}
                   isRequired
                 />

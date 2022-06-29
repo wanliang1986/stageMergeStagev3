@@ -19,13 +19,12 @@ import SearchIcon from '@material-ui/icons/Search';
 import TablePagination from '@material-ui/core/TablePagination';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
-import ClearIcon from '@material-ui/icons/Clear';
 import Chip from '@material-ui/core/Chip';
 import Tooltip from '@material-ui/core/Tooltip';
 import Popover from '@material-ui/core/Popover';
+import ClearIcon from '@material-ui/icons/Clear';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
-
 import AddApplicationForm from '../../../components/applications/forms/AddApplicationForm';
 import Loading from '../../../components/particial/Loading';
 import SecondaryButton from '../../../components/particial/SecondaryButton';
@@ -37,7 +36,7 @@ import {
   getCandidateColumns,
   saveCandidateColumns,
 } from '../../../../apn-sdk';
-import { distSelect, distSelectZh } from '../../../../apn-sdk/newSearch';
+import { distSelect } from '../../../../apn-sdk/newSearch';
 
 import { showErrorMessage } from '../../../actions';
 import {
@@ -63,6 +62,7 @@ import ArrCell from '../../Candidates/newList/table/arrCell';
 import CurrLocationCell from '../../Candidates/newList/table/currLocation';
 import PerferLocationCell from '../../Candidates/newList/table/preferLocation';
 import ContactCell from '../../Candidates/newList/table/contact';
+import { Divider } from 'rsuite';
 
 const styles = {
   loadingBackground: {
@@ -234,7 +234,6 @@ class ApplyTalent extends Component {
       gridApi: null,
       gridColumnApi: null,
       selected: null,
-      general: null,
     };
   }
 
@@ -281,10 +280,6 @@ class ApplyTalent extends Component {
         size: nextProps.sizes - 0,
       });
     }
-    if (nextProps.general !== this.state.general)
-      this.setState({
-        general: nextProps.general,
-      });
   }
 
   componentWillMount() {
@@ -390,8 +385,6 @@ class ApplyTalent extends Component {
       distSelect(65),
       distSelect(92),
       distSelect(117),
-      distSelectZh(1),
-      distSelectZh(117),
     ]).then((res) => {
       let briefUsers = this.props.briefUsers;
       this.props.dispatch(getNewOptions(['jobFounctionList', res[0].response]));
@@ -399,10 +392,6 @@ class ApplyTalent extends Component {
       this.props.dispatch(getNewOptions(['degreeList', res[2].response]));
       this.props.dispatch(getNewOptions(['workAuthList', res[3].response]));
       this.props.dispatch(getNewOptions(['industryList', res[4].response]));
-      this.props.dispatch(
-        getNewOptions(['jobFounctionListZh', res[5].response])
-      );
-      this.props.dispatch(getNewOptions(['industryListZh', res[6].response]));
       this.props.dispatch(getNewOptions(['allUserOptions', briefUsers]));
     });
   };
@@ -641,15 +630,26 @@ class ApplyTalent extends Component {
       filterStr,
       columns,
       selected,
-      general,
     } = this.state;
+    // console.log(headerList);
     return (
       <div
         className="flex-child-auto flex-container flex-dir-column "
         style={{ overflow: 'hidden' }}
       >
-        <DialogTitle>{t('common:applyCandidates')}</DialogTitle>
-
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <DialogTitle>
+            {/* {t('common:applyCandidates')} */}
+            {'添加候选人'}
+          </DialogTitle>
+          <ClearIcon style={{ marginRight: 30 }} onClick={this.handleCancel} />
+        </div>
         {this.state.stepIndex === 0 ? (
           <div
             style={{
@@ -671,26 +671,18 @@ class ApplyTalent extends Component {
                   marginTop: 2,
                   marginBottom: 15,
                 }}
-                value={general}
-                onChange={(e) => {
-                  this.setState({
-                    general: e.target.value,
-                  });
-                }}
                 size="small"
                 variant="outlined"
-                placeholder={this.props.t('tab:Search Candidates')}
+                placeholder="Search Candidates"
                 startAdornment={
                   <InputAdornment color="disabled" position="start">
                     <SearchIcon style={{ fontSize: 18 }} />
                   </InputAdornment>
                 }
               />
-              <span onClick={this.handleShow} style={{ ...styles.show }}>
-                {showFilter
-                  ? this.props?.t('tab:Hide Filters')
-                  : this.props?.t('tab:Show Filters')}
-              </span>
+              {/* <span onClick={this.handleShow} style={{ ...styles.show }}>
+                {showFilter ? 'Hide Filters' : 'Show Filters'}
+              </span> */}
             </div>
             {showFilter ? (
               <div className={classes.list_box}>
@@ -987,7 +979,7 @@ class ApplyTalent extends Component {
                       );
                     }
                   })}
-                  <AgGridColumn
+                  {/* <AgGridColumn
                     resizable={true}
                     // headerTooltip={item.label}
                     width="60"
@@ -998,7 +990,7 @@ class ApplyTalent extends Component {
                       onChangeSetting: this.onChangeSetting,
                     }}
                     pinned="right"
-                  />
+                  /> */}
                 </AgGridReact>
               </div>
             )}
@@ -1015,7 +1007,9 @@ class ApplyTalent extends Component {
         ) : (
           <DialogContent>
             <AddApplicationForm
+              style={{ color: 'red' }}
               talentId={selected}
+              talentDetail={this.state.talentDetail}
               jobId={jobId}
               t={t}
               onSubmit={this.beforeApply}
@@ -1054,7 +1048,7 @@ class ApplyTalent extends Component {
                 type="submit"
                 form="applicationForm"
               >
-                {t('action:apply')}
+                {'确认'}
               </PrimaryButton>
             )}
           </div>
@@ -1105,7 +1099,6 @@ function mapStoreStateToProps(state, { jobId }) {
     types: state.controller.newCandidateJob.toJS().searchLevel,
     loading: state.controller.newCandidateJob.toJS().loading,
     briefUsers: state.controller.newCandidateJob.toJS().dialogAllUser,
-    general: state.controller.newCandidateJob.toJS().general,
   };
 }
 

@@ -3,18 +3,25 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Immutable from 'immutable';
 import { makeCancelable, getMemoFromApplication } from '../../../../utils';
-import { getTalentOwnerships } from '../../../actions/talentActions';
+import {
+  getResumesByTalentId,
+  addResume,
+  getTalentOwnerships,
+  uploadResumeOnly,
+} from '../../../actions/talentActions';
 import { getJob } from '../../../actions/jobActions';
 import {
   updateApplication2,
   updateDashboardApplStatus,
 } from '../../../actions/applicationActions';
 import { showErrorMessage } from '../../../actions';
+import { getTalentResumeArray } from '../../../selectors/talentResumeSelector';
 
 import {
   userTypeForCommission as userTypeOptions,
   USER_TYPES,
   getApplicationStatusLabel,
+  canUpdateResume,
   currency as currencyOptions,
 } from '../../../constants/formOptions';
 
@@ -25,13 +32,16 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 
+import ViewResume from '@material-ui/icons/RemoveRedEye';
+
 import FormReactSelectContainer from '../../particial/FormReactSelectContainer';
 import PrimaryButton from '../../particial/PrimaryButton';
 import SecondaryButton from '../../particial/SecondaryButton';
+import PotentialButton from '../../particial/PotentialButton';
 import FormTextArea from '../../particial/FormTextArea';
 import ApplicationInfo from '../views/ApplicationInfo';
+import ViewResumeInAddActivity from '../../forms/AddActivity/ViewResumeInAddActivity';
 import Loading from '../../particial/Loading';
-import ResumeSelector from './ResumeSelector';
 
 // add by bill
 import FormInput from '../../particial/FormInput';
@@ -77,13 +87,16 @@ class SubmittedFrom extends Component {
   constructor(props) {
     super(props);
 
-    const { application, amList, currentUserId } = props;
+    const { application, resumes, amList, currentUserId } = props;
 
     this.state = {
       errorMessage: Immutable.Map(),
-      currency: application.getIn(['agreedPayRate', 'currency']) || null,
+      selectedResume: resumes.find(
+        (value) => value.id === application.get('resumeId')
+      ),
+      currency: application.getIn(['agreedPayRate', 'currency']) || 'USD',
       rateUnitType:
-        application.getIn(['agreedPayRate', 'rateUnitType']) || null,
+        application.getIn(['agreedPayRate', 'rateUnitType']) || 'HOURLY',
       agreedPayRate:
         application.getIn(['agreedPayRate', 'agreedPayRate']) < 0
           ? ''
@@ -104,8 +117,13 @@ class SubmittedFrom extends Component {
   }
 
   componentDidMount() {
-    const { dispatch, activityFromJob, application, currentUserId } =
-      this.props;
+    const {
+      dispatch,
+      activityFromJob,
+      activityFromTalent,
+      application,
+      currentUserId,
+    } = this.props;
 
     // add by bill 为了获取applicationList。。。。
     this.commissionTask = makeCancelable(
@@ -145,12 +163,27 @@ class SubmittedFrom extends Component {
         });
       });
     }
+    if (!activityFromTalent) {
+      this.resumeTask = makeCancelable(
+        dispatch(getResumesByTalentId(application.get('talentId')))
+      );
+      this.resumeTask.promise.then(() => {
+        this.setState({
+          selectedResume: this.props.resumes.find(
+            (value) => value.id === application.get('resumeId')
+          ),
+        });
+      });
+    }
   }
 
   componentWillUnmount() {
     this.commissionTask.cancel();
     if (this.amTask) {
       this.amTask.cancel();
+    }
+    if (this.resumeTask) {
+      this.resumeTask.cancel();
     }
   }
 
@@ -164,10 +197,45 @@ class SubmittedFrom extends Component {
     });
   };
 
+  handleResumeUpload = (e) => {
+    const fileInput = e.target;
+    const resumeFile = fileInput.files[0];
+    const {
+      dispatch,
+      application: { talentId },
+    } = this.props;
+    if (resumeFile) {
+      fileInput.value = '';
+      this.setState({ uploading: true });
+      dispatch(uploadResumeOnly(resumeFile))
+        .then((response) => {
+          response.talentId = this.props.application.toJS().talentId;
+          return dispatch(addResume(response));
+        })
+        .then(() => {
+          this.setState({
+            selectedResume: this.props.resumes[0],
+          });
+        })
+        .catch((err) => dispatch(showErrorMessage(err)))
+        .finally(() => {
+          this.setState({ uploading: false });
+        });
+    }
+  };
+
+  showResume = () => {
+    this.setState({ showResume: true });
+  };
+
+  closeViewResume = () => {
+    this.setState({ showResume: false });
+  };
+
   submitAddCandidateActivity = (e) => {
     e.preventDefault();
-    const applicationForm = e.target;
     const {
+      selectedResume,
       note,
       applicationCommissions,
       owner,
@@ -186,23 +254,20 @@ class SubmittedFrom extends Component {
       dmList,
       acList,
       application,
-      canSkipSubmitToAM,
     } = this.props;
 
     const activity = {
       status: formType,
-      resumeId: applicationForm.resumeId.value || null,
+      resumeId: selectedResume && selectedResume.id,
       memo: note,
     };
-    if (agreedPayRate || currency || rateUnitType) {
-      activity.agreedPayRate = {
-        currency,
-        rateUnitType,
-        agreedPayRate: agreedPayRate ? Number(agreedPayRate) : null,
-      };
-    } else {
-      activity.agreedPayRate = null;
-    }
+    // if (currency && rateUnitType && agreedPayRate) {
+    activity.agreedPayRate = {
+      currency,
+      rateUnitType,
+      agreedPayRate: agreedPayRate ? Number(agreedPayRate) : -1,
+    };
+    // }
     const userOptions = {
       [USER_TYPES.Sourcer]: userList,
       [USER_TYPES.Recruiter]: userList,
@@ -231,8 +296,7 @@ class SubmittedFrom extends Component {
       activity,
       t,
       filteredApplicationCommissions,
-      owner.length > 0,
-      canSkipSubmitToAM
+      owner.length > 0
     );
     if (errorMessage) {
       return this.setState({ errorMessage });
@@ -241,11 +305,11 @@ class SubmittedFrom extends Component {
     const isAm = filteredApplicationCommissions.find(
       (el) => el.userId === currentUserId && el.userRole === USER_TYPES.AM
     );
-    // if (!isAm) {
-    //   return this.props.dispatch(
-    //     showErrorMessage('Only Am can submit to client')
-    //   );
-    // }
+    if (!isAm) {
+      return this.props.dispatch(
+        showErrorMessage('Only Am can submit to client')
+      );
+    }
     this.setState({ processing: true });
     activity.applicationCommissions = filteredApplicationCommissions;
 
@@ -270,13 +334,7 @@ class SubmittedFrom extends Component {
     });
   };
 
-  _validateForm = (
-    activityObject,
-    t,
-    commissions,
-    hasOwner,
-    canSkipSubmitToAM
-  ) => {
+  _validateForm = (activityObject, t, commissions, hasOwner) => {
     let errorMessage = Immutable.Map();
 
     const am = commissions.find((c) => c.userRole === USER_TYPES.AM);
@@ -308,35 +366,6 @@ class SubmittedFrom extends Component {
       errorMessage = errorMessage.set(
         'commissionPct',
         t('message:Each commission should be greater than 0%')
-      );
-    }
-
-    if (
-      activityObject.agreedPayRate &&
-      activityObject.agreedPayRate.agreedPayRate === 0
-    ) {
-      errorMessage = errorMessage.set(
-        'agreedPayRate',
-        t('message:The amount of agreed pay rate cannot be 0')
-      );
-    }
-    if (
-      activityObject.agreedPayRate &&
-      (!activityObject.agreedPayRate.currency ||
-        !activityObject.agreedPayRate.rateUnitType ||
-        (activityObject.agreedPayRate.agreedPayRate !== 0 &&
-          !activityObject.agreedPayRate.agreedPayRate))
-    ) {
-      errorMessage = errorMessage.set(
-        'agreedPayRate',
-        t('message:The agreed pay rate part is incomplete')
-      );
-    }
-
-    if (canSkipSubmitToAM && !activityObject.agreedPayRate) {
-      errorMessage = errorMessage.set(
-        'agreedPayRate',
-        t('message:The agreed pay rate is required')
       );
     }
 
@@ -608,22 +637,22 @@ class SubmittedFrom extends Component {
   };
 
   handleDropDownChange = (key) => (value) => {
-    if (value !== this.state[key]) {
+    if (value && value !== this.state[key]) {
       this.setState({ [key]: value });
-      this._removeErrorMsgHandler('agreedPayRate');
     }
   };
 
   handleNumberChange = (key) => (values) => {
     this.setState({ [key]: values.value });
-    this._removeErrorMsgHandler('agreedPayRate');
   };
 
   render() {
-    const { t, cancelAddActivity, application, formType, canSkipSubmitToAM } =
-      this.props;
+    const { t, cancelAddActivity, resumes, application, formType } = this.props;
 
     const {
+      showResume,
+      uploading,
+      selectedResume,
       currency,
       rateUnitType,
       agreedPayRate,
@@ -638,12 +667,20 @@ class SubmittedFrom extends Component {
       return <Loading />;
     }
 
+    if (showResume) {
+      return (
+        <ViewResumeInAddActivity
+          resume={Immutable.fromJS(selectedResume)}
+          t={t}
+          close={this.closeViewResume}
+        />
+      );
+    }
+
     return (
       <Fragment>
         {/* 标题 */}
-        <DialogTitle>
-          {t(`tab:${getApplicationStatusLabel(formType).toLowerCase()}`)}
-        </DialogTitle>
+        <DialogTitle>{getApplicationStatusLabel(formType)}</DialogTitle>
 
         {/* 表单内容 */}
         <DialogContent>
@@ -674,8 +711,7 @@ class SubmittedFrom extends Component {
                 <div className="columns">
                   <FormReactSelectContainer
                     label={t('field:agreedPayRate')}
-                    errorMessage={!!errorMessage.get('agreedPayRate')}
-                    isRequired={canSkipSubmitToAM}
+                    errorMessage={errorMessage.get('agreedPayRate')}
                   />
                 </div>
               </div>
@@ -703,7 +739,7 @@ class SubmittedFrom extends Component {
                   <FormReactSelectContainer>
                     <Select
                       labelKey={'label2'}
-                      clearable={true}
+                      clearable={false}
                       // disabled={edit}
                       value={currency}
                       options={currencyOptions}
@@ -717,13 +753,13 @@ class SubmittedFrom extends Component {
                 <div className="columns">
                   <FormReactSelectContainer>
                     <Select
-                      clearable={true}
+                      clearable={false}
                       // disabled={edit}
                       value={rateUnitType}
                       simpleValue
                       options={rateUnitTypeOptions}
                       onChange={this.handleDropDownChange('rateUnitType')}
-                      placeholder={t('field:Rate Unit Type')}
+                      placeholder={'Rate Unit Type'}
                     />
                   </FormReactSelectContainer>
                   <input
@@ -733,30 +769,65 @@ class SubmittedFrom extends Component {
                   />
                 </div>
               </div>
-              {errorMessage && errorMessage.get('agreedPayRate') ? (
+
+              <div className="row expanded">
                 <div className="columns">
-                  <div
-                    style={{
-                      color: '#cc4b37',
-                      fontWeight: 'bold',
-                      fontSize: '0.75rem',
-                      transform: `translateY(-8px)`,
-                    }}
+                  <FormReactSelectContainer
+                    label={t('field:resume')}
+                    errorMessage={errorMessage.get('resumeId')}
+                    icon={
+                      selectedResume ? (
+                        <ViewResume
+                          onClick={this.showResume}
+                          style={{ cursor: 'pointer' }}
+                        />
+                      ) : null
+                    }
                   >
-                    {errorMessage.get('agreedPayRate')}
+                    <Select
+                      name="resumeSelect"
+                      valueKey={'id'}
+                      labelKey={'name'}
+                      value={selectedResume}
+                      onChange={this.handleResumeChange}
+                      options={resumes}
+                      searchable={false}
+                      autoBlur={true}
+                      clearable={false}
+                      onFocus={() => this._removeErrorMsgHandler('resumeId')}
+                    />
+                  </FormReactSelectContainer>
+                  <input
+                    type="hidden"
+                    name="resumeId"
+                    value={selectedResume ? selectedResume.id : ''}
+                  />
+                </div>
+
+                <div style={{ width: 160 }}>
+                  <div className="columns">
+                    {canUpdateResume(application.get('status')) && (
+                      <PotentialButton
+                        component="label"
+                        size="small"
+                        style={{
+                          marginTop: 21,
+                        }}
+                        fullWidth
+                        processing={uploading}
+                        onChange={this.handleResumeUpload}
+                      >
+                        {t('action:uploadResume')}
+                        <input
+                          key="resume"
+                          type="file"
+                          style={{ display: 'none' }}
+                        />
+                      </PotentialButton>
+                    )}
                   </div>
                 </div>
-              ) : null}
-
-              <ResumeSelector
-                key={application.get('talentId')}
-                t={t}
-                isTalentDetail={this.props.activityFromTalent}
-                talentId={application.get('talentId')}
-                resumeId={application.get('resumeId')}
-                errorMessage={errorMessage}
-                removeErrorMessage={this._removeErrorMsgHandler}
-              />
+              </div>
               <div className="row expanded">
                 <div className="small-12 columns">
                   <FormTextArea
@@ -802,19 +873,14 @@ SubmittedFrom.propTypes = {
 };
 
 const mapStoreStateToProps = (state, { application }) => {
-  const job = state.model.jobs.get(String(application.get('jobId')));
-  const companyId = job && job.get('companyId');
-  const canSkipSubmitToAM = !!state.model.skimSubmitToAMCompanies.get(
-    String(companyId)
-  );
   return {
+    resumes: getTalentResumeArray(state, application.get('talentId')),
     currentUserId: state.controller.currentUser.get('id'),
 
     userList: getTenantUserArray(state),
     amList: getActiveAMArray(state, application.get('jobId')),
     acList: getACArray(state, application.get('jobId')),
     dmList: getDMArray(state, application.get('jobId')),
-    canSkipSubmitToAM,
   };
 };
 

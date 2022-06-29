@@ -168,14 +168,8 @@ class Details extends React.Component {
   };
 
   render() {
-    const {
-      emailBlastId,
-      emailBlast,
-      recipientList,
-      t,
-      classes,
-      ...props
-    } = this.props;
+    const { emailBlastId, emailBlast, recipientList, t, classes, ...props } =
+      this.props;
 
     console.log('props', this.props);
 

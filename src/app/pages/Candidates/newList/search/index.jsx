@@ -31,7 +31,6 @@ import {
 } from '../../../../../utils/search';
 import { columns } from '../../../../../utils/newCandidate';
 import loadsh from 'lodash';
-import { withTranslation } from 'react-i18next';
 
 const styles = {
   root: {
@@ -42,7 +41,6 @@ const styles = {
   },
   left_box: {
     width: '90%',
-    marginRight: 15,
     '& .list_box': {
       display: 'flex !important',
       alignItems: 'center !important',
@@ -290,10 +288,6 @@ class SearchBox extends Component {
   // 清除检索条件
   handleClearAll = () => {
     this.props.dispatch(resetSearchValue());
-    // this.props.dispatch({
-    //   type: ActionTypes.UN_SELECT_STATUS,
-    //   payload: false,
-    // });
     console.log('--------------清空filter接口调用');
   };
 
@@ -521,7 +515,7 @@ class SearchBox extends Component {
                 color="primary"
                 onClick={this.handleAdvanced}
               >
-                {this.props?.t('tab:Advanced Filters')}
+                Advanced Filters
               </Button>
               <Button
                 style={{ width: '100%', height: 28 }}
@@ -529,7 +523,7 @@ class SearchBox extends Component {
                 color="primary"
                 onClick={this.handleSaved}
               >
-                {this.props?.t('tab:Saved Filters')}
+                Saved Filters
               </Button>
             </div>
           </div>
@@ -559,6 +553,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default withTranslation('tab')(
-  connect(mapStateToProps)(withStyles(styles)(SearchBox))
-);
+export default connect(mapStateToProps)(withStyles(styles)(SearchBox));

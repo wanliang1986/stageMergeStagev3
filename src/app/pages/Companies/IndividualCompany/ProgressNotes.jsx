@@ -23,14 +23,14 @@ const styles = {
   },
 };
 const contactTypeList = [
-  { value: 'AD Call', label: 'AD Call' },
-  { value: 'Client Visit', label: 'Client Visit' },
-  { value: 'Skill Marketing/MPC', label: 'Skill Marketing/MPC' },
-  { value: 'Follow up Call/Email', label: 'Follow up Call/Email' },
-  { value: 'Reference Call', label: 'Reference Call' },
-  { value: 'Networking Conference', label: 'Networking Conference' },
-  { value: 'Proposal/Presentation', label: 'Proposal/Presentation' },
-  { value: 'Procurement', label: 'Procurement' },
+  { value: 'AD_CALL', label: 'AD Call' },
+  { value: 'CLIENT_VISIT', label: 'Client Visit' },
+  { value: 'SKILL_MARKETING_MPC', label: 'Skill Marketing/MPC' },
+  { value: 'FOLLOWUP_CALL_EMAIL', label: 'Follow up Call/Email' },
+  { value: 'REFERENCE_CALL', label: 'Reference Call' },
+  { value: 'NETWORKING_CONFERENCE', label: 'Networking Conference' },
+  { value: 'PROPOSAL_PRESENTATION', label: 'Proposal/Presentation' },
+  { value: 'PROCUREMENT', label: 'Procurement' },
 ];
 
 class ProgressNotes extends Component {
@@ -95,10 +95,10 @@ class ProgressNotes extends Component {
   _validateForm = (form, t) => {
     let errorMessage = Immutable.Map();
 
-    if (!form.contactName) {
+    if (!form.clientContactName) {
       errorMessage = errorMessage.set('name', t('message:Name Is Invalid'));
     }
-    if (!form.contactCategory) {
+    if (!form.contactCategoryType) {
       errorMessage = errorMessage.set(
         'contactCategory',
         t('message:Contact Category Is Invalid')
@@ -131,12 +131,13 @@ class ProgressNotes extends Component {
   primary = () => {
     let progressNoteDTO = {
       clientContactId: this.state.clientContactId,
-      contactCategory: this.state.contactCategory,
-      contactName: this.state.contactName,
+      contactCategoryType: this.state.contactCategory,
+      clientContactName: this.state.contactName,
       contactType: this.state.contactType,
       contactDate: this.state.contactDate,
       note: this.state.note,
       otherCategory: this.state.otherCategory,
+      companyId: this.state.companyId,
     };
     const { t } = this.props;
     let errorMessage = this._validateForm(progressNoteDTO, t);
@@ -144,22 +145,20 @@ class ProgressNotes extends Component {
       return this.setState({ errorMessage });
     }
     this.setState({ creating: true });
-    this.props
-      .dispatch(postProgressNotes(this.state.companyId, progressNoteDTO))
-      .then((res) => {
-        this.setState({
-          openDialog: false,
-          creating: false,
-          clientContactId: null,
-          contactCategory: null,
-          contactName: null,
-          contactType: null,
-          contactDate: null,
-          note: null,
-          otherCategory: null,
-        });
-        this.fetchData(this.state.companyId, this.state.contactId);
+    this.props.dispatch(postProgressNotes(progressNoteDTO)).then((res) => {
+      this.setState({
+        openDialog: false,
+        creating: false,
+        clientContactId: null,
+        contactCategory: null,
+        contactName: null,
+        contactType: null,
+        contactDate: null,
+        note: null,
+        otherCategory: null,
       });
+      this.fetchData(this.state.companyId, this.state.contactId);
+    });
   };
   getName = (name) => {
     this.setState({
@@ -202,7 +201,7 @@ class ProgressNotes extends Component {
                 this.setState({ openDialog: true });
               }}
             >
-              {t('tab:Create BD Progress Notes')}
+              Create BD Progress Notes
             </Button>
           </div>
           <div className="small-2 columns" style={{ marginLeft: '20px' }}>
@@ -211,7 +210,7 @@ class ProgressNotes extends Component {
               onChange={(name) => {
                 this.selectClientContact(name);
               }}
-              placeholder={t('tab:Select Client Contact')}
+              placeholder={'Select Client Contact'}
               value={this.state.contact}
               options={contactList}
               valueKey={'name'}
@@ -231,12 +230,12 @@ class ProgressNotes extends Component {
           btnShow={true}
           show={openDialog}
           creating={creating}
-          modalTitle={t('tab:Create BD Progress Notes')}
+          modalTitle={`Create Progress Notes`}
           SubmitBtnShow={true}
-          SubmitBtnMsg={t('tab:Create')}
+          SubmitBtnMsg={'Create'}
           SumbitBtnVariant={'contained'}
           CancelBtnShow={true}
-          CancelBtnMsg={t('tab:Cancel')}
+          CancelBtnMsg={'Cancel'}
           CancelBtnVariant={''}
           primary={() => {
             this.primary();

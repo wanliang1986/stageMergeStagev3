@@ -4,15 +4,9 @@ import { createSelector } from 'reselect';
 // const getCurrentUser = (state) => state.controller.currentUser;
 const getDivisions = (state) => state.model.divisions;
 
-export const getDivisionList = createSelector(
-    [getDivisions],
-    (divisions) => {
-        console.log('division selector');
-        return divisions
-            .toList()
-            .sortBy(t => t.get('createdDate'))
-    }
-);
+export const getDivisionList = createSelector([getDivisions], (divisions) => {
+  console.log('division selector');
+  return divisions.toList().sortBy((t) => t.get('createdDate'));
+});
 
-
-export default getDivisionList
+export default getDivisionList;

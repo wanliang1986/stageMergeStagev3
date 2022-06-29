@@ -19,10 +19,6 @@ import SecondaryButton from '../../../../components/particial/SecondaryButton';
 import JobDescription from '../../JobDescriptionRich3';
 import SectionHeader from './SectionHeader';
 
-import * as apnSDK from '../../../../../apn-sdk/';
-import { showErrorMessage } from '../../../../../app/actions/index';
-import { getJob } from '../../../../../app/actions/jobActions';
-
 const styles = {
   root: {
     overflow: 'auto',
@@ -48,8 +44,6 @@ class JobInfo extends React.PureComponent {
       errorMessage: Immutable.Map(),
       visible: props.job.get('visible') || false,
       processing: false,
-
-      ipgJobType: props.job.get('ipgJobType'),
     };
     this.jobForm = React.createRef();
     this.publicDesc = props.job.get('publicDesc') || '';
@@ -192,58 +186,9 @@ class JobInfo extends React.PureComponent {
       .handleUpdateJob(Object.assign(basicJob, job))
       .then(this.handleCancel)
       .catch(() => this.setState({ processing: false }));
-
-    //create Ipg Job
-    if (createJobForm?.ipgPost?.value === 'true') {
-      let ipgJob = {
-        id: this.props.job.get('id'),
-        title: createJobForm.title.value,
-        jobType: this.state.ipgJobType,
-
-        jobFunctions:
-          createJobForm.jobfunction.value &&
-          JSON.parse(createJobForm.jobfunction.value),
-
-        status: 'OPEN',
-        department: createJobForm.department.value,
-        requiredSkills: JSON.parse(createJobForm.requiredskills.value),
-
-        experienceYearRange: {
-          gte: leastYear,
-          lte: mostYear,
-        },
-
-        minimumDegreeLevel: createJobForm.degreeValue.value
-          ? [createJobForm.degreeValue.value * 1]
-          : null,
-
-        locations:
-          createJobForm.location.value &&
-          JSON.parse(createJobForm.location.value),
-
-        jdUrl: null,
-        jdText: createJobForm.ipgJd.value,
-      };
-      console.log(ipgJob);
-      apnSDK
-        .upsertJob_Ipg(
-          ipgJob,
-          this.props.job.get('ipgJobStatus'),
-          this.props.job.get('id')
-        )
-        .then(({ response }) => {
-          console.log('upsert Ipgjob: ', response);
-          this.props.dispatch(getJob(this.props.job.get('id')));
-        })
-        .catch((err) => {
-          this.props.dispatch(showErrorMessage(err));
-          throw err;
-        });
-    }
   };
 
   handleCancel = () => {
-    this.props.canceledGetJob();
     this.setState({
       edit: '',
       errorMessage: this.state.errorMessage.clear(),
@@ -311,20 +256,8 @@ class JobInfo extends React.PureComponent {
           t('message:Max must > Min')
         );
       }
-      if (form.maxYears.value && Number(form.maxYears.value) > 99) {
-        errorMessage = errorMessage.set(
-          'Years of Experience',
-          t('message:MaxYears Must < 100')
-        );
-      }
-      if (form.minYears.value && Number(form.minYears.value) > 99) {
-        errorMessage = errorMessage.set(
-          'Years of Experience',
-          t('message:MinYears Must < 100')
-        );
-      }
     }
-    if (!form.title.value) {
+    if (!form.title.value.trim()) {
       errorMessage = errorMessage.set(
         'title',
         t('message:Job title is required')
@@ -458,12 +391,6 @@ class JobInfo extends React.PureComponent {
     }
     this.setState({ edit });
   };
-
-  setIpgJobType = (ipgJobType) => {
-    this.setState({
-      ipgJobType,
-    });
-  };
   render() {
     const { t, i18n, job, canEdit, classes, jobId, ...props } = this.props;
     const { edit, errorMessage, processing } = this.state;
@@ -501,7 +428,6 @@ class JobInfo extends React.PureComponent {
                 />
 
                 <JobBasicForm
-                  canEdit={this.props.canEdit}
                   job={job}
                   t={t}
                   disabled
@@ -554,12 +480,10 @@ class JobInfo extends React.PureComponent {
                     }}
                   >
                     <JobBasicForm
-                      canEdit={this.props.canEdit}
                       job={job}
                       t={t}
                       errorMessage={errorMessage}
                       removeErrorMsgHandler={this.removeErrorMessage}
-                      setIpgJobType={this.setIpgJobType}
                     />
                   </div>
                 )}

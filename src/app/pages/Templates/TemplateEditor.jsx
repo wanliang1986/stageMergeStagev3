@@ -41,15 +41,12 @@ const specialTags = [
 
   { value: '{{{CANDIDATECITY}}}', label: 'Candidate City' },
   { value: '{{{CANDIDATESTATE}}}', label: 'Candidate State' },
-  { value: '{{{CANDIDATELOCATION}}}', label: 'Candidate Location' },
   { value: '{{{SUBMITRECRUITER}}}', label: 'Submit Recruiter' },
   { value: '{{{USERFIRSTNAME}}}', label: 'User First Name' },
   { value: '{{{USERLASTNAME}}}', label: 'User Last Name' },
   { value: '{{{USEREMAIL}}}', label: 'User Email' },
   { value: '{{{USERPHONE}}}', label: 'User Phone' },
   { value: '{{{USERCOMPANY}}}', label: 'User Company' },
-  { value: '{{{SIGNATURE}}}', label: 'Contractor Signature' },
-  { value: '{{{CANDIDATELOCATION}}}', label: 'Candidate Location' },
 ];
 const styles = (theme) => ({
   tags: {
@@ -239,7 +236,7 @@ class TemplateEditor extends React.PureComponent {
                   <FormInput
                     label={t('field:templateName')}
                     name="title"
-                    placeholder={t('tab:title')}
+                    placeholder="title"
                     defaultValue={template.get('title')}
                     onBlur={() => this.removeErrorMessage('title')}
                     errorMessage={errorMessage.get('title')}
@@ -260,7 +257,6 @@ class TemplateEditor extends React.PureComponent {
                       simpleValue
                       openOnFocus={true}
                       onBlur={() => this.removeErrorMessage('type')}
-                      placeholder={t('tab:select')}
                     />
                   </FormReactSelectContainer>
                   <input type="hidden" name="type" value={type} />
@@ -269,7 +265,7 @@ class TemplateEditor extends React.PureComponent {
                   <FormInput
                     label={t('field:subject')}
                     name="subject"
-                    placeholder={t('common:subject')}
+                    placeholder="subject"
                     defaultValue={template.get('subject')}
                     onFocus={this.onFocus}
                   />

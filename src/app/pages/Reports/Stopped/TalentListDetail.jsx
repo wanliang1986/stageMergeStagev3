@@ -18,27 +18,27 @@ const columns = [
     col: 'fullName',
     type: 'talentNameLink',
     sortable: true,
-    fixed: true
+    fixed: true,
   },
   {
     colName: 'talentID',
     colWidth: 140,
     col: 'id',
-    sortable: true
+    sortable: true,
   },
   {
     colName: 'jobTitle',
     colWidth: 200,
     col: 'title',
     flexGrow: 1,
-    sortable: true
+    sortable: true,
   },
   {
     colName: 'company',
     colWidth: 160,
     col: 'company',
     flexGrow: 1,
-    sortable: true
+    sortable: true,
   },
 
   {
@@ -46,8 +46,8 @@ const columns = [
     colWidth: 150,
     col: 'lastModifiedDate',
     type: 'date',
-    sortable: true
-  }
+    sortable: true,
+  },
 ];
 
 class TalentListDetail extends React.PureComponent {
@@ -55,7 +55,7 @@ class TalentListDetail extends React.PureComponent {
     super(props);
     this.state = {
       filteredIndex: Immutable.List(),
-      colSortDirs: {}
+      colSortDirs: {},
     };
 
     this.filteredList = Immutable.List();
@@ -68,9 +68,9 @@ class TalentListDetail extends React.PureComponent {
   getReportData = () => {
     const { talentIds } = this.props;
     getTalentListByIds(talentIds)
-      .then(res => {
+      .then((res) => {
         const dataList = Immutable.fromJS(
-          res.map(el => {
+          res.map((el) => {
             el.talentId = el.id;
             return el;
           })
@@ -78,12 +78,12 @@ class TalentListDetail extends React.PureComponent {
         let filteredIndex = getIndexList(dataList);
         this.setState({
           dataList,
-          filteredIndex
+          filteredIndex,
         });
       })
       .catch(() => {
         this.setState({
-          dataList: Immutable.List()
+          dataList: Immutable.List(),
         });
       });
   };
@@ -100,8 +100,8 @@ class TalentListDetail extends React.PureComponent {
     this.setState({
       filteredIndex: indexList,
       colSortDirs: {
-        [columnKey]: sortDir
-      }
+        [columnKey]: sortDir,
+      },
     });
   };
 
@@ -109,7 +109,7 @@ class TalentListDetail extends React.PureComponent {
     const { userName, t } = this.props;
     const { dataList, filteredIndex, colSortDirs } = this.state;
 
-    const filteredList = filteredIndex.map(index => dataList.get(index));
+    const filteredList = filteredIndex.map((index) => dataList.get(index));
     if (!this.filteredList.equals(filteredList)) {
       this.filteredList = filteredList;
     }
@@ -154,7 +154,7 @@ class TalentListDetail extends React.PureComponent {
 }
 
 TalentListDetail.propTypes = {
-  t: PropTypes.func.isRequired
+  t: PropTypes.func.isRequired,
 };
 
 export default connect()(TalentListDetail);

@@ -79,8 +79,7 @@ class NextStepsButton extends React.Component {
               style={styles.leftButton}
               onClick={() => this.handleOpenForm(step.main.value)}
             >
-              {(step.main.isNextStep ? `Next Step: ` : '') +
-                this.props.t(`tab:${step.main.label.toLowerCase()}`)}
+              {(step.main.isNextStep ? `Next Step: ` : '') + step.main.label}
             </Button>
             <Button
               color="primary"
@@ -120,7 +119,7 @@ class NextStepsButton extends React.Component {
                         key={option.value}
                         onClick={() => this.handleOpenForm(option.value)}
                       >
-                        {this.props.t(`tab:${option.label.toLowerCase()}`)}
+                        {option.label}
                       </MenuItem>
                     ))}
                   </MenuList>
@@ -163,7 +162,7 @@ const getNextStepsByStatus = memoizeOne((status) => {
             value: 'Meet_Candidate_In_Person',
             label: 'Meet Candidate In Person',
           },
-          { value: 'Qualified', label: 'Qualified by AM' },
+          { value: 'Qualified', label: 'Qualified By AM' },
           { value: 'updateResume', label: 'Update Resume' },
           { value: 'addNote', label: 'Add Note To Current Status' },
           { value: 'updateUserRoles', label: 'Update User Roles' },

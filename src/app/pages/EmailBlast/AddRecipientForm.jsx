@@ -21,7 +21,7 @@ class AddRecipientForm extends React.Component {
       name: '',
       email: '',
       recipients: [],
-      processing: false
+      processing: false,
     };
   }
   handleAddRecipient = () => {
@@ -31,11 +31,11 @@ class AddRecipientForm extends React.Component {
         recipients
       ),
       name: '',
-      email: ''
+      email: '',
     });
   };
 
-  handleRemove = index => {
+  handleRemove = (index) => {
     const recipients = this.state.recipients.slice();
     recipients.splice(index, 1);
     this.setState({ recipients });
@@ -48,9 +48,9 @@ class AddRecipientForm extends React.Component {
     this.setState({ processing: true });
     const newRecipients = [{ name, email, source: 'MANUALLY_ADDED' }]
       .concat(recipients)
-      .filter(r => r.name.trim() && r.email.trim());
+      .filter((r) => r.name.trim() && r.email.trim());
     dispatch(addRecipientToEmailBlast(emailBlastId, newRecipients)).then(
-      res => {
+      (res) => {
         if (res) {
           onClose();
         } else {
@@ -80,13 +80,13 @@ class AddRecipientForm extends React.Component {
             <div className="small-4 columns">
               <FormInput
                 value={name}
-                onChange={e => this.setState({ name: e.target.value })}
+                onChange={(e) => this.setState({ name: e.target.value })}
               />
             </div>
             <div className="small-4 columns">
               <FormInput
                 value={email}
-                onChange={e => this.setState({ email: e.target.value })}
+                onChange={(e) => this.setState({ email: e.target.value })}
               />
             </div>
             <div className="small-2 columns">
@@ -104,7 +104,7 @@ class AddRecipientForm extends React.Component {
               <div className="small-4 columns">
                 <FormInput
                   value={recipient.name}
-                  onChange={e => {
+                  onChange={(e) => {
                     recipient.name = e.target.value;
                     this.setState({ recipients: recipients.slice() });
                   }}
@@ -113,7 +113,7 @@ class AddRecipientForm extends React.Component {
               <div className="small-4 columns">
                 <FormInput
                   value={recipient.email}
-                  onChange={e => {
+                  onChange={(e) => {
                     recipient.email = e.target.value;
                     this.setState({ recipients: recipients.slice() });
                   }}

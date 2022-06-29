@@ -3,7 +3,7 @@ import { matchPath } from 'react-router';
 import moment from 'moment-timezone';
 import { logout } from '../../actions/index';
 import { getAllUsers, getCurrentUser } from '../../actions/userActions';
-import { getSkipSubmitToAMCompanies } from '../../actions/clientActions';
+import { getMyNotifications } from '../../actions/notificationActions';
 import { withStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
 
@@ -56,6 +56,7 @@ const styles = (theme) => ({
   },
   expandOpen: {},
 });
+const frequency = 1000 * 60 * 5;
 const TRANSFORM_ORIGIN = { horizontal: 'right', vertical: 'top' };
 const ANCHOR_ORIGIN = { horizontal: 'right', vertical: 'bottom' };
 
@@ -71,27 +72,31 @@ class Logged extends Component {
   componentDidMount() {
     this.fetchData();
     this._setLangs();
+    // this.notifyTimer = setInterval(this.fetchNotification, frequency);
+  }
+
+  componentWillUnmount() {
+    // clearInterval(this.notifyTimer);
   }
 
   fetchData() {
     const { dispatch, location } = this.props;
     this.props.dispatch(getCurrentUser());
     this.props.dispatch(getAllUsers());
-    this.props.dispatch(getSkipSubmitToAMCompanies());
 
     // fetch company options
     const match = matchPath(location.pathname, {
       path: '/:page/',
     });
-    if (!match || match.params.page !== 'jobs') {
-      dispatch(getClientBriefList(0)).then(({ response }) => {
-        const companyOptions = getCompanyOptions(response);
-        dispatch({
-          type: ActionTypes.REVEIVE_COMPANIES_OPTIONS,
-          companiesOptions: companyOptions,
-        });
-      });
-    }
+    // if (!match || match.params.page !== 'jobs') {
+    //   dispatch(getClientBriefList(0)).then(({ response }) => {
+    //     const companyOptions = getCompanyOptions(response);
+    //     dispatch({
+    //       type: ActionTypes.REVEIVE_COMPANIES_OPTIONS,
+    //       companiesOptions: companyOptions,
+    //     });
+    //   });
+    // }
   }
 
   _setLangs = () => {
@@ -106,6 +111,10 @@ class Logged extends Component {
         type: 'LANGUAGE_EN',
       });
     }
+  };
+
+  fetchNotification = () => {
+    this.props.dispatch(getMyNotifications());
   };
 
   logoutHandler = () => {

@@ -24,7 +24,7 @@ import clsx from 'clsx';
 
 import FilterBtn from './FilterBtn';
 import { QuarterlyInitData, countryObj } from './initData';
-import { withTranslation } from 'react-i18next';
+
 let newQuarterlyInitData = [];
 const styles_inside = {
   title: {
@@ -78,17 +78,10 @@ class FteQuarterly extends Component {
     this.setState({
       Load: false,
       dataList: Immutable.List(),
-      country: country || this.state.country,
     });
     newQuarterlyInitData = JSON.parse(JSON.stringify(QuarterlyInitData));
-    let {
-      initData1,
-      initData2,
-      initData3,
-      initData4,
-      initData5,
-      initData6,
-    } = newQuarterlyInitData;
+    let { initData1, initData2, initData3, initData4, initData5, initData6 } =
+      newQuarterlyInitData;
     return getSalesFteByQuarter({
       country,
       companies,
@@ -175,16 +168,8 @@ class FteQuarterly extends Component {
 
   // bar 配置
   getOption = () => {
-    const {
-      data1,
-      data2,
-      data3,
-      data4,
-      data5,
-      data6,
-      countryObj,
-      country,
-    } = this.state;
+    const { data1, data2, data3, data4, data5, data6, countryObj, country } =
+      this.state;
     return {
       tooltip: {
         padding: 15,
@@ -241,11 +226,7 @@ class FteQuarterly extends Component {
             showHtm += `<p style="height:${Pheight}">
                           <span style="display:inline-block;width:45px">${year}</span>
                           ${marker}
-                          ${this.props.t(
-                            `tab:${billTypeObj[
-                              params[i].data.billType
-                            ].toLowerCase()}`
-                          )}:
+                          ${billTypeObj[params[i].data.billType]}:
                           ${
                             countryObj[country] +
                             params[i].data.value.toLocaleString('en-US')
@@ -278,9 +259,9 @@ class FteQuarterly extends Component {
         y: 'bottom', //可设定图例在上、下、居中
         // padding: [200, 0, 0, 0], //可设定图例[距上方距离，距右方距离，距下方距离，距左方距离]
         selected: {
-          2020: true, //图例为‘2020’的一项默认置灰
+          2020: false, //图例为‘2020’的一项默认置灰
           2021: true,
-          2022: true,
+          2022: false,
         },
         // formatter: function (params) {
         //   console.log(params);
@@ -302,7 +283,7 @@ class FteQuarterly extends Component {
           },
           axisLine: {
             lineStyle: {
-              color: '#505050',
+              color: '#aab1b8',
             },
           },
         },
@@ -316,7 +297,7 @@ class FteQuarterly extends Component {
           axisLine: {
             show: false,
             lineStyle: {
-              color: '#505050',
+              color: '#aab1b8',
             },
           },
         },
@@ -339,7 +320,7 @@ class FteQuarterly extends Component {
               //   position: "insideTop", //在上方显示
               //   textStyle: {]
               //     //数值样式
-              //     color: "#505050",
+              //     color: "#aab1b8",
               //    fontSize: 9
               //   },
               // },
@@ -365,7 +346,7 @@ class FteQuarterly extends Component {
                 position: 'top', //在上方显示
                 textStyle: {
                   //数值样式
-                  color: '#505050',
+                  color: '#aab1b8',
                   fontSize: 12,
                 },
                 formatter: function (params) {
@@ -417,7 +398,7 @@ class FteQuarterly extends Component {
                 position: 'top', //在上方显示
                 textStyle: {
                   //数值样式
-                  color: '#505050',
+                  color: '#aab1b8',
                   fontSize: 12,
                 },
                 formatter: function (params) {
@@ -446,8 +427,8 @@ class FteQuarterly extends Component {
           stack: '2022',
           itemStyle: {
             normal: {
-              color: '#a894f6',
-              borderColor: '#a894f6',
+              color: '#fed949',
+              borderColor: '#fed949',
             },
           },
           emphasis: {
@@ -463,13 +444,13 @@ class FteQuarterly extends Component {
           itemStyle: {
             normal: {
               color: 'white',
-              borderColor: '#a894f6',
+              borderColor: '#fed949',
               label: {
                 show: true, //开启显示
                 position: 'top', //在上方显示
                 textStyle: {
                   //数值样式
-                  color: '#505050',
+                  color: '#aab1b8',
                   fontSize: 12,
                 },
                 formatter: function (params) {
@@ -500,7 +481,6 @@ class FteQuarterly extends Component {
     }
     this.setState({
       loadFormList: false,
-      colSortDirs: { null: 'null' },
     });
     let stackApplicationIdArr = this.findStackChart(detail);
     let applicationIdArr = detail.data.applicationId.split(',');
@@ -699,8 +679,12 @@ class FteQuarterly extends Component {
         <div className={classes.root}>
           <div style={styles_inside.title}>
             <Typography variant="h4">
-              {this.props.t('tab:General Recruiting Hires Report')}
-              <Typography>{this.props.t('tab:HiresReportTip1')}</Typography>
+              {'General Recruiting Hires Report'}
+              <Typography>
+                {
+                  'We use candidates’ 【On Board】date as reference to build up this report, and this report shows how much GM we generate in each month/quarter/year'
+                }
+              </Typography>
             </Typography>
 
             {/* 漏斗按钮 */}
@@ -790,6 +774,4 @@ const mapStateToProps = (state) => {
   return {};
 };
 
-export default withTranslation('tab')(
-  connect(mapStateToProps)(withStyles(styles)(FteQuarterly))
-);
+export default connect(mapStateToProps)(withStyles(styles)(FteQuarterly));

@@ -52,8 +52,4 @@ export * from './tenantAdmin';
 
 export * from './location';
 
-export * from './assignment';
-
-export * from './jobIpg';
-
-export * from './onBoarding';
+export * from './newApplication';

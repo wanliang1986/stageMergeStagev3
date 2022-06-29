@@ -4,7 +4,7 @@
 import * as ActionTypes from '../../constants/actionTypes';
 import Immutable from 'immutable';
 
-export default function(state = Immutable.OrderedMap(), action = {}) {
+export default function (state = Immutable.OrderedMap(), action = {}) {
   let newState;
   switch (action.type) {
     // case ActionTypes.GET_CURRENT_USER:

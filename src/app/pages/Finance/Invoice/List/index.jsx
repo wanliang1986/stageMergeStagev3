@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import * as invoiceActions from '../../../../actions/invoiceActions';
-import { withStyles, makeStyles } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
 import Immutable from 'immutable';
 import getInvoiceList, {
   getQuery,
 } from '../../../../selectors/invoiceSelector';
 
-import { getNewFilters, makeCancelable } from '../../../../../utils';
+import { customEncodeURIComponent, getNewFilters } from '../../../../../utils';
 import zhCN from 'rsuite/lib/IntlProvider/locales/zh_CN';
 import enUS from 'rsuite/lib/IntlProvider/locales/en_US';
 import { DateRangePicker } from 'rsuite';
@@ -20,29 +20,20 @@ import Popover from '@material-ui/core/Popover';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
-import Tooltip from '@material-ui/core/Tooltip';
 
 import ArrowDropDown from '@material-ui/icons/ArrowDropDown';
 
 import PrimaryButton from '../../../../components/particial/PrimaryButton';
 import InvoiceTable from '../../../../components/Tables/InvoiceTable';
 import Loading from '../../../../components/particial/Loading';
-import { currency as currencyOptions } from '../../../../constants/formOptions';
-
-const currencyLabels = currencyOptions.reduce((res, v) => {
-  res[v.value] = v.label;
-  return res;
-}, {});
 
 const TRANSFORM_ORIGIN = { horizontal: 'left', vertical: 'top' };
 const ANCHOR_ORIGIN = { horizontal: 'left', vertical: 'bottom' };
 let status = { filterOpen: true };
-
 function onScrollEnd(scrollLeft, scrollTop) {
   status.scrollLeft = scrollLeft;
   status.scrollTop = scrollTop;
 }
-
 const COUNT_PER_PAGE = 20;
 const isLoading = {};
 
@@ -61,28 +52,6 @@ const styles = {
     backgroundColor: 'rgba(240,240,240,.5)',
   },
 };
-const useStylesBootstrap = makeStyles((theme) => ({
-  arrow: {
-    color: 'rgba(55, 55, 55, 0.98)',
-  },
-  tooltip: {
-    backgroundColor: 'rgba(55, 55, 55, 0.98)',
-  },
-}));
-const DisplayTotalAmount = ({ title, content }) => {
-  const classes = useStylesBootstrap();
-  return (
-    <div className="horizontal-layout align-middle">
-      <Typography variant="subtitle2">{title}</Typography>
-      <Tooltip title={content} arrow placement={'top'} classes={classes}>
-        <Typography variant="body2" noWrap style={{ maxWidth: 300 }}>
-          {content}
-        </Typography>
-      </Tooltip>
-    </div>
-  );
-};
-
 class InvoiceList extends Component {
   constructor(props) {
     super(props);
@@ -115,30 +84,18 @@ class InvoiceList extends Component {
   componentWillUnmount(): void {
     // status.filterOpen = this.state.filterOpen;
     status.count = this.props.invoiceList.size;
-    if (this.dataTask) {
-      this.dataTask.cancel();
-    }
   }
 
   fetchInvoiceList = (page, size, searchStr, sortStr, advancedSearch) => {
-    if (this.dataTask) {
-      this.dataTask.cancel();
-    }
-    this.dataTask = makeCancelable(
-      this.props.dispatch(
-        invoiceActions.searchAllInvoiceList(
-          page,
-          size,
-          searchStr,
-          sortStr,
-          advancedSearch
-        )
+    this.props.dispatch(
+      invoiceActions.searchAllInvoiceList(
+        page,
+        size,
+        searchStr,
+        sortStr,
+        advancedSearch
       )
     );
-    this.dataTask.promise.then(({ currencyAmounts }) => {
-      // console.log(currencyAmounts);
-      this.setState({ currencyAmounts });
-    });
   };
 
   loadMore = (rowIndex) => {
@@ -164,28 +121,31 @@ class InvoiceList extends Component {
   };
 
   _getSearchStr({ filters, sort }) {
-    // console.log('_getSearchStr', filters);
-    let searchStr = '';
-    let advancedSearch = '';
+    console.log(filters);
+    let excludeKeys = [
+      'range',
+      'invoiceType',
+      'status',
+      'invoiceNo',
+      'fromDate',
+      'toDate',
+    ];
+    let searchStr = Object.keys(filters)
+      .map((key) =>
+        !excludeKeys.includes(key)
+          ? `${key}:${customEncodeURIComponent(filters[key])}`
+          : ''
+      )
+      .filter((f) => f)
+      .join();
     let sortStr = Object.keys(sort)
       .map((key) => `${key},${sort[key]}`)
       .join();
-
-    const searchParams = [
-      'invoiceNo',
-      'invoiceType',
-      'jobTitle',
-      'talentName',
-      'customerName',
-      'divisionId',
-    ];
-    searchParams.forEach((key) => {
-      if (filters[key]) {
-        advancedSearch += `&${key}=${filters[key]}`;
-      }
-    });
+    let advancedSearch = filters.invoiceNo
+      ? `&invoiceNo=${filters.invoiceNo}`
+      : '';
     if (filters.status) {
-      // console.log(filters.status);
+      console.log(filters.status);
       advancedSearch += '&status=' + filters.status.split(',').join('&status=');
     } else {
       advancedSearch +=
@@ -198,6 +158,9 @@ class InvoiceList extends Component {
           'STARTUP_FEE_PAID_UNUSED',
           'STARTUP_FEE_UNPAID_UNUSED',
         ].join('&status=');
+    }
+    if (filters.invoiceType) {
+      advancedSearch += `&invoiceType=${filters.invoiceType}`;
     }
     if (filters.range) {
       advancedSearch += `&fromDate=${dateFns.format(
@@ -298,7 +261,7 @@ class InvoiceList extends Component {
       return <Loading />;
     }
 
-    const { anchorEl, filters, currencyAmounts } = this.state;
+    const { anchorEl, filters } = this.state;
     const range = filters.get('range');
     const count = total > invoiceList.size ? invoiceList.size + 1 : total;
     const isZH = i18n.language.match('zh');
@@ -309,7 +272,7 @@ class InvoiceList extends Component {
 
         <div>
           <div
-            className="horizontal-layout align-middle item-padding"
+            className="flex-container align-middle item-padding align-justify"
             style={{ height: 56 }}
           >
             <div className="item-padding">
@@ -338,32 +301,29 @@ class InvoiceList extends Component {
                 </List>
               </Popover>
             </div>
-            <div className={'flex-child-auto'} />
 
             <div className="horizontal-layout align-middle">
-              <Typography variant="subtitle2">
-                {t('field:Invoice Date')}
-              </Typography>
+              <Typography variant="subtitle2">Invoice Date</Typography>
               <DateRangePicker
                 placement="bottomEnd"
                 value={range ? [new Date(range.from), new Date(range.to)] : []}
                 ranges={[
                   {
-                    label: t('tab:This Month'),
+                    label: 'This Month',
                     value: [
                       dateFns.startOfMonth(new Date()),
                       dateFns.endOfMonth(new Date()),
                     ],
                   },
                   {
-                    label: t('tab:This Quarter'),
+                    label: 'This Quarter',
                     value: [
                       dateFns.startOfQuarter(new Date()),
                       dateFns.endOfQuarter(new Date()),
                     ],
                   },
                   {
-                    label: t('tab:This Year'),
+                    label: 'This Year',
                     value: [
                       dateFns.startOfYear(new Date()),
                       dateFns.endOfYear(new Date()),
@@ -378,30 +338,6 @@ class InvoiceList extends Component {
                 locale={isZH ? zhCN.DateRangePicker : enUS.DateRangePicker}
               />
             </div>
-            {currencyAmounts && (
-              <DisplayTotalAmount
-                title={t('tab:Total Invoice Amount')}
-                content={currencyAmounts
-                  .map(({ totalAmount, currency }) => {
-                    return `${
-                      currencyLabels[currency]
-                    }${totalAmount.toLocaleString()}`;
-                  })
-                  .join(' ')}
-              />
-            )}
-            {currencyAmounts && (
-              <DisplayTotalAmount
-                title={t('tab:Total Received Amount')}
-                content={currencyAmounts
-                  .map(({ totalPaidAmount, currency }) => {
-                    return `${
-                      currencyLabels[currency]
-                    }${totalPaidAmount.toLocaleString()}`;
-                  })
-                  .join(' ')}
-              />
-            )}
           </div>
           <Divider />
         </div>

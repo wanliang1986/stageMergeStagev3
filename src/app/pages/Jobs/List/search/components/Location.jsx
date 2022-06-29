@@ -10,7 +10,6 @@ import Autocomplete, {
   createFilterOptions,
 } from '@material-ui/lab/Autocomplete';
 import { isSymbol } from '../../../../../../utils/search';
-import { withTranslation } from 'react-i18next';
 const styles = {
   root: {
     width: '100%',
@@ -255,7 +254,7 @@ class Location extends React.Component {
                 ),
                 disableUnderline: true,
               }}
-              placeholder={this.props.t('tab:Enter a city/state/country name')}
+              placeholder="Enter a city/state/country name"
               onChange={this.fetchLocationList}
               onBlur={() => {
                 this.newChange();
@@ -286,6 +285,4 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default withTranslation('tab')(
-  connect(mapStateToProps)(withStyles(styles)(Location))
-);
+export default connect(mapStateToProps)(withStyles(styles)(Location));

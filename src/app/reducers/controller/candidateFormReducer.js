@@ -5,12 +5,12 @@ import * as ActionTypes from '../../constants/actionTypes';
 import Immutable from 'immutable';
 
 export default function (state = Immutable.OrderedMap(), action = {}) {
-    switch (action.type) {
-        case ActionTypes.ADD_CANDIDATE:
-            return Immutable.fromJS(action.candidate);
-        case ActionTypes.LOGOUT:
-            return state.clear();
-        default:
-            return state;
-    }
+  switch (action.type) {
+    case ActionTypes.ADD_CANDIDATE:
+      return Immutable.fromJS(action.candidate);
+    case ActionTypes.LOGOUT:
+      return state.clear();
+    default:
+      return state;
+  }
 }

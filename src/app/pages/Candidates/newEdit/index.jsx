@@ -8,7 +8,7 @@ import clsx from 'clsx';
 import Immutable from 'immutable';
 import talentResumeSelector from '../../../selectors/talentResumeSelector';
 import { searchTalentByContacts } from '../../../../apn-sdk';
-import { distSelect, distSelectZh } from '../../../../apn-sdk/newSearch';
+import { distSelect } from '../../../../apn-sdk/newSearch';
 import { getNewOptions } from '../../../actions/newCandidate';
 
 import Paper from '@material-ui/core/Paper';
@@ -29,9 +29,9 @@ import Skills from '../newCreate/Basicform/skills';
 import CandidatePrefence from '../newCreate/Basicform/CandidatePreference';
 import EducationInfor from '../newCreate/Basicform/educationInfor';
 import ProjectDes from '../newCreate/Basicform/projectDes';
-import { getApplicationsByTalentId } from '../../../actions/talentActions';
+
 import DuplicatedTalentList from '../newCreate/duplicatedTalentList/TalentDuplications';
-import { getStartByTalentId } from '../../../actions/startActions';
+
 const styles = (theme) => ({
   container: {
     height: '100%',
@@ -61,15 +61,11 @@ class CandidateEditForm extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      basicSubstatus: true,
       processing: false,
       duplication: null,
       checkingDuplication: false,
       candidate: props.candidate,
       errorMessage: Immutable.Map(),
-      emaiStatus: false,
-      bouncedStatu: false,
-      inactiveStatus: false,
     };
     this.talentForm = React.createRef();
   }
@@ -100,18 +96,12 @@ class CandidateEditForm extends React.PureComponent {
       distSelect(65),
       distSelect(92),
       distSelect(117),
-      distSelectZh(1),
-      distSelectZh(117),
     ]).then((res) => {
       this.props.dispatch(getNewOptions(['jobFounctionList', res[0].response]));
       this.props.dispatch(getNewOptions(['languageList', res[1].response]));
       this.props.dispatch(getNewOptions(['degreeList', res[2].response]));
       this.props.dispatch(getNewOptions(['workAuthList', res[3].response]));
       this.props.dispatch(getNewOptions(['industryList', res[4].response]));
-      this.props.dispatch(
-        getNewOptions(['jobFounctionListZh', res[5].response])
-      );
-      this.props.dispatch(getNewOptions(['industryListZh', res[6].response]));
     });
   };
 
@@ -119,12 +109,6 @@ class CandidateEditForm extends React.PureComponent {
     const { candidateId, dispatch } = this.props;
     dispatch(candidateActions.getTalent(candidateId));
     dispatch(candidateActions.getResumesByTalentId(candidateId));
-    // 候选人详情页手动刷新网页的时候，会丢失application，所以这里重新调用一下
-    dispatch(getApplicationsByTalentId(candidateId)).finally(() =>
-      this.setState({ loadingApplications: false })
-    );
-    // 候选人详情页手动刷新网页的时候，会丢失applicationID，所以这里重新调用一下
-    dispatch(getStartByTalentId(candidateId));
   }
 
   handleCancel = () => {
@@ -138,79 +122,27 @@ class CandidateEditForm extends React.PureComponent {
       this.props.history.goBack();
     }
   };
-  conChange = () => {
-    this.setState({
-      emaiStatus: false,
-    });
-  };
-  getSubStatus = () => {
-    this.setState(
-      {
-        basicSubstatus: false,
-      },
-      () => {
-        this.handleSubmit();
-      }
-    );
-  };
-  getEmailBouncedStatu = (data) => {
-    this.setState({
-      bouncedStatu: data,
-    });
-  };
-  getEmaiInactiveStatu = (data) => {
-    this.setState({
-      inactiveStatus: data,
-    });
-  };
+
   handleSubmit = () => {
     let { candidate } = this.state;
     const { candidateId, dispatch, t } = this.props;
     const basicForm = this.talentForm.current;
-    console.log(basicForm);
     let errorMessage = BasicInfoForm.validateForm(basicForm, t);
     if (errorMessage) {
       return this.setState({ errorMessage });
     }
 
     candidate = Immutable.Map(BasicInfoForm.getTalentBasicFromForm(basicForm));
-    let conAlist = candidate.toJS();
-    let conBlist = this.props.contactsList;
-    let arrA = [];
-    let arrB = [];
-    conAlist?.contacts.forEach((item) => {
-      if (item.type === 'EMAIL') {
-        arrA.push(item);
-      }
-    });
-    conBlist?.contacts.forEach((item) => {
-      if (item.type === 'EMAIL') {
-        arrB.push(item);
-      }
-    });
-    console.log(this.state);
-    console.log(this.props);
-    if (
-      arrA[0]?.contact !== arrB[0]?.contact &&
-      // this.props.contactsList.isAM &&
-      this.state.basicSubstatus &&
-      this.state.bouncedStatu &&
-      !this.state.inactiveStatus
-    ) {
-      this.setState({
-        emaiStatus: true,
-      });
-      return;
-    }
+    console.log('handleSubmit', candidate.toJS());
     this.setState({
       processing: true,
       checkingDuplication: true,
     });
     let contactArr = candidate.toJS().contacts;
     console.log(contactArr);
-
     // 先判断该候选人在talent库中是否存在，存在提示，不存在创建
-    searchTalentByContacts(contactArr)
+    let newContactObj = { contacts: contactArr, ignoreTalentId: candidateId };
+    searchTalentByContacts(newContactObj)
       .then(({ response }) => {
         if (response.length === 0) {
           this.props
@@ -234,10 +166,6 @@ class CandidateEditForm extends React.PureComponent {
         }
       })
       .catch((err) => {
-        this.setState({
-          processing: false,
-          checkingDuplication: false,
-        });
         this.props.dispatch(showErrorMessage(err));
       });
   };
@@ -255,9 +183,10 @@ class CandidateEditForm extends React.PureComponent {
   };
 
   render() {
-    const { processing, errorMessage, checkingDuplication, emaiStatus } =
-      this.state;
-    const { t, candidate, classes, resume, candidateId } = this.props;
+    console.time('talent edit');
+    const { processing, errorMessage, checkingDuplication } = this.state;
+
+    const { t, candidate, classes, resume } = this.props;
     console.log(candidate && candidate.toJS());
     if (!candidate || !candidate.get('id')) {
       return <Loading />;
@@ -277,18 +206,11 @@ class CandidateEditForm extends React.PureComponent {
               </div>
 
               <BasicInfoForm
-                getEmaiInactiveStatu={this.getEmaiInactiveStatu}
-                getEmailBouncedStatu={this.getEmailBouncedStatu}
-                getSubStatus={this.getSubStatus}
-                conChange={this.conChange}
-                emaiStatus={emaiStatus}
                 basicInfo={candidate}
                 talentFormRef={this.talentForm}
                 errorMessage={errorMessage}
                 removeErrorMessage={this.removeErrorMessage}
                 t={t}
-                protalStatu={true}
-                candidateId={candidateId}
               />
               <Ownerships t={t} basicInfo={candidate} />
               <ExperienceInfor
@@ -342,7 +264,7 @@ class CandidateEditForm extends React.PureComponent {
         <Dialog open={checkingDuplication}>
           <DialogContent>
             <Loading />
-            <Typography>{t('action:Checking Duplication')}</Typography>
+            <Typography>{'Checking Duplication'}</Typography>
           </DialogContent>
         </Dialog>
         <DuplicatedTalentList
@@ -364,15 +286,11 @@ function mapStoreStateToProps(state, { match }) {
     (state.router && state.router.location.key) ===
     (state.controller.routerStatus &&
       state.controller.routerStatus.location.key);
-  const contactsList = state.controller.newCandidateJob.get(
-    'basicInformationDetail'
-  );
   return {
     candidateId,
     candidate,
     resume: talentResumeSelector(state, candidateId).get(0),
     disableBack,
-    contactsList,
   };
 }
 

@@ -18,22 +18,24 @@ class BDInformation extends Component {
     this.state = {
       bdCommission:
         (props.companyInfo &&
-          this.setBdCommissionFullName(props.companyInfo.bdManagers)) ||
+          this.setBdCommissionFullName(
+            props.companyInfo.businessDevelopmentOwner
+          )) ||
         '',
       ownerCommission:
         (props.companyInfo &&
-          this.setownersFullName(props.companyInfo.owners)) ||
+          this.setownersFullName(props.companyInfo.salesLeadsOwner)) ||
         '',
-      serviceTypeSelect: props.companyInfo.serviceType,
+      serviceTypeSelect: props.companyInfo.companyServiceTypes,
       accountManager: [],
       value: '',
     };
   }
 
   componentDidMount() {
-    if (this.props.companyInfo.accountManager) {
+    if (this.props.companyInfo.accountManagers) {
       let newAccountManager = this.checkedMember(
-        this.props.companyInfo.accountManager
+        this.props.companyInfo.accountManagers
       );
       this.setState({
         accountManager: newAccountManager,
@@ -45,7 +47,6 @@ class BDInformation extends Component {
     let newBd = bd.map((item, index) => {
       return {
         ...item,
-        fullName: item.firstName + ' ' + item.lastName,
       };
     });
     return newBd;
@@ -55,7 +56,6 @@ class BDInformation extends Component {
     let owners = owner.map((item, index) => {
       return {
         ...item,
-        fullName: item.firstName + ' ' + item.lastName,
       };
     });
     if (owners.length > 0) {
@@ -119,9 +119,16 @@ class BDInformation extends Component {
   setName = (user, filtedData, index, type) => {
     if (!user.userId) {
       user.userId = user.id;
-      user.percentage = 0;
+      user.contribution = 0;
     }
-    filtedData[index] = user;
+    let _user = {
+      userId: user.userId,
+      fullName: user.fullName,
+      salesLeadRoleType:
+        type === 'DBOwner' ? 'BUSINESS_DEVELOPMENT' : 'SALES_LEAD_OWNER',
+      contribution: 0,
+    };
+    filtedData[index] = _user;
     if (type === 'DBOwner') {
       this.setState({
         bdCommission: filtedData,
@@ -140,7 +147,7 @@ class BDInformation extends Component {
   setpercentage = (num, filtedData, index, type) => {
     if (type === 'DBOwner') {
       let newBdCommission = lodash.cloneDeep(this.state.bdCommission);
-      newBdCommission[index].percentage = Number(num);
+      newBdCommission[index].contribution = Number(num);
       this.setState({
         bdCommission: newBdCommission,
       });
@@ -151,7 +158,7 @@ class BDInformation extends Component {
       let newOwnerCommission = JSON.parse(
         JSON.stringify(this.state.ownerCommission)
       );
-      newOwnerCommission[index].percentage = Number(num);
+      newOwnerCommission[index].contribution = Number(num);
       this.setState({
         ownerCommission: newOwnerCommission,
       });
@@ -189,6 +196,7 @@ class BDInformation extends Component {
       }
       return false;
     };
+
     return (
       <>
         <div className="row expanded" key={data.fullName}>
@@ -221,7 +229,7 @@ class BDInformation extends Component {
           <div className="small-5 columns">
             <FormInput
               name="commissions.commissionPct"
-              value={data ? data.percentage : 0}
+              value={data ? data.contribution : 0}
               onChange={(e) => {
                 let num = Number(e.target.value);
                 this.setpercentage(num, filtedData, index, type);
@@ -246,7 +254,7 @@ class BDInformation extends Component {
                 size="small"
                 onClick={() => {
                   filtedData.push({
-                    percentage: 0,
+                    contribution: 0,
                   });
                   this.setState({
                     [stateKey]: filtedData.slice(),
@@ -287,7 +295,6 @@ class BDInformation extends Component {
       let newcheckedMember = companyInfo.map((item, index) => {
         return {
           ...item,
-          fullName: item.firstName + ' ' + item.lastName,
         };
       });
       return newcheckedMember;
@@ -304,7 +311,7 @@ class BDInformation extends Component {
     if (newAccountManager.length > 0) {
       if (
         newAccountManager.some((item, index) => {
-          if (item.id === user.get('id')) {
+          if (item.userId === user.get('id')) {
             userIndex = index;
             return true;
           }
@@ -312,10 +319,20 @@ class BDInformation extends Component {
       ) {
         newAccountManager.splice(userIndex, 1);
       } else {
-        newAccountManager.push(user.toJS());
+        let _user = {
+          userId: user.get('id'),
+          fullName: user.get('fullName'),
+          salesLeadRoleType: 'ACCOUNT_MANAGER',
+        };
+        newAccountManager.push(_user);
       }
     } else {
-      newAccountManager.push(user.toJS());
+      let _user = {
+        userId: user.get('id'),
+        fullName: user.get('fullName'),
+        salesLeadRoleType: 'ACCOUNT_MANAGER',
+      };
+      newAccountManager.push(_user);
     }
 
     // newAccountManager.push(user.toJS());
@@ -397,19 +414,19 @@ class BDInformation extends Component {
         <div className="row expanded">
           <div className="small-6 columns">
             <FormReactSelectContainer
-              label={t('common:BD Owner')}
+              label="BD Owner"
               isRequired
             ></FormReactSelectContainer>
           </div>
           <div className="small-6 columns">
             <FormReactSelectContainer
               isRequired
-              label={t('common:BD Owner Contribution%')}
+              label={`BD Owner Contribution%`}
               icon={
                 <Tooltip
-                  title={t(
-                    'common:Please make sure all BD Owner Contribution% add up to 50%'
-                  )}
+                  title={
+                    'Please make sure all BD Owner Contribution% add up to 50%'
+                  }
                   arrow
                   placement="top-end"
                 >
@@ -424,19 +441,19 @@ class BDInformation extends Component {
         <div className="row expanded">
           <div className="small-6 columns">
             <FormReactSelectContainer
-              label={this.props.t('tab:Sales Lead Owner')}
+              label="Sales Lead Owner"
               isRequired
             ></FormReactSelectContainer>
           </div>
           <div className="small-6 columns">
             <FormReactSelectContainer
               isRequired
-              label={t('common:Sales Lead Owner Contribution%')}
+              label="Sales Lead Owner Contribution%"
               icon={
                 <Tooltip
-                  title={t(
-                    'common:Please make sure all Sales Lead Owner Contribution% add up to 50%'
-                  )}
+                  title={
+                    'Please make sure all Sales Lead Owner Contribution% add up to 50%'
+                  }
                   arrow
                   placement="top-end"
                 >
@@ -447,90 +464,6 @@ class BDInformation extends Component {
           </div>
         </div>
         {this.setCommissions('Sales Lead Owner')}
-        {/* <span
-          style={{
-            color: '#cc4b37',
-            fontSize: '12px',
-            fontWeight: 'bold',
-            fontFamily: 'Roboto',
-          }}
-        >
-          {errorMessage && errorMessage.get('salesLeadOwner')
-            ? errorMessage.get('salesLeadOwner')
-            : null}
-        </span>
-        <span
-          style={{
-            color: '#cc4b37',
-            fontSize: '12px',
-            fontWeight: 'bold',
-            fontFamily: 'Roboto',
-          }}
-        >
-          {errorMessage && errorMessage.get('salesLeadOwnerContribution')
-            ? errorMessage.get('salesLeadOwnerContribution')
-            : null}
-        </span>
-        <span
-          style={{
-            color: '#cc4b37',
-            fontSize: '12px',
-            fontWeight: 'bold',
-            fontFamily: 'Roboto',
-          }}
-        >
-          {errorMessage && errorMessage.get('bDOwner')
-            ? errorMessage.get('bDOwner')
-            : null}
-        </span>
-        <span
-          style={{
-            color: '#cc4b37',
-            fontSize: '12px',
-            fontWeight: 'bold',
-            fontFamily: 'Roboto',
-          }}
-        >
-          {errorMessage && errorMessage.get('bDOwnerContribution')
-            ? errorMessage.get('bDOwnerContribution')
-            : null}
-        </span>
-        <span
-          style={{
-            color: '#cc4b37',
-            fontSize: '12px',
-            fontWeight: 'bold',
-            fontFamily: 'Roboto',
-          }}
-        >
-          {errorMessage && errorMessage.get('ServiceTypeValidate')
-            ? errorMessage.get('ServiceTypeValidate')
-            : null}
-        </span>
-        <span
-          style={{
-            color: '#cc4b37',
-            fontSize: '12px',
-            fontWeight: 'bold',
-            fontFamily: 'Roboto',
-          }}
-        >
-          {errorMessage && errorMessage.get('accountManager')
-            ? errorMessage.get('accountManager')
-            : null}
-        </span>
-        <span
-          style={{
-            color: '#cc4b37',
-            fontSize: '12px',
-            fontWeight: 'bold',
-            fontFamily: 'Roboto',
-          }}
-        >
-          {errorMessage && errorMessage.get('serviceType')
-            ? errorMessage.get('serviceType')
-            : null}
-        </span> */}
       </>
     );
   }

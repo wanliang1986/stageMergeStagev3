@@ -112,16 +112,11 @@ class HeaderCell extends React.PureComponent {
                 fontSize: 14,
               }}
             >
-              {column.type === 'activityCount' && <div>{t('Sum of')}</div>}
+              {column.type === 'activityCount' && <div>Sum of</div>}
               {t(column.colName)}
-              {console.log(column.colName)}
               &nbsp;
               {column.detail && (
-                <LightTooltip
-                  title={t(`${column.detail}`)}
-                  arrow
-                  leaveDelay={200}
-                >
+                <LightTooltip title={column.detail} arrow leaveDelay={200}>
                   <InfoIcon color={'action'} fontSize={'small'} />
                 </LightTooltip>
               )}

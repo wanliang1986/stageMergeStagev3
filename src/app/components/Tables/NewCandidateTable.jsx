@@ -1,7 +1,6 @@
 import { withStyles } from '@material-ui/core';
 import React, { Component } from 'react';
-import { AgGridReact, AgGridColumn } from '@ag-grid-community/react';
-import { ViewportRowModelModule } from '@ag-grid-enterprise/viewport-row-model';
+import { AgGridColumn, AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 import { connect } from 'react-redux';
@@ -19,23 +18,65 @@ const defaultColDef = {
   resizable: true,
 };
 
+const columns = [
+  {
+    colName: 'Name',
+    column: 'fullName',
+    colWidth: 250,
+    flexGrow: 3,
+    type: 'nameCell',
+  },
+  {
+    colName: 'Company',
+    column: 'company',
+    colWidth: 170,
+    flexGrow: 3,
+    type: 'companyCell',
+  },
+  {
+    colName: 'Job Title',
+    column: 'title',
+    colWidth: 160,
+    flexGrow: 3,
+    type: 'jobTitleCell',
+  },
+  {
+    colName: 'Skills',
+    column: 'skills',
+    colWidth: 200,
+    flexGrow: 3,
+    type: 'skillsCell',
+  },
+  // {
+  //   colName: 'AI Score',
+  //   column: 'score',
+  //   colWidth: '60',
+  //   flexGrow: 1,
+  // },
+];
+
 const styles = {
   root: {
     width: '100%',
-    height: '100%',
+    height: '90%',
     padding: '10px',
   },
+  // headerCell: {
+  //   '.ag-theme-alpine &.ag-header-cell': {
+  //     padding: '0',
+  //   },
+  // },
 };
 
 const CompanyCell = ({ data }) => {
+  let pastExperiences = data.currentExperiences;
+  let companyList =
+    pastExperiences &&
+    pastExperiences.map((item, index) => {
+      return item.companyName;
+    });
+  let company = Array.from(new Set(companyList)).join(',');
   if (data) {
-    let pastExperiences = data.currentExperiences;
-    let companyList =
-      pastExperiences &&
-      pastExperiences.map((item, index) => {
-        return item.companyName;
-      });
-    let company = Array.from(new Set(companyList)).join(',');
     return (
       <Tooltip title={company} arrow placement="top">
         <div>{company}</div>
@@ -45,17 +86,16 @@ const CompanyCell = ({ data }) => {
 };
 
 const NameCell = ({ data }) => {
+  console.log(data);
+  let fullName = data.fullName;
+  let id = data.id;
   if (data) {
-    let fullName = data.fullName;
-    let id = data.id;
     return <Link to={`/candidates/detail/${id}`}>{fullName}</Link>;
   }
 };
 
 const JobTitleCell = ({ data }) => {
-  if (!data) {
-    return '';
-  }
+  console.log(data);
   let pastExperiences = data.currentExperiences;
   let titleList =
     pastExperiences &&
@@ -71,9 +111,6 @@ const JobTitleCell = ({ data }) => {
 };
 
 const SkillsCell = ({ data }) => {
-  if (!data) {
-    return '';
-  }
   let _skills =
     data.skills &&
     data.skills.map((item, index) => {
@@ -87,103 +124,25 @@ const SkillsCell = ({ data }) => {
   );
 };
 
-const ApplyJobBtnCell = (params) => {
-  if (!params.data) {
-    return '';
-  }
-  // console.log(params);
+const ApplyJobBtnCell = ({ data, onApply }) => {
   return (
-    <IconButton
-      color="primary"
-      onClick={() => params.onApply(params.data.id)}
-      size={'small'}
-    >
+    <IconButton color="primary" onClick={() => onApply(data.id)} size={'small'}>
       <AssignJobIcon />
     </IconButton>
   );
 };
 
-const columns = [
-  {
-    headerName: 'Name',
-    field: 'fullName',
-    minWidth: 200,
-    cellRenderer: NameCell,
-  },
-  {
-    headerName: 'Company',
-    field: 'company',
-    minWidth: 170,
-    cellRenderer: CompanyCell,
-  },
-  {
-    headerName: 'Job Title',
-    field: 'title',
-    minWidth: 160,
-    cellRenderer: JobTitleCell,
-  },
-  {
-    headerName: 'Skills',
-    field: 'skills',
-    minWidth: 200,
-    cellRenderer: SkillsCell,
-  },
-  // {
-  //   headerName: 'AI Score',
-  //   field: 'score',
-  //   width: '60',
-  // },
-
-  // {
-  //   headerName: ' ',
-  //   width: 60,
-  //   resizable: false,
-  //   suppressMovable: false,
-  //   cellRenderer: ApplyJobBtnCell,
-  //   cellStyle: { padding: '0 10px' },
-  // },
-];
+const frameworkComponents = {
+  companyCell: CompanyCell,
+  jobTitleCell: JobTitleCell,
+  nameCell: NameCell,
+  skillsCell: SkillsCell,
+  applyJobBtnCell: ApplyJobBtnCell,
+};
 
 class NewCandidateTable extends Component {
-  modules = [ViewportRowModelModule];
-  defaultColDef = {
-    ...defaultColDef,
-    cellRendererParams: { onApply: this.props.onApply },
-  };
-
-  viewportDatasource = {
-    init: (params) => {
-      this.viewportDatasource.params = params;
-      setTimeout(() => {
-        this.viewportDatasource.params.setRowCount(this.props.talentsList.size);
-      }, 20);
-    },
-    setViewportRange: (firstRow, lastRow) => {
-      // console.log(firstRow, lastRow);
-      const rowData = this.props.talentsList
-        .toJS()
-        .slice(firstRow, lastRow + 1)
-        .reduce((res, value, index) => {
-          res[index + firstRow] = value;
-          return res;
-        }, {});
-      // console.log(rowData);
-      this.viewportDatasource.params.setRowData(rowData, true);
-    },
-  };
-
-  handleGridReady = (params) => {
-    params.api.setViewportDatasource(this.viewportDatasource);
-  };
-
-  componentDidUpdate(prevProps) {
-    if (prevProps.talentsList !== this.props.talentsList) {
-      this.viewportDatasource.params.setRowCount(this.props.talentsList.size);
-    }
-  }
-
   render() {
-    const { classes, pageSize } = this.props;
+    const { classes, talentsList } = this.props;
     return (
       <div className={classes.root}>
         <div
@@ -191,19 +150,46 @@ class NewCandidateTable extends Component {
           style={{ height: '100%', width: '100%' }}
         >
           <AgGridReact
-            modules={this.modules}
-            columnDefs={columns}
-            defaultColDef={this.defaultColDef}
+            defaultColDef={defaultColDef}
+            rowData={talentsList.toJS()}
+            frameworkComponents={frameworkComponents}
             suppressDragLeaveHidesColumns={true}
-            onGridReady={this.handleGridReady}
+            onGridReady={this.onGridReady}
+            applyColumnDefOrder={true}
             suppressLoadingOverlay={true}
             pagination={true}
-            paginationPageSize={pageSize}
-            rowSelection={'multiple'}
-            rowModelType={'viewport'}
-            viewportRowModelPageSize={1}
-            viewportRowModelBufferSize={0}
-          />
+            paginationPageSize={15}
+            overlayNoRowsTemplate={'<span style="padding: 10px;"></span>'}
+          >
+            {columns.map((item, index) => {
+              return (
+                <AgGridColumn
+                  key={index}
+                  field={item.column}
+                  headerName={item.colName}
+                  width={item.colWidth}
+                  minWidth={item.colWidth}
+                  // flex={item.flexGrow}
+                  // resizable={true}
+                  cellRenderer={item.type}
+                />
+              );
+            })}
+            {/*{this.props.onApply && (*/}
+            {/*  <AgGridColumn*/}
+            {/*    suppressMovable={false}*/}
+            {/*    width="50"*/}
+            {/*    pinned="right"*/}
+            {/*    cellRenderer="applyJobBtnCell"*/}
+            {/*    cellRendererParams={{*/}
+            {/*      onApply: this.props.onApply*/}
+            {/*    }}*/}
+            {/*    resizable={false}*/}
+            {/*    cellStyle={{ padding: '0 10px' }}*/}
+            {/*  />*/}
+            {/*)}*/}
+            <AgGridColumn suppressMovable={false} flex={1} resizable={false} />
+          </AgGridReact>
         </div>
       </div>
     );

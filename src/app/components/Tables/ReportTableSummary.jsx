@@ -284,14 +284,10 @@ const JobTypeCell = ({
 }) => {
   const text = data.getIn([rowIndex, col]);
   const _text = newJobType.filter(({ value }) => value === text);
-
-  console.log(_text);
   return (
     <Cell {...props}>
       <Tooltip
-        title={
-          <span style={{ whiteSpace: 'pre-line' }}>{_text?.[0]?.label}</span>
-        }
+        title={<span style={{ whiteSpace: 'pre-line' }}>{_text[0].label}</span>}
         arrow
         placement="top"
       >
@@ -299,7 +295,7 @@ const JobTypeCell = ({
           className="overflow_ellipsis_1"
           style={{ width: props.width - 26 }}
         >
-          {_text?.[0]?.label}
+          {_text[0].label}
         </div>
       </Tooltip>
     </Cell>

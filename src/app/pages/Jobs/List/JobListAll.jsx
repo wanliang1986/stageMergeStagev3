@@ -176,7 +176,7 @@ class JobListAll extends React.PureComponent {
                   size="small"
                 />
               }
-              label={t('tab:Only Favorite Jobs')}
+              label="Only Favorite Jobs"
               labelPlacement="start"
             />
           </div>
@@ -193,7 +193,7 @@ class JobListAll extends React.PureComponent {
                   general: e.target.value,
                 });
               }}
-              placeholder={t('tab:Search Jobs')}
+              placeholder="Search Jobs"
               startAdornment={
                 <InputAdornment color="disabled" position="start">
                   <SearchIcon style={{ fontSize: 18 }} />
@@ -201,9 +201,7 @@ class JobListAll extends React.PureComponent {
               }
             />
             <span onClick={this.handleShow} style={{ ...styles.show }}>
-              {showFilter
-                ? this.props?.t('tab:Hide Filters')
-                : this.props?.t('tab:Show Filters')}
+              {showFilter ? 'Hide Filters' : 'Show Filters'}
             </span>
           </div>
         </div>
@@ -222,7 +220,6 @@ JobListAll.propTypes = {
 
 const mapStateToProps = (state) => {
   const options = state.controller.newSearchOptions.toJS();
-  console.log(options);
   const { count, isFavorite, basicSearch, advancedFilter, general, pageModel } =
     state.controller.newSearchJobs.toJS();
   const showSearchBox =

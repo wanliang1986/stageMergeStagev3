@@ -6,7 +6,6 @@ import { styles } from '../pages/Reports/params';
 import clsx from 'clsx';
 import { withStyles } from '@material-ui/core/styles';
 import SetChartSize from './SetChartSize';
-import { withTranslation } from 'react-i18next';
 let styles_inside = {
   identiContent: {
     position: 'absolute',
@@ -55,10 +54,8 @@ class BarChart extends PureComponent {
   };
 
   render() {
-    const { Load, classes, country } = this.props;
+    const { Load, classes } = this.props;
     const { averageLineFlg, targetLineFlag } = this.state;
-
-    console.log(country);
     return (
       <div className="examples" style={{ position: 'relative' }}>
         <div className="parent">
@@ -93,45 +90,38 @@ class BarChart extends PureComponent {
               style={{
                 fontWeight: 'bold',
                 color: averageLineFlg ? '#fdb88e' : '#556371',
-                cursor: 'pointer',
               }}
             >
               - - -
             </span>
-            &nbsp; {this.props.t('tab:Average')}
+            &nbsp; Average
           </div>
-
-          {/* mock2 target 只有country 为test(Global（Non-China）-USD（US$）) 时 才出现 */}
-
-          {country === 'NON_CHINA' && (
-            <div style={styles_inside.identiItem}>
-              <span
-                style={{
-                  fontWeight: 'bold',
-                  color: '#556371',
-                  cursor: 'pointer',
-                  // color: targetLineFlag ? '#a0a3fa' : '#556371',
-                }}
-                onClick={() => {
-                  this.setState(
-                    {
-                      targetLineFlag: !this.state.targetLineFlag,
-                    },
-                    () => {
-                      if (targetLineFlag) {
-                        this.setColor('targetLineColor', 'rgba(0,0,0,0)');
-                      } else {
-                        this.setColor('targetLineColor', '#a0a3fa');
-                      }
-                    }
-                  );
-                }}
-              >
-                - - -
-              </span>
-              &nbsp; {this.props.t('tab:Target')}
-            </div>
-          )}
+          <div style={styles_inside.identiItem}>
+            <span
+              style={{
+                fontWeight: 'bold',
+                color: '#556371',
+                // color: targetLineFlag ? '#a0a3fa' : '#556371',
+              }}
+              // onClick={() => {
+              //   this.setState(
+              //     {
+              //       targetLineFlag: !this.state.targetLineFlag,
+              //     },
+              //     () => {
+              //       if (targetLineFlag) {
+              //         this.setColor('targetLineColor', 'rgba(0,0,0,0)');
+              //       } else {
+              //         this.setColor('targetLineColor', '#a0a3fa');
+              //       }
+              //     }
+              //   );
+              // }}
+            >
+              - - -
+            </span>
+            &nbsp; Target
+          </div>
         </div>
 
         <SetChartSize {...this.props} />
@@ -150,4 +140,4 @@ class BarChart extends PureComponent {
   }
 }
 
-export default withTranslation('tab')(withStyles(styles)(BarChart));
+export default withStyles(styles)(BarChart);

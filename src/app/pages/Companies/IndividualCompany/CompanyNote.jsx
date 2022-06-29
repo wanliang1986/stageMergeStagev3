@@ -15,7 +15,7 @@ import * as ActionTypes from '../../../constants/actionTypes';
 
 import Button from '@material-ui/core/Button';
 import { SaveContentIcon } from './../../../components/Icons';
-import { withTranslation } from 'react-i18next';
+
 const styles = {
   root: {
     position: 'relative',
@@ -73,7 +73,7 @@ class CompanyNote extends React.Component {
       .then(({ response }) => {
         this.setState({
           loading: false,
-          content: (response && response.info) || '',
+          content: (response && response.note) || '',
         });
       })
       .catch((err) => {
@@ -138,7 +138,7 @@ class CompanyNote extends React.Component {
 
   render() {
     const { loading, content } = this.state;
-    const { classes, company, canEdit, t } = this.props;
+    const { classes, company, canEdit } = this.props;
     if (loading) {
       return <Loading />;
     }
@@ -319,13 +319,13 @@ class CompanyNote extends React.Component {
               disabled={!this.state.isDirty || this.state.processing}
               onClick={this.saveData}
               startIcon={<SaveContentIcon style={{ fontSize: 24 }} />}
-              title={t('tab:Save')}
+              title={'Save'}
             >
               {this.state.isDirty
-                ? t('tab:Save')
+                ? 'Save'
                 : this.state.processing
-                ? t('tab:Saving') + '...'
-                : t('tab:Saved')}
+                ? 'Saving...'
+                : 'Saved'}
             </Button>
           )}
         </div>
@@ -362,6 +362,4 @@ const mapStateToProps = (state, { company }) => {
   };
 };
 
-export default withTranslation('tab')(
-  connect(mapStateToProps)(withStyles(styles)(CompanyNote))
-);
+export default connect(mapStateToProps)(withStyles(styles)(CompanyNote));

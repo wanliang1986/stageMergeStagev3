@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import hoistNonReactStatics from 'hoist-non-react-statics';
@@ -11,21 +11,16 @@ import {
   CandidateContact,
   CandidateNetWork,
 } from '../../../../constants/formOptions';
-import loadsh from 'lodash';
 import { isNum } from '../../../../../utils/search';
 import { withStyles } from '@material-ui/core/styles';
 import Select from 'react-select';
 import Avatar from '@material-ui/core/Avatar';
 import Divider from '@material-ui/core/Divider';
 import Switch from '@material-ui/core/Switch';
-import Checkbox from '@material-ui/core/Checkbox';
-import Typography from '@material-ui/core/Typography';
 
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import DeleteIcon from '@material-ui/icons/Delete';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import DialogActions from '@material-ui/core/DialogActions';
+
 import FormInput from '../../../../components/particial/FormInput';
 import FormReactSelectContainer from '../../../../components/particial/FormReactSelectContainer';
 import JobTree from '../../../../components/candidateTree';
@@ -33,33 +28,9 @@ import JobCandidateTree from '../../../../components/newCandidateTree';
 import Location from '../../../../components/particial/Location';
 import WorkAuthTree from '../../../../components/candidateSelectTree';
 import ImageEditor from '../../../../components/ImageEditor';
-import Dialog from '@material-ui/core/Dialog';
-import SendBasicInfoEmail from '../../../../components/SendBasicInfoEmail';
-import {
-  candidatesSendEmailDetails,
-  candidatesSendEmail,
-  candidatesReseting,
-  getProtal,
-} from '../../../../../apn-sdk/onBoarding';
-import moment from 'moment-timezone';
 import * as Colors from '../../../../styles/Colors';
-import { showErrorMessage } from '../../../../actions';
-import { getCandidateColumns } from '../../../../../apn-sdk';
-import PrimaryButton from '../../../../components/particial/PrimaryButton';
 
 const styles = {
-  fullWidth: {
-    width: '100%',
-    '&>div': {
-      width: '100%',
-    },
-  },
-  flex: {
-    display: 'flex',
-    alignItems: 'center',
-    cursor: 'pointer',
-    marginRight: 10,
-  },
   autoBox: {
     '& .MuiFormControl-fullWidth': {
       borderColor: '#cc4b37 !important',
@@ -80,19 +51,19 @@ const ContactTypeList = [
 
 const errorMessages = {
   firstname: {
-    1001: 'message:First Name is required',
-    1002: 'message:First name is not valid',
+    1001: 'First Name is required',
+    1002: 'First name is not valid',
   },
   lastname: {
-    1001: 'message:Last Name is required',
-    1002: 'message:Last name is not valid',
+    1001: 'Last Name is required',
+    1002: 'Last name is not valid',
   },
   fullName: {
     1001: 'message:fullNameIsRequired',
-    1002: 'message:Last name is not valid',
+    1002: 'Last name is not valid',
   },
   contact: {
-    1001: 'message:Contacts is required',
+    1001: 'Contacts is required',
     1002: 'message:No more than 10 Phone',
     1003: 'message:No more than 10 Email',
     1004: 'message:The phone format is not correct',
@@ -115,17 +86,16 @@ const errorMessages = {
     1001: 'Job Function is required',
   },
   location: {
-    1001: 'message:Current Location is required',
+    1001: 'Current Location is required',
   },
   languages: {
-    1001: 'message:Languages is required',
+    1001: 'Languages is required',
   },
   experienceInfor: {
     1001: 'message:Title And Company is required',
     1002: 'message:Duration End Date is required',
     1003: 'message:Duration Start Date is required',
     1004: 'message:Please check if the text exceeds the limit',
-    1005: 'message:The start time cannot be later than the end time',
   },
   educations: {
     1001: 'message:Please provide at lease one of following fields, Major, Degree, School',
@@ -151,403 +121,6 @@ const currencyLabels = currencyOptions.reduce((res, v) => {
   return res;
 }, {});
 
-// 点击save且勾选Inactivate
-const InactivateDialog = (props) => {
-  const { getCel, getInactivate, inactivateLoding, fullName } = props;
-  const [open, setOpen] = useState(true);
-  return (
-    <Dialog open={open}>
-      <div
-        style={{
-          width: '464px',
-          borderRadius: '4px',
-          padding: '24px',
-        }}
-      >
-        <div
-          style={{
-            marginBottom: '20px',
-            color: '#505050',
-            fontSize: '16px',
-            fontWeight: '500',
-          }}
-        >
-          Are you sure to inactivate {fullName}'s account?
-        </div>
-        <div style={{ display: 'flex' }}>
-          <div style={{ marginRight: '8px' }}>
-            <PrimaryButton
-              style={{
-                border: 'solid 1px #3398dc',
-              }}
-              type="submit"
-              fullWidth
-              processing={inactivateLoding}
-              onClick={() => getInactivate()}
-            >
-              Inactivate
-            </PrimaryButton>
-          </div>
-          <div>
-            <PrimaryButton
-              style={{
-                background: 'white',
-                color: '#3398dc',
-                border: 'solid 1px #3398dc',
-              }}
-              type="submit"
-              fullWidth
-              onClick={() => getCel()}
-            >
-              Cancel
-            </PrimaryButton>
-          </div>
-        </div>
-      </div>
-    </Dialog>
-  );
-};
-
-// 点击Management候选人已有账户的弹框
-const ResetProtalDialog = (props) => {
-  const {
-    setshowregister,
-    setSave,
-    ResetLoding,
-    errStatus,
-    errYypeValue,
-    errRetypeValue,
-    InformationDetails,
-    inactiveStatus,
-  } = props;
-  const [open, setOpen] = useState(true);
-  const [typeValue, setTypeValue] = useState('');
-  const [retypeValue, setRetypeValue] = useState('');
-  const [checked, setChecked] = useState(inactiveStatus);
-  const [inStatus, setInStatus] = useState(inactiveStatus);
-  const addSave = () => {
-    let params = {
-      typeValue,
-      retypeValue,
-      checked,
-    };
-    setSave(params);
-  };
-  const getPassword = (e) => {
-    setTypeValue(e.target.value.replace(/[\u4e00-\u9fa5]/g, ''));
-  };
-
-  const getPasswordRe = (e) => {
-    setRetypeValue(e.target.value.replace(/[\u4e00-\u9fa5]/g, ''));
-  };
-  const handleChange = (e) => {
-    setChecked(e.target.checked);
-    setInStatus(!checked);
-    if (!inStatus) {
-      setTypeValue('');
-      setRetypeValue('');
-    }
-  };
-
-  return (
-    <Dialog open={open}>
-      <div
-        style={{
-          width: '600px',
-          borderRadius: '4px',
-          padding: '24px',
-        }}
-      >
-        <div
-          style={{
-            marginBottom: '20px',
-            color: '#505050',
-            fontSize: '16px',
-            fontWeight: '500',
-          }}
-        >
-          Reset Portal Account
-        </div>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            marginBottom: '18px',
-          }}
-          className="row expanded small-12"
-        >
-          <div
-            className="small-3 columns"
-            style={{
-              lineHeight: '32px',
-              textAlign: 'right',
-              paddingRight: '14px',
-            }}
-          >
-            Password
-          </div>
-          <div className="small-9 columns">
-            <FormInput
-              disabled={inStatus}
-              onChange={(e) => getPassword(e)}
-              value={typeValue}
-              placeholder={'Type password (6 - 16 Characters)'}
-              maxlength={16}
-            />
-          </div>
-          {errYypeValue ? (
-            <div style={{ color: 'red', position: 'relative', left: '25.5%' }}>
-              Type password (6 - 16 Characters)
-            </div>
-          ) : null}
-        </div>
-        <div
-          className="row expanded small-12"
-          style={{ display: 'flex', justifyContent: 'space-between' }}
-        >
-          <div className="small-3 columns" style={{ lineHeight: '32px' }}>
-            Re-type Password
-          </div>
-          <div className="small-9 columns">
-            <FormInput
-              disabled={inStatus}
-              onChange={(e) => getPasswordRe(e)}
-              value={retypeValue}
-              placeholder={'Re-type password'}
-              maxlength={16}
-            />
-          </div>
-          {errRetypeValue ? (
-            <div style={{ color: 'red', position: 'relative', left: '25.5%' }}>
-              Re-type password (6 - 16 Characters)
-            </div>
-          ) : null}
-
-          {errStatus ? (
-            <div style={{ color: 'red', position: 'relative', left: '25.5%' }}>
-              the entered passwords are inconsistent
-            </div>
-          ) : null}
-        </div>
-
-        <div
-          className="row expanded small-12"
-          style={{ display: 'flex', justifyContent: 'space-between' }}
-        >
-          <div
-            className="small-3 columns"
-            style={{
-              lineHeight: '32px',
-              textAlign: 'right',
-              paddingRight: '14px',
-            }}
-          >
-            Inactivate
-          </div>
-          <div className="small-9 columns">
-            <Checkbox
-              checked={checked}
-              onChange={(e) => handleChange(e)}
-              style={{ position: 'relative', left: '-12px' }}
-              color="primary"
-              inputProps={{ 'aria-label': 'secondary checkbox' }}
-            />
-          </div>
-        </div>
-        <div
-          style={{ marginLeft: '142px', marginTop: '20px', display: 'flex' }}
-        >
-          <div style={{ marginRight: '8px' }}>
-            <PrimaryButton
-              style={{
-                border: 'solid 1px #3398dc',
-              }}
-              type="submit"
-              fullWidth
-              processing={ResetLoding}
-              onClick={() => addSave()}
-            >
-              Save
-            </PrimaryButton>
-          </div>
-          <div>
-            <PrimaryButton
-              style={{
-                background: 'white',
-                color: '#3398dc',
-                border: 'solid 1px #3398dc',
-              }}
-              type="submit"
-              fullWidth
-              onClick={() => setshowregister(false)}
-            >
-              Cancel
-            </PrimaryButton>
-          </div>
-        </div>
-      </div>
-    </Dialog>
-  );
-};
-
-//点击Management候选人没有账户的弹框
-const ManagementDialog = (props) => {
-  const { setshowregister, setUnlock, fullName } = props;
-  const [open, setOpen] = useState(true);
-  return (
-    <Dialog open={open}>
-      <div
-        style={{
-          width: 421,
-          height: 234,
-          padding: '26px 24px 41px 24px',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-        }}
-      >
-        <div>
-          <div
-            style={{
-              fontSize: 16,
-              color: '#505050',
-              fontWeight: 500,
-              marginBottom: '24px',
-            }}
-          >
-            Create Account
-          </div>
-          <div
-            style={{
-              fontSize: 14,
-              color: '#505050',
-            }}
-          >
-            There is no candidate portal account for {fullName} 's, do you want
-            to create one?
-          </div>
-        </div>
-        <div>
-          <span
-            style={{
-              width: '107px',
-              height: '33px',
-              lineHeight: '33px',
-              borderRadius: '4px',
-              border: 'solid 1px #3398dc',
-              display: 'inline-block',
-              textAlign: 'center',
-              color: '#fff',
-              background: '#3398dc',
-              cursor: 'pointer',
-              marginRight: '8px',
-            }}
-            onClick={() => setUnlock()}
-          >
-            Create
-          </span>
-          <span
-            style={{
-              width: '107px',
-              height: '33px',
-              lineHeight: '33px',
-              borderRadius: '4px',
-              border: 'solid 1px #3398dc',
-              display: 'inline-block',
-              textAlign: 'center',
-              color: '#3398dc',
-
-              cursor: 'pointer',
-            }}
-            onClick={() => setshowregister(false)}
-          >
-            Cancel
-          </span>
-        </div>
-      </div>
-    </Dialog>
-  );
-};
-
-// 邮箱发生改变时候的弹框
-const EmailDialog = (props) => {
-  const { setCancel, setSubmit, fullName } = props;
-  const [open, setOpen] = useState(true);
-  return (
-    <Dialog open={open}>
-      <div
-        style={{
-          width: 421,
-          height: 234,
-          padding: '26px 24px 41px 24px',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-        }}
-      >
-        <div>
-          <div
-            style={{
-              fontSize: 16,
-              color: '#505050',
-              fontWeight: 500,
-              marginBottom: '24px',
-            }}
-          >
-            Are you sure to change {fullName}’s email?
-          </div>
-          <div
-            style={{
-              fontSize: 14,
-              color: '#505050',
-            }}
-          >
-            Once you changed {fullName}’s email, the login account will be
-            changed as well.
-          </div>
-        </div>
-        <div>
-          <span
-            style={{
-              width: '107px',
-              height: '33px',
-              lineHeight: '33px',
-              borderRadius: '4px',
-              border: 'solid 1px #3398dc',
-              display: 'inline-block',
-              textAlign: 'center',
-              color: '#fff',
-              background: '#3398dc',
-              cursor: 'pointer',
-              marginRight: '8px',
-            }}
-            onClick={() => setSubmit()}
-          >
-            Submit
-          </span>
-          <span
-            style={{
-              width: '107px',
-              height: '33px',
-              lineHeight: '33px',
-              borderRadius: '4px',
-              border: 'solid 1px #3398dc',
-              display: 'inline-block',
-              textAlign: 'center',
-              color: '#3398dc',
-
-              cursor: 'pointer',
-            }}
-            onClick={() => setCancel(false)}
-          >
-            Cancel
-          </span>
-        </div>
-      </div>
-    </Dialog>
-  );
-};
-
 class BasicInfoForm extends React.Component {
   constructor(props) {
     super(props);
@@ -569,30 +142,36 @@ class BasicInfoForm extends React.Component {
           contactPhoneList.push(item);
         } else if (item.type === 'EMAIL') {
           contactEmailList.push(item);
-        } else {
-          socilaNetworkListTwo.push(item);
         }
       });
+    const industrieArr =
+      paserBasicInfo.industries &&
+      paserBasicInfo.industries.map((item) => {
+        return item.dictCode;
+      });
+    const jobFunctionArr =
+      paserBasicInfo.jobFunctions &&
+      paserBasicInfo.jobFunctions.map((item) => {
+        return item.dictCode;
+      });
+    const languageArr =
+      paserBasicInfo.languages &&
+      paserBasicInfo.languages.map((item) => {
+        return item.dictCode;
+      });
     this.state = {
-      emailBounced: false,
-      getEmaiStatus: false,
-      basicInformationDetailStatus: false,
-      inactiveStatus: false,
-      errYypeValue: false,
-      errRetypeValue: false,
-      errStatus: false,
-      ResetLoding: false,
-      inactivateLoding: false,
-      InactivateStatus: false,
-      protalStatus: false,
-      protalPsswordStatus: false,
       errorMessage: Immutable.Map(),
       photoUrl: props.basicInfo.get('photoUrl'),
       editImg: null,
-      sourceType: props.basicInfo.get('sourcingChannel'),
-      rangeStatus: paserBasicInfo.salaryRange
-        ? paserBasicInfo.salaryRange.gte !== paserBasicInfo.salaryRange.lte
-        : false,
+      sourceType:
+        paserBasicInfo.tenantLabels &&
+        paserBasicInfo.tenantLabels.sourcingChannel,
+      rangeStatus:
+        paserBasicInfo.additionalInfo &&
+        paserBasicInfo.additionalInfo.salaryRange
+          ? paserBasicInfo.additionalInfo.salaryRange.gte !==
+            paserBasicInfo.additionalInfo.salaryRange.lte
+          : false,
       experienceFlag: false,
       contactList:
         contactPhoneList.length > 0
@@ -606,28 +185,40 @@ class BasicInfoForm extends React.Component {
         socilaNetworkListTwo.length > 0
           ? socilaNetworkListTwo
           : [{ type: '', contact: '', details: null }],
-      industry: paserBasicInfo.industries || [],
-      jobCheckedList: paserBasicInfo.jobFunctions || [],
+      industry:
+        industrieArr && industrieArr[0]
+          ? industrieArr
+          : paserBasicInfo.industries || [],
+      jobCheckedList:
+        jobFunctionArr && jobFunctionArr[0]
+          ? jobFunctionArr
+          : paserBasicInfo.jobFunctions || [],
       currentLocation: paserBasicInfo.currentLocation || {},
-      languageCheckedList: paserBasicInfo.languages || [],
-      workCheckList: paserBasicInfo.workAuthorization || [],
-      ratecurrency: paserBasicInfo.currency || 'USD',
-      unitType: paserBasicInfo.payType || 'YEARLY',
-      range: paserBasicInfo.salaryRange || { gte: null, lte: null },
+      languageCheckedList:
+        languageArr && languageArr[0]
+          ? languageArr
+          : paserBasicInfo.languages || [],
+      workCheckList:
+        (paserBasicInfo.tenantLabels &&
+          paserBasicInfo.tenantLabels.workAuthorization) ||
+        [],
+      ratecurrency:
+        (paserBasicInfo.additionalInfo &&
+          paserBasicInfo.additionalInfo.currency) ||
+        'USD',
+      unitType:
+        (paserBasicInfo.additionalInfo &&
+          paserBasicInfo.additionalInfo.payType) ||
+        'YEARLY',
+      range: (paserBasicInfo.additionalInfo &&
+        paserBasicInfo.additionalInfo.salaryRange) || { gte: null, lte: null },
       resumes: paserBasicInfo.resumes || [],
-      emailObj: {
-        title: 'Email to ',
-      },
-      emailStatus: false,
-      addressLine1: paserBasicInfo.addressLine1 || null,
-      addressLine2: paserBasicInfo.addressLine2 || null,
-      zipCode: paserBasicInfo.zipCode || null,
-      passwordObj: null,
     };
   }
 
   static validateForm = (basicForm, t) => {
     let errorMessage = Immutable.Map();
+
     if (basicForm.firstName && !basicForm.firstName.value.trim()) {
       errorMessage = errorMessage.set(
         'firstname',
@@ -950,21 +541,16 @@ class BasicInfoForm extends React.Component {
     //     t(errorMessages.socialNetwork[1001])
     //   );
     // }
+
     const educationList = JSON.parse(basicForm.educations.value);
     let educationFlag = false;
     let educationNumberFlag = false;
     let educationDateFlag = false;
     let educationTimeFlag = false;
-    let educationAFlag = false;
-    let educationBFlag = false;
-    let eduCureeFlag = false;
     let educationArr = [];
     let educationNumberArr = [];
     let educationDateArr = [];
     let educationTimeArr = [];
-    let educationADatePick = [];
-    let educationBatePick = [];
-    let eduCureeArr = [];
     educationList &&
       educationList.map((item, index) => {
         if (!item.majorName && !item.degreeLevel && !item.collegeName) {
@@ -990,66 +576,7 @@ class BasicInfoForm extends React.Component {
           educationNumberFlag = true;
           educationNumberArr.push(index);
         }
-        if (item.startDate && item.endDate) {
-          // 手动选取日期后格式会变成TZ格式，这里需要转换成YYYY-MM-DD格式
-          let aData = moment(item.startDate).format('YYYY-MM-DD');
-          let startDatex = aData.split('-');
-          let endAssembly = Number(startDatex[0]) + 80;
-          startDatex = endAssembly + '-' + startDatex[1] + '-' + startDatex[2];
-          let eightyDate = moment(startDatex).format('X') * 1000;
-
-          let startDateA = moment(item.startDate).format('X') * 1000;
-          let endDateA = moment(item.endDate).format('X') * 1000;
-          if (startDateA > endDateA) {
-            educationAFlag = true;
-            educationADatePick.push(index);
-          }
-          if (endDateA > eightyDate) {
-            educationBFlag = true;
-            educationBatePick.push(index);
-          }
-        }
-        if (item.startDate && !item.endDate && item.current) {
-          let EduDate = moment(item.startDate).format('YYYY-MM-DD');
-          let EduDateStart = EduDate.split('-');
-          let EduDateStartAssembly = Number(EduDateStart[0]) + 80;
-          EduDateStart =
-            EduDateStartAssembly +
-            '-' +
-            EduDateStart[1] +
-            '-' +
-            EduDateStart[2];
-
-          let sjStarDate = moment(EduDateStart).format('X') * 1000;
-          let todayEduData = moment().format('YYYY-MM-DD');
-          let sjEndDate = moment(todayEduData).format('X') * 1000;
-          if (sjEndDate > sjStarDate) {
-            eduCureeFlag = true;
-            eduCureeArr.push(index);
-          }
-        }
       });
-    if (eduCureeFlag) {
-      errorMessage = errorMessage.set(
-        'educationInfor',
-        t('message:Work experience duration cannot exceed 80 years')
-      );
-      errorMessage = errorMessage.set('educationDate', eduCureeArr);
-    }
-    if (educationAFlag) {
-      errorMessage = errorMessage.set(
-        'educationInfor',
-        t('message:Start Date must be before End Date')
-      );
-      errorMessage = errorMessage.set('educationDate', educationADatePick);
-    }
-    if (educationBFlag) {
-      errorMessage = errorMessage.set(
-        'educationInfor',
-        t('message:Work experience duration cannot exceed 80 years')
-      );
-      errorMessage = errorMessage.set('educationDate', educationBatePick);
-    }
     if (educationDateFlag) {
       errorMessage = errorMessage.set(
         'educations',
@@ -1083,16 +610,9 @@ class BasicInfoForm extends React.Component {
     let projectFlag = false;
     let projectDateFlag = false;
     let projectTextFlag = false;
-    let projectAFlag = false;
-    let projectBFlag = false;
-    let proNew = false;
     let projectArr = [];
     let projectDateArr = [];
     let projectTextArr = [];
-    let projectADatePick = [];
-    let projectBatePick = [];
-    let proDates = [];
-    let proNewArr = [];
     projectList &&
       projectList.map((item, index) => {
         if (!item.projectName && !item.title && !item.description) {
@@ -1111,88 +631,7 @@ class BasicInfoForm extends React.Component {
           projectTextFlag = true;
           projectTextArr.push(index);
         }
-        if (item.startDate && item.endDate) {
-          proDates.push(
-            moment(item.startDate).format('YYYY-MM-DD'),
-            moment(item.endDate).format('YYYY-MM-DD')
-          );
-          // 手动选取日期后格式会变成TZ格式，这里需要转换成YYYY-MM-DD格式
-
-          // let aData = moment(item.startDate).format('YYYY-MM-DD');
-          // let startDatex = aData.split('-');
-          let proaData = moment(item.startDate).format('YYYY-MM-DD');
-          let probendData = moment(item.endDate).format('YYYY-MM-DD');
-          let startDatex = proaData.split('-');
-
-          let endAssembly = Number(startDatex[0]) + 80;
-          startDatex = endAssembly + '-' + startDatex[1] + '-' + startDatex[2];
-          let eightyDate = moment(startDatex).format('X') * 1000;
-
-          let startDateA = moment(proaData).format('X') * 1000;
-          let endDateA = moment(probendData).format('X') * 1000;
-          let todayData = moment().format('YYYY-MM-DD');
-          let todayStart = moment(todayData).format('X') * 1000;
-          if (startDateA > endDateA) {
-            projectAFlag = true;
-            projectADatePick.push(index);
-          }
-
-          // if (endDateA > eightyDate) {
-          //   projectBFlag = true;
-          //   projectBatePick.push(index);
-          // }
-
-          if (endDateA > todayStart) {
-            projectBFlag = true;
-            projectBatePick.push(index);
-          }
-          // if (endDateA > eightyDate) {
-          //   projectBFlag = true;
-          //   projectBatePick.push(index);
-          // }
-        }
       });
-    let proXdate = [];
-    proDates.forEach((item) => {
-      proXdate.push(moment(item).format('X') * 1000);
-    });
-    var prolatest = Math.max(...proXdate); //取出最大时间戳
-    var proearliest = Math.min(...proXdate); //取出最小时间戳
-    let proalatest = moment(prolatest).format('YYYY-MM-DD');
-    let probearliest = moment(proearliest).format('YYYY-MM-DD');
-
-    let prostartLatest = probearliest.split('-');
-    let prostartAssembly = Number(prostartLatest[0]) + 80;
-    prostartLatest =
-      prostartAssembly + '-' + prostartLatest[1] + '-' + prostartLatest[2];
-
-    let prostartN = moment(prostartLatest).format('X') * 1000;
-
-    if (Number(prolatest) > Number(prostartN)) {
-      proNew = true;
-      proNewArr.push(1);
-    }
-    if (proNew) {
-      errorMessage = errorMessage.set(
-        'projectnewInfor',
-        t('message:Work project duration cannot exceed 80 years')
-      );
-      errorMessage = errorMessage.set('projectnewDate', proNewArr);
-    }
-    if (projectAFlag) {
-      errorMessage = errorMessage.set(
-        'projectInfor',
-        t('message:Start Date must be before End Date')
-      );
-      errorMessage = errorMessage.set('projectDate', projectADatePick);
-    }
-    if (projectBFlag) {
-      errorMessage = errorMessage.set(
-        'projectInfor',
-        t('message:The end time cannot be later than today')
-      );
-      errorMessage = errorMessage.set('projectDate', projectBatePick);
-    }
     if (projectTextFlag) {
       errorMessage = errorMessage.set(
         'projects',
@@ -1216,21 +655,12 @@ class BasicInfoForm extends React.Component {
     }
 
     const experienceInforList = JSON.parse(basicForm.experienceInfor.value);
-
     let experienceInforFlag = false;
-
     let experienceInforTextFlag = false;
     let experienceInforDateFlag = false;
-    let expreDateFlag = false;
-    let eightyFlag = false;
-    let todayFlag = false;
     let experienceInforArr = [];
     let experienceInforTextArr = [];
-    let exprtDatePick = [];
-    let eightyDatePick = [];
     let experienceInforDateArr = [];
-    let todayPickArr = [];
-    let dates = [];
     if (experienceInforList.length > 0) {
       experienceInforList.map((item, index) => {
         if (!item.title || !item.company) {
@@ -1250,101 +680,7 @@ class BasicInfoForm extends React.Component {
           experienceInforTextFlag = true;
           experienceInforTextArr.push(index);
         }
-        if (item.startDate && item.endDate) {
-          // 手动选取日期后格式会变成TZ格式，这里需要转换成YYYY-MM-DD格式
-          let aData = moment(item.startDate).format('YYYY-MM-DD');
-          let bData = moment(item.endDate).format('YYYY-MM-DD');
-          let startDatex = aData.split('-');
-          let endAssembly = Number(startDatex[0]) + 80;
-          startDatex = endAssembly + '-' + startDatex[1] + '-' + startDatex[2];
-          let eightyDate = moment(startDatex).format('X') * 1000;
-
-          let startDateA = moment(aData).format('X') * 1000;
-          let endDateA = moment(bData).format('X') * 1000;
-
-          let todayData = moment().format('YYYY-MM-DD');
-          let todayStart = moment(todayData).format('X') * 1000;
-          if (startDateA > endDateA) {
-            expreDateFlag = true;
-            exprtDatePick.push(index);
-          }
-
-          if (endDateA > todayStart) {
-            eightyFlag = true;
-            eightyDatePick.push(index);
-          }
-          // if (endDateA > eightyDate) {
-          //   eightyFlag = true;
-          //   eightyDatePick.push(index);
-          // }
-        }
-        if (item.current) {
-          dates.push(
-            moment(item.startDate).format('YYYY-MM-DD'),
-            moment().format('YYYY-MM-DD')
-          );
-          // let xmDate = moment(item.startDate).format('YYYY-MM-DD');
-          // let xmDateStart = xmDate.split('-');
-          // let xmDateStartAssembly = Number(xmDateStart[0]) + 80;
-          // xmDateStart =
-          //   xmDateStartAssembly + '-' + xmDateStart[1] + '-' + xmDateStart[2];
-          // let eightyDateStart = moment(xmDateStart).format('X') * 1000;
-          // let todayData = moment().format('YYYY-MM-DD');
-          // let todayStart = moment(todayData).format('X') * 1000;
-          // if (todayStart > eightyDateStart) {
-          //   todayFlag = true;
-          //   todayPickArr.push(index);
-          // }
-          dates.push(
-            moment(item.startDate).format('YYYY-MM-DD'),
-            moment().format('YYYY-MM-DD')
-          );
-        } else {
-          dates.push(
-            moment(item.startDate).format('YYYY-MM-DD'),
-            moment(item.endDate).format('YYYY-MM-DD')
-          );
-        }
       });
-    }
-    let newXdate = [];
-    dates.forEach((item) => {
-      newXdate.push(moment(item).format('X') * 1000);
-    });
-    var latest = Math.max(...newXdate); //取出最大时间戳
-    var earliest = Math.min(...newXdate); //取出最小时间戳
-    let alatest = moment(latest).format('YYYY-MM-DD');
-    let bearliest = moment(earliest).format('YYYY-MM-DD');
-
-    let startLatest = bearliest.split('-');
-    let startAssembly = Number(startLatest[0]) + 80;
-    startLatest = startAssembly + '-' + startLatest[1] + '-' + startLatest[2];
-
-    let startN = moment(startLatest).format('X') * 1000;
-    if (Number(latest) > Number(startN)) {
-      todayFlag = true;
-      todayPickArr.push(1);
-    }
-    if (todayFlag) {
-      errorMessage = errorMessage.set(
-        'DurationDateInforst',
-        t('message:Work experience duration cannot exceed 80 years')
-      );
-      errorMessage = errorMessage.set('DurationDateSe', todayPickArr);
-    }
-    if (expreDateFlag) {
-      errorMessage = errorMessage.set(
-        'DurationDateInfor',
-        t('message:Start Date must be before End Date')
-      );
-      errorMessage = errorMessage.set('DurationDate', exprtDatePick);
-    }
-    if (eightyFlag) {
-      errorMessage = errorMessage.set(
-        'DurationDateInfor',
-        t('message:The end time cannot be later than today')
-      );
-      errorMessage = errorMessage.set('DurationDate', eightyDatePick);
     }
     if (experienceInforTextFlag) {
       errorMessage = errorMessage.set(
@@ -1443,9 +779,6 @@ class BasicInfoForm extends React.Component {
         JSON.parse(basicForm.projects.value).length === 0
           ? null
           : JSON.parse(basicForm.projects.value),
-      addressLine1: basicForm.addressLine1.value,
-      addressLine2: basicForm.addressLine2.value,
-      zipCode: basicForm.zipCode.value,
     };
     if (basicForm.sourceType.value !== 'UNKNOWN') {
       candidate.sourcingChannel = basicForm.sourceType.value;
@@ -1462,9 +795,15 @@ class BasicInfoForm extends React.Component {
       );
     }
     if (basicForm.preferredLocations) {
-      candidate.preferredLocations = JSON.parse(
-        basicForm.preferredLocations.value
-      );
+      let preferredLocationArr = JSON.parse(basicForm.preferredLocations.value);
+      preferredLocationArr = preferredLocationArr
+        ? preferredLocationArr.filter(
+            (item) =>
+              JSON.stringify(item) !== '{}' &&
+              (item.country || item.location || item.province || item.city)
+          )
+        : null;
+      candidate.preferredLocations = preferredLocationArr;
     }
     if (!salaryFlag) {
       candidate.salaryRange = newSalaryRange;
@@ -1495,7 +834,6 @@ class BasicInfoForm extends React.Component {
   onSubmit = (e) => {
     e.preventDefault();
     const basicForm = e.target;
-
     console.log('----滴滴滴----');
     let errorMessage = BasicInfoForm.validateForm(basicForm, this.props.t);
     if (errorMessage) {
@@ -1601,9 +939,6 @@ class BasicInfoForm extends React.Component {
     arr[index].contact = e.target.value;
     this.setState({ contactList: arr });
     this.props.removeErrorMessage('contacts');
-    if (this.props.conChange) {
-      this.props.conChange(false);
-    }
   };
   changeContactEmail = (e, index) => {
     let arr = [...this.state.emailList];
@@ -1758,251 +1093,22 @@ class BasicInfoForm extends React.Component {
       workCheckList: serviceType,
     });
   };
-  // 点击Portal Account Management
-  createAccount = () => {
-    const { InformationDetails } = this.props;
-    getProtal(InformationDetails.id)
-      .then(({ response }) => {
-        // hasAccount状态true 改密码；  false 发邮件
-        if (!response.hasAccount) {
-          this.setState({
-            protalStatus: true,
-            inactiveStatus: response.inactive,
-          });
-        } else {
-          this.setState({
-            protalPsswordStatus: true,
-            inactiveStatus: response.inactive,
-          });
-        }
-      })
-      .catch((err) => {});
-  };
-  // 点击是否inactivate
-  getInactivate = () => {
-    const { InformationDetails } = this.props;
-    this.setState({
-      inactivateLoding: true,
-    });
-    let obj = {
-      inactive: this.state.passwordObj.inactive,
-      password: null,
-      repeatPassword: null,
-    };
-    candidatesReseting(obj, InformationDetails.id)
-      .then((res) => {
-        console.log('res', res);
-        this.props.getEmaiInactiveStatu(this.state.passwordObj.inactive);
-        this.setState({
-          inactivateLoding: false,
-          InactivateStatus: false,
-        });
-      })
-      .catch((err) => {
-        this.props.dispatch(showErrorMessage(err));
-        this.setState({
-          inactivateLoding: false,
-        });
-      });
-  };
-  // 点击修改密码弹框中的save
-  setSav = (data) => {
-    if (data.typeValue.length < 6 && data.typeValue.length != 0) {
-      return this.setState({
-        errYypeValue: true,
-      });
-    } else {
-      this.setState({
-        errYypeValue: false,
-      });
-    }
 
-    if (data.retypeValue.length < 6 && data.retypeValue.length != 0) {
-      return this.setState({
-        errRetypeValue: true,
-        errStatus: false,
-      });
-    } else {
-      this.setState({
-        errRetypeValue: false,
-      });
-    }
-    if (Number(data.retypeValue) === Number(data.typeValue)) {
-      this.setState({
-        errStatus: false,
-      });
-    } else {
-      return this.setState({
-        errStatus: true,
-      });
-    }
-
-    const { InformationDetails } = this.props;
-    let params = {
-      password: data.typeValue,
-      repeatPassword: data.retypeValue,
-      inactive: data.checked,
-    };
-    if (data.checked) {
-      this.setState({
-        InactivateStatus: true,
-        protalPsswordStatus: false,
-        passwordObj: params,
-      });
-    } else {
-      this.setState({
-        ResetLoding: true,
-      });
-      candidatesReseting(params, InformationDetails.id)
-        .then((res) => {
-          console.log('res', res);
-          this.props.getEmaiInactiveStatu(false);
-          this.setState({
-            ResetLoding: false,
-            protalPsswordStatus: false,
-          });
-        })
-        .catch((err) => {
-          this.props.dispatch(showErrorMessage(err));
-          this.setState({
-            ResetLoding: false,
-          });
-        });
-    }
-  };
-  setshowregister = () => {
-    this.setState({
-      protalStatus: false,
-    });
-  };
-  // Create Account弹窗中的Create事件
-  setUnlock = () => {
-    const { InformationDetails } = this.props;
-    this.setState({
-      emailStatus: true,
-      protalStatus: false,
-    });
-    candidatesSendEmailDetails(InformationDetails.id)
-      .then(({ response }) => {
-        console.log('response', response);
-        this.setState({
-          emailObj: {
-            title: 'Email to',
-            htmlContents: response.htmlContents || null,
-            subject: response.subject || null,
-            to: response.to || null,
-            templatesOptions: response.emailTemplates || null,
-          },
-        });
-      })
-      .catch((err) => {
-        this.props.dispatch(showErrorMessage(err));
-      });
-  };
-  // 关闭发送Email弹框
-  getShutDown = () => {
-    this.setState({
-      emailStatus: false,
-    });
-  };
-  // Send Email按钮
-  getSendEmail = (data) => {
-    const { InformationDetails } = this.props;
-    let copyEmailObj = loadsh.cloneDeep(this.state.emailObj);
-    copyEmailObj.pending = true;
-    this.setState({ emailObj: copyEmailObj });
-    console.log('data', data);
-    let parasm = {
-      talentId: InformationDetails.id,
-      email: {
-        to: data.Tovalue || null,
-        cc: data.ccValue || null,
-        bcc: data.bbcValue || null,
-        subject: data.subjectValue || null,
-        htmlContents: data.body || null,
-        files: data.files || null,
-      },
-    };
-    candidatesSendEmail(parasm)
-      .then(({ response }) => {
-        this.setState({
-          emailStatus: false,
-          emailObj: { title: 'Email to ' },
-        });
-      })
-      .catch((err) => {
-        this.setState({
-          emailStatus: false,
-          emailObj: { title: 'Email to ' },
-        });
-        this.props.dispatch(showErrorMessage(err));
-      });
-  };
-
-  translationLabel = (data) => {
-    const { t } = this.props;
-    let newOpt = data.map((item) => ({
-      value: item.value,
-      label: t(`tab:${item.label}`),
-    }));
-    return newOpt;
-  };
-
-  setCancel = () => {
-    this.setState({
-      getEmaiStatus: false,
-    });
-    this.props.conChange(false);
-  };
-  setSubmit = () => {
-    this.props.getSubStatus(true);
-  };
-  componentWillReceiveProps(nextProps) {
-    this.setState({
-      getEmaiStatus: nextProps.emaiStatus,
-    });
-  }
-  componentDidMount() {
-    const { InformationDetails } = this.props;
-    if (this.props?.candidateId) {
-      this.setState({
-        basicInformationDetailStatus: true,
-      });
-      getProtal(InformationDetails.id)
-        .then(({ response }) => {
-          this.setState({
-            emailBounced: response.hasAccount,
-          });
-          this.props.getEmailBouncedStatu(response.hasAccount);
-          this.props.getEmaiInactiveStatu(response.inactive);
-        })
-        .catch((err) => {});
-    }
-    this.setState({
-      getEmaiStatus: this.props.emaiStatus,
-    });
-  }
   render() {
     const {
       t,
       i18n,
-      classes,
       basicInfo,
       talentFormRef,
       removeErrorMessage,
       errorMessage,
       jobFunctionList,
-      jobFounctionListZh,
       languageList,
       workAuthList,
       industryList,
-      industryListZh,
-      language,
-      candidatesIdStatus,
-      applications,
-      InformationDetails,
-      basicInformationDetail,
+      classes,
     } = this.props;
+
     const {
       photoUrl,
       editImg,
@@ -2013,13 +1119,8 @@ class BasicInfoForm extends React.Component {
       industry,
       currentLocation,
       range,
-      emailObj,
-      basicInformationDetailStatus,
-      getEmaiStatus,
-      emailBounced,
     } = this.state;
 
-    const _payRateUnitTypes = this.translationLabel(payRateUnitTypes);
     return (
       <form onSubmit={this.onSubmit} ref={talentFormRef} id="candidateBasic">
         <div className={'flex-container align-top'}>
@@ -2033,7 +1134,7 @@ class BasicInfoForm extends React.Component {
                   name="firstName"
                   label={t('field:firstName')}
                   defaultValue={basicInfo.get('firstName') || ''}
-                  placeholder={t('field:firstName')}
+                  placeholder={'First Name'}
                   isRequired={true}
                   errorMessage={errorMessage.get('firstname')}
                   onBlur={() => removeErrorMessage('firstname')}
@@ -2043,7 +1144,7 @@ class BasicInfoForm extends React.Component {
                 <FormInput
                   name="lastName"
                   label={t('field:lastName')}
-                  placeholder={t('field:lastName')}
+                  placeholder={'Last Name'}
                   defaultValue={basicInfo.get('lastName') || ''}
                   isRequired={true}
                   errorMessage={errorMessage.get('lastname')}
@@ -2071,7 +1172,7 @@ class BasicInfoForm extends React.Component {
                   }}
                   onClick={this.addContact}
                 >
-                  {t('tab:Add')}
+                  {'Add'}
                 </p>
                 {contactList &&
                   contactList.map((item, index) => {
@@ -2088,8 +1189,8 @@ class BasicInfoForm extends React.Component {
                             }}
                             placeholder={
                               index === 0
-                                ? t('tab:Enter a primary phone number')
-                                : t('tab:Enter a phone number')
+                                ? 'Enter a primary phone number'
+                                : 'Enter a phone number'
                             }
                           />
                         </div>
@@ -2103,7 +1204,7 @@ class BasicInfoForm extends React.Component {
                               marginLeft: '0.25em',
                             }}
                           >
-                            {t('tab:Primary')}
+                            {'Primary'}
                           </p>
                         ) : (
                           <div
@@ -2168,7 +1269,7 @@ class BasicInfoForm extends React.Component {
                   }}
                   onClick={this.addContactEmail}
                 >
-                  {t('tab:Add')}
+                  {'Add'}
                 </p>
                 {emailList &&
                   emailList.map((item, index) => {
@@ -2184,8 +1285,8 @@ class BasicInfoForm extends React.Component {
                             }}
                             placeholder={
                               index === 0
-                                ? t('tab:Enter a primary email address')
-                                : t('tab:Enter an email address')
+                                ? 'Enter a primary email address'
+                                : 'Enter an email address'
                             }
                           />
                         </div>
@@ -2199,7 +1300,7 @@ class BasicInfoForm extends React.Component {
                               marginLeft: '0.25em',
                             }}
                           >
-                            {t('tab:Primary')}
+                            {'Primary'}
                           </p>
                         ) : (
                           <div
@@ -2272,6 +1373,7 @@ class BasicInfoForm extends React.Component {
               <div>
                 <input
                   type="file"
+                  accept="image/*"
                   style={{ display: 'none' }}
                   onChange={this.onNewImage}
                 />
@@ -2319,6 +1421,7 @@ class BasicInfoForm extends React.Component {
           photoUrl={photoUrl}
           circle={true}
         />
+
         <div className="expanded small-12" style={{ position: 'relative' }}>
           <p
             style={
@@ -2342,7 +1445,7 @@ class BasicInfoForm extends React.Component {
             }
             onClick={this.addNetwork}
           >
-            {t('tab:Add')}
+            {'Add'}
           </p>
           {socilaNetworkList &&
             socilaNetworkList.map((item, index) => {
@@ -2390,7 +1493,7 @@ class BasicInfoForm extends React.Component {
                       placeholder={
                         item.type === 'WECHAT'
                           ? 'Enter a Wechat Number'
-                          : t('tab:Enter a Link')
+                          : 'Enter a Link'
                       }
                     />
                   </div>
@@ -2434,11 +1537,12 @@ class BasicInfoForm extends React.Component {
             value={socilaNetworkList && JSON.stringify(socilaNetworkList)}
           />
         </div>
+
         <div className="row small-12 expanded">
           <div className="small-6 columns">
-            <span style={{ fontSize: 12 }}>{t('tab:Industries')}</span>
+            <span style={{ fontSize: 12 }}>{t('field:Industries')}</span>
             <JobTree
-              jobData={language ? industryList : industryListZh}
+              jobData={industryList}
               selected={industry}
               sendServiceType={this.handleIndustryChange}
             />
@@ -2450,9 +1554,9 @@ class BasicInfoForm extends React.Component {
           </div>
           <div className="row small-6 expanded">
             <div className="small-12 columns">
-              <span style={{ fontSize: 12 }}>{t('tab:Job Functions')}</span>
+              <span style={{ fontSize: 12 }}>{t('field:jobfunction')}</span>
               <JobCandidateTree
-                jobData={language ? jobFunctionList : jobFounctionListZh}
+                jobData={jobFunctionList}
                 selected={this.state.jobCheckedList}
                 sendServiceType={this.handleJobFunctionChange}
               />
@@ -2467,11 +1571,12 @@ class BasicInfoForm extends React.Component {
             </div>
           </div>
         </div>
+
         <div className="row small-12 expanded">
           <div className="small-6 columns">
             <FormReactSelectContainer
               isRequired
-              label={t('tab:Current Location')}
+              label={t('field:Current Location')}
               errorMessage={errorMessage.get('location')}
             >
               <div
@@ -2490,7 +1595,7 @@ class BasicInfoForm extends React.Component {
             />
           </div>
           <div className="small-6 columns">
-            <span style={{ fontSize: 12 }}>{t('tab:Languages')}</span>
+            <span style={{ fontSize: 12 }}>{t('field:Languages')}</span>
             <span style={{ color: '#CC4B37' }}> *</span>
             <div
               className={errorMessage.get('languages') ? classes.autoBox : ''}
@@ -2522,10 +1627,11 @@ class BasicInfoForm extends React.Component {
             ) : null}
           </div>
         </div>
+
         <div className="row small-12 expanded">
           <div className="small-6 row">
             <div className="columns">
-              <FormReactSelectContainer label={t('tab:Current Salary')}>
+              <FormReactSelectContainer label={t('field:Current Salary')}>
                 <Select
                   labelKey={'label2'}
                   options={currencyOptions}
@@ -2550,7 +1656,7 @@ class BasicInfoForm extends React.Component {
                   value={this.state.unitType}
                   onChange={(unitType) => this.setState({ unitType })}
                   simpleValue
-                  options={_payRateUnitTypes}
+                  options={payRateUnitTypes}
                   autoBlur={true}
                   searchable={false}
                   clearable={false}
@@ -2565,7 +1671,7 @@ class BasicInfoForm extends React.Component {
           </div>
           <div className="small-6 row" style={{ position: 'relative' }}>
             <div style={{ position: 'absolute', right: '0px', top: '-2px' }}>
-              {t('tab:Range')}
+              Range
               <Switch
                 checked={rangeStatus}
                 color="primary"
@@ -2583,7 +1689,7 @@ class BasicInfoForm extends React.Component {
                   onChange={(event) => {
                     this.changeRangeNumber(event);
                   }}
-                  placeholder={t('tab:Enter a number')}
+                  placeholder={'Enter a number'}
                   label="&nbsp;"
                 />
               </div>
@@ -2625,10 +1731,11 @@ class BasicInfoForm extends React.Component {
             />
           </div>
         </div>
+
         <div className="row small-12 expanded">
           <div className="small-6 columns">
             <FormReactSelectContainer
-              label={t('tab:Sourcing Channel')}
+              label={t('field:Sourcing Channel')}
               isRequired={true}
               errorMessage={errorMessage.get('sourceType')}
             >
@@ -2637,7 +1744,7 @@ class BasicInfoForm extends React.Component {
                 onChange={(sourceType) => this.setState({ sourceType })}
                 simpleValue
                 options={candidateSoureChannel}
-                placeholder={t('tab:select')}
+                placeholder={'Select'}
                 autoBlur={true}
                 searchable={false}
                 clearable={false}
@@ -2652,7 +1759,9 @@ class BasicInfoForm extends React.Component {
             />
           </div>
           <div className="small-6 columns">
-            <span style={{ fontSize: 12 }}>{t('tab:Work Authorization')}</span>
+            <span style={{ fontSize: 12 }}>
+              {t('field:Work Authorization')}
+            </span>
             <WorkAuthTree
               jobData={workAuthList}
               selected={this.state.workCheckList}
@@ -2664,87 +1773,12 @@ class BasicInfoForm extends React.Component {
               value={JSON.stringify(this.state.workCheckList)}
             />
           </div>
-
-          {basicInformationDetailStatus && basicInformationDetail?.isAM ? (
-            <div
-              onClick={this.createAccount}
-              style={{ color: '#3398dc', marginTop: '15px', cursor: 'pointer' }}
-            >
-              Portal Account Management
-            </div>
-          ) : null}
         </div>
         <input
           name="resume"
           type="hidden"
           value={JSON.stringify(this.state.resumes)}
         />
-        <input
-          name="addressLine1"
-          type="hidden"
-          value={this.state.addressLine1}
-        />
-        <input
-          name="addressLine2"
-          type="hidden"
-          value={this.state.addressLine2}
-        />
-        <input name="zipCode" type="hidden" value={this.state.zipCode} />
-        {getEmaiStatus && emailBounced ? (
-          <EmailDialog
-            fullName={basicInfo.get('fullName') || ''}
-            setSubmit={this.setSubmit}
-            setCancel={this.setCancel}
-          />
-        ) : null}
-
-        {this.state.protalStatus && (
-          <ManagementDialog
-            setUnlock={this.setUnlock}
-            setshowregister={this.setshowregister}
-            fullName={basicInfo.get('fullName') || ''}
-          />
-        )}
-        {this.state.protalPsswordStatus && (
-          <ResetProtalDialog
-            setshowregister={() => {
-              this.setState({
-                protalPsswordStatus: false,
-                errStatus: false,
-                errYypeValue: false,
-                errRetypeValue: false,
-              });
-            }}
-            setSave={this.setSav}
-            ResetLoding={this.state.ResetLoding}
-            errStatus={this.state.errStatus}
-            errRetypeValue={this.state.errRetypeValue}
-            errYypeValue={this.state.errYypeValue}
-            InformationDetails={InformationDetails}
-            inactiveStatus={this.state.inactiveStatus}
-          />
-        )}
-        {this.state.emailStatus && (
-          <SendBasicInfoEmail
-            getShutDown={this.getShutDown}
-            emailObj={emailObj}
-            getSendEmail={this.getSendEmail}
-            application={applications}
-          />
-        )}
-        {this.state.InactivateStatus && (
-          <InactivateDialog
-            getCel={() => {
-              this.setState({
-                InactivateStatus: false,
-                protalPsswordStatus: true,
-              });
-            }}
-            fullName={basicInfo.get('fullName') || ''}
-            getInactivate={() => this.getInactivate()}
-            inactivateLoding={this.state.inactivateLoding}
-          />
-        )}
 
         <Divider style={{ marginTop: 30, marginBottom: 30 }} />
       </form>
@@ -2753,22 +1787,11 @@ class BasicInfoForm extends React.Component {
 }
 
 const mapStateToProps = (state, { basicInfo }) => {
-  let appId = state.controller.newCandidateJob.toJS().applicationid;
   return {
     jobFunctionList: state.controller.candidateSelect.toJS().jobFounctionList,
     languageList: state.controller.candidateSelect.toJS().languageList,
     workAuthList: state.controller.candidateSelect.toJS().workAuthList,
     industryList: state.controller.candidateSelect.toJS().industryList,
-    jobFounctionListZh:
-      state.controller.candidateSelect.toJS().jobFounctionListZh,
-    industryListZh: state.controller.candidateSelect.toJS().industryListZh,
-    language: state.controller.language,
-    InformationDetails: state.controller.newCandidateJob.toJS().candidateDetail,
-    candidatesIdStatus:
-      state.controller.newCandidateJob.toJS().candidatesIdStatus,
-    applications: state.relationModel.applications.get(String(appId)),
-    basicInformationDetail:
-      state.controller.newCandidateJob.toJS().basicInformationDetail,
   };
 };
 
@@ -2776,12 +1799,9 @@ BasicInfoForm.prototypes = {
   onSubmit: PropTypes.func.isRequired,
   basicInfo: PropTypes.object.isRequired,
 };
-const HOC_BasicInfoForm = withTranslation([
-  'field',
-  'message',
-  'action',
-  'tab',
-])(connect(mapStateToProps)(withStyles(styles)(BasicInfoForm)));
+const HOC_BasicInfoForm = withTranslation(['field', 'message', 'action'])(
+  connect(mapStateToProps)(withStyles(styles)(BasicInfoForm))
+);
 hoistNonReactStatics(HOC_BasicInfoForm, BasicInfoForm);
 
 export default HOC_BasicInfoForm;

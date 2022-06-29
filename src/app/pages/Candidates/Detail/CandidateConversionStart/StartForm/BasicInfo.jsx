@@ -50,7 +50,7 @@ class BasicInfo extends React.Component {
           <div className="small-6 columns">
             <FormInput
               name="jobId"
-              label={t('field:jobNumber')}
+              label={t('field:Job Number')}
               defaultValue={start.jobId}
               disabled
             />
@@ -120,7 +120,7 @@ class BasicInfo extends React.Component {
             <FormReactSelectContainer
               isRequired
               errorMessage={errorMessage.get('startAddress')}
-              label={t('field:location')}
+              label={t('field:Location')}
             >
               <Location
                 value={startAddress}

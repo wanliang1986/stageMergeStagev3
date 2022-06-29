@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import ProspectOverView from './prospectOverView';
 import ClientOverView from './ClientOverView';
 import { getProCompanyById } from '../../../../../apn-sdk/client';
+import { connect } from 'react-redux';
 const styles = {
   root: {
     width: '100%',
@@ -18,11 +19,10 @@ class Overview extends Component {
   }
 
   render() {
-    const { classes, t, company, ...props } = this.props;
-    let type = company.get('type');
+    const { classes, t, company, companyType, ...props } = this.props;
     return (
       <div className={classes.root}>
-        {type !== 'POTENTIAL_CLIENT' ? (
+        {companyType !== '1' ? (
           <ClientOverView company={company} t={t} />
         ) : (
           <ProspectOverView company={company} t={t} />
@@ -32,4 +32,12 @@ class Overview extends Component {
   }
 }
 
-export default withStyles(styles)(Overview);
+const mapStateToProps = (state, { match }) => {
+  console.log(match);
+  const companyType = match.params.type;
+  return {
+    companyType,
+  };
+};
+
+export default connect(mapStateToProps)(withStyles(styles)(Overview));

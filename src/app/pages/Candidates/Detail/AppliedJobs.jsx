@@ -121,12 +121,12 @@ const ScoreCell = ({ data }) => {
 const SkillsCell = ({ data }) => {
   let preferredSkills = [];
   let requiredSkills = [];
-  if (data.requiredSkills) {
+  if (data.requiredSkills && typeof data.requiredSkills === 'object') {
     requiredSkills = data.requiredSkills.map((item, index) => {
       return item.skillName;
     });
   }
-  if (data.preferredSkills) {
+  if (data.preferredSkills && typeof data.preferredSkills === 'object') {
     preferredSkills = data.preferredSkills.map((item, index) => {
       return item.skillName;
     });

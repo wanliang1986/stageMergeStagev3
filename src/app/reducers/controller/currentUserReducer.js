@@ -9,8 +9,21 @@ export default function (state = Immutable.Map(), action = {}) {
   switch (action.type) {
     case ActionTypes.GET_CURRENT_USER:
       let id = action.normalizedData.result;
+      let firstName = action.normalizedData.entities.users[id].firstName;
+      let lastName = action.normalizedData.entities.users[id].lastName;
+      let username = action.normalizedData.entities.users[id].username;
+      // let id = action.normalizedData;
       newState = state.merge(
         Immutable.fromJS(action.normalizedData.entities.users[id])
+      );
+      newState = newState.merge(
+        Immutable.fromJS(action.normalizedData.entities.users[firstName])
+      );
+      newState = newState.merge(
+        Immutable.fromJS(action.normalizedData.entities.users[lastName])
+      );
+      newState = newState.merge(
+        Immutable.fromJS(action.normalizedData.entities.users[username])
       );
       return newState.equals(state) ? state : newState;
 

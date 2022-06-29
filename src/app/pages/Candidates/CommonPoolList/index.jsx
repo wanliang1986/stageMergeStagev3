@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import Immutable from 'immutable';
 import { withStyles } from '@material-ui/core';
 import Select from '@material-ui/core/Select';
-
 import { SEND_EMAIL_TYPES } from '../../../constants/formOptions';
 // import clsx from 'clsx';
 import { getResume } from '../../../actions/newCandidate';
@@ -14,9 +13,8 @@ import { commonPoolFilterSearch } from '../../../../utils/search';
 
 import {
   ADD_SEND_EMAIL_REQUEST,
-  UN_SELECT_STATUS,
-  SELECT_TO_STATUS_EMPTY,
-  ORDER_STATES_DELETE,
+  COMMON_SELECT_ONE_VALUE_EMPTY,
+  COMMON_SELECT_TO_VALUE_EMPTY,
 } from '../../../constants/actionTypes';
 
 import Checkbox from '@material-ui/core/Checkbox';
@@ -26,7 +24,6 @@ import Typography from '@material-ui/core/Typography';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import InputAdornment from '@material-ui/core/InputAdornment';
-import Snackbar from '@material-ui/core/Snackbar';
 
 import MailIcon from '@material-ui/icons/Mail';
 import SearchIcon from '@material-ui/icons/Search';
@@ -95,19 +92,6 @@ const contactOptions = [
   { value: 'hasValidEmail', label: 'Email' },
   { value: 'hasPhone', label: 'Phone' },
 ];
-function strlen(str) {
-  var len = 0;
-  for (var i = 0; i < str.length; i++) {
-    var c = str.charCodeAt(i);
-    //单字节加1
-    if ((c >= 0x0001 && c <= 0x007e) || (0xff60 <= c && c <= 0xff9f)) {
-      len++;
-    } else {
-      len += 2;
-    }
-  }
-  return len;
-}
 class CandidateListAll extends React.PureComponent {
   constructor(props) {
     super(props);
@@ -117,9 +101,6 @@ class CandidateListAll extends React.PureComponent {
       preShowSearchBox: false,
       selectedEmails: null,
       initPage: false,
-      orderStatusOpen: false,
-      textStateuOpen: false,
-      generalSelectValue: '',
     };
   }
 
@@ -244,158 +225,13 @@ class CandidateListAll extends React.PureComponent {
 
   onKeyDown = (e) => {
     if (e.keyCode === 13) {
-      // console.log(strlen(e.target.value));
-      // let reg = /^.{3,20}$/;
       if (/^\s+$/gi.test(e.target.value)) {
         console.log('不能全为空格');
-      }
-      if (e.target.value === '') {
+      } else {
         this.props.dispatch(resetPage());
         this.props.dispatch(CommonPoolGeneral(e.target.value));
-        this.props.dispatch({
-          type: 'GENER_VALUE_TO',
-          payload: e.target.value,
-        });
-      } else {
-        // const Chinese = new RegExp('[\u4E00-\u9FA5]+');
-        // const English = new RegExp('[A-Za-z]+');
-        // strlen方法判断input的值，中文占位符2个，英文占位符1个
-        if (strlen(e.target.value) < 3) {
-          this.setState({
-            textStateuOpen: true,
-          });
-          setTimeout(() => {
-            this.setState({
-              textStateuOpen: false,
-            });
-          }, 2000);
-        } else {
-          this.props.dispatch(resetPage());
-          this.props.dispatch(CommonPoolGeneral(e.target.value));
-          this.setState({
-            generalSelectValue: e.target.value,
-          });
-          this.props.dispatch({
-            type: 'GENER_VALUE_TO',
-            payload: e.target.value,
-          });
-          // if (Chinese.test(e.target.value)) {
-          //   if (e.target.value.length >= 2) {
-          //     this.props.dispatch(resetPage());
-          //     this.props.dispatch(CommonPoolGeneral(e.target.value));
-          //     this.setState({
-          //       generalSelectValue: e.target.value,
-          //     });
-          //     this.props.dispatch({
-          //       type: 'GENER_VALUE_TO',
-          //       payload: e.target.value,
-          //     });
-          //   } else {
-          //     this.setState({
-          //       textStateuOpen: true,
-          //     });
-          //     setTimeout(() => {
-          //       this.setState({
-          //         textStateuOpen: false,
-          //       });
-          //     }, 2000);
-          //   }
-          // }
-          // if (English.test(e.target.value)) {
-          //   if (e.target.value.length >= 3) {
-          //     this.props.dispatch(resetPage());
-          //     this.props.dispatch(CommonPoolGeneral(e.target.value));
-          //     this.setState({
-          //       generalSelectValue: e.target.value,
-          //     });
-          //     this.props.dispatch({
-          //       type: 'GENER_VALUE_TO',
-          //       payload: e.target.value,
-          //     });
-          //   } else {
-          //     this.setState({
-          //       textStateuOpen: true,
-          //     });
-          //     setTimeout(() => {
-          //       this.setState({
-          //         textStateuOpen: false,
-          //       });
-          //     }, 2000);
-          //   }
-          // }
-        }
-        // if (!reg.test(e.target.value)) {
-        //   this.setState({
-        //     orderStatusOpen: true,
-        //   });
-        //   setTimeout(() => {
-        //     this.setState({
-        //       orderStatusOpen: false,
-        //     });
-        //   }, 2000);
-        // } else {
-        //   this.props.dispatch(resetPage());
-        //   this.props.dispatch(CommonPoolGeneral(e.target.value));
-        //   this.setState({
-        //     generalSelectValue: e.target.value,
-        //   });
-        //   this.props.dispatch({
-        //     type: 'GENER_VALUE_TO',
-        //     payload: e.target.value,
-        //   });
-        // }
       }
     }
-  };
-  generalSearch = (e) => {
-    this.props.dispatch({
-      type: 'NEW_CANDIDATE_GENERAL',
-      payload: e.target.value,
-    });
-  };
-  generalSearchBlur = (e) => {
-    console.log(e.target.value);
-    console.log(this.state.generalSelectValue);
-    console.log(this.props.generalTo);
-    const Chinese = new RegExp('[\u4E00-\u9FA5]+');
-    const English = new RegExp('[A-Za-z]+');
-    if (Chinese.test(e.target.value)) {
-      if (e.target.value.length >= 2) {
-        console.log(66666);
-      } else {
-        this.props.dispatch({
-          type: 'NEW_CANDIDATE_GENERAL',
-          payload: this.state.generalSelectValue,
-        });
-      }
-    }
-    if (English.test(e.target.value)) {
-      if (e.target.value.length >= 3) {
-        console.log(11111);
-      } else {
-        this.props.dispatch({
-          type: 'NEW_CANDIDATE_GENERAL',
-          payload: this.state.generalSelectValue,
-        });
-      }
-    }
-    if (e.target.value !== this.props.generalTo) {
-      this.props.dispatch({
-        type: 'NEW_CANDIDATE_GENERAL',
-        payload: this.state.generalSelectValue || this.props.generalTo,
-      });
-    } else {
-      this.props.dispatch({
-        type: 'NEW_CANDIDATE_GENERAL',
-        payload: e.target.value,
-      });
-    }
-    // if (e.target.value === '') {
-    //   this.props.dispatch({
-    //     type: 'NEW_CANDIDATE_GENERAL',
-    //     payload: this.state.generalSelectValue,
-    //   });
-    // }
   };
 
   handleShow = () => {
@@ -430,8 +266,7 @@ class CandidateListAll extends React.PureComponent {
       ...props
     } = this.props;
     console.log('talentData', talentData);
-    const { selected, showFilter, initPage, orderStatusOpen, textStateuOpen } =
-      this.state;
+    const { selected, showFilter, initPage } = this.state;
     return (
       <div className="flex-child-auto flex-container flex-dir-column">
         <div className="flex-container align-justify align-middle">
@@ -466,16 +301,14 @@ class CandidateListAll extends React.PureComponent {
               style={{ height: 30, width: 219, background: '#edf5ff' }}
               size="small"
               variant="outlined"
-              placeholder={this.props.t('tab:Search Candidates')}
+              placeholder="Search Candidates"
               value={general}
               onChange={(e) => {
-                this.generalSearch(e);
-                // this.props.dispatch({
-                //   type: 'NEW_CANDIDATE_GENERAL',
-                //   payload: e.target.value,
-                // });
+                this.props.dispatch({
+                  type: 'NEW_CANDIDATE_GENERAL',
+                  payload: e.target.value,
+                });
               }}
-              onBlur={(e) => this.generalSearchBlur(e)}
               startAdornment={
                 <InputAdornment color="disabled" position="start">
                   <SearchIcon style={{ fontSize: 18 }} />
@@ -483,9 +316,7 @@ class CandidateListAll extends React.PureComponent {
               }
             />
             <span onClick={this.handleShow} style={{ ...styles.show }}>
-              {showFilter
-                ? this.props?.t('tab:Hide Filters')
-                : this.props?.t('tab:Show Filters')}
+              {showFilter ? 'Hide Filters' : 'Show Filters'}
             </span>
           </div>
         </div>
@@ -527,16 +358,6 @@ class CandidateListAll extends React.PureComponent {
             </div>
           )} */}
         </div>
-        <Snackbar
-          open={orderStatusOpen}
-          message={'Please enter a minimum of three - digit search criteria'}
-        />
-        <Snackbar
-          open={textStateuOpen}
-          message={
-            'Please enter a minimum of two digits in Chinese or three digits in English'
-          }
-        />
       </div>
     );
   }
@@ -569,7 +390,6 @@ function mapStoreStateToProps(state) {
       state.controller.newCandidateJob.toJS().commonPoolSelectListTo,
     searchLevel: state.controller.newCandidateJob.toJS().searchLevel,
     tableData: state.controller.newCandidateJob.toJS().commonTableData,
-    generalTo: state.controller.newCandidateJob.toJS().generalTo,
   };
 }
 

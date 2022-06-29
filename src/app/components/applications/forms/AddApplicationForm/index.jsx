@@ -9,16 +9,36 @@ import {
   getDMArray,
   getActiveAMArray,
 } from '../../../../selectors/userSelector';
+import { getRecruitmentProcessId } from '../../../../../apn-sdk/newApplication';
+
 import { getJob } from '../../../../actions/jobActions';
 
-import AddApplicationDefaultForm from './AddApplicationDefaultForm';
-import AddApplicationPayrollingForm from './AddApplicationPayRollingForm';
+import AddApplicationDefaultFormV3 from './AddApplicationDefaultFormV3';
+import AddApplicationPayrollingFormV3 from './AddApplicationPayRollingFormV3';
 import Loading from '../../../particial/Loading';
 
 class AddApplication extends React.PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      recruitmentProcessNodes: [],
+      recruitmentProcessId: null,
+    };
+  }
   componentDidMount() {
     //should load job first,then check jobType
     this.fetchData();
+
+    getRecruitmentProcessId(this.props.job.get('jobType'))
+      .then(({ response }) => {
+        this.setState({
+          recruitmentProcessNodes: response.recruitmentProcessNodes,
+          recruitmentProcessId: response.id,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }
 
   fetchData = () => {
@@ -29,7 +49,8 @@ class AddApplication extends React.PureComponent {
   };
 
   render() {
-    console.log('this.props::::', this.props);
+    const { recruitmentProcessNodes } = this.state;
+    // console.log('this.props::::', this.props.job.toJS());
     if (
       !this.props.job ||
       !this.props.job.get('jobType') ||
@@ -37,20 +58,19 @@ class AddApplication extends React.PureComponent {
     ) {
       return <Loading />;
     }
-    if (this.props.job.get('jobType') === JOB_TYPES.Payrolling) {
-      return <AddApplicationPayrollingForm {...this.props} />;
+    if (
+      this.props.job.get('jobType') === JOB_TYPES.Payrolling &&
+      recruitmentProcessNodes.length === 2
+    ) {
+      return <AddApplicationPayrollingFormV3 {...this.props} {...this.state} />;
     }
-    return <AddApplicationDefaultForm {...this.props} />;
+    return <AddApplicationDefaultFormV3 {...this.props} {...this.state} />;
   }
 }
 
 function mapStoreStateToProps(state, { jobId, talentId }) {
-  const job = state.model.jobs.get(String(jobId));
-  const canSkipSubmitToAM = !!state.model.skimSubmitToAMCompanies.get(
-    String(job && job.get('companyId'))
-  );
   return {
-    job,
+    job: state.model.jobs.get(String(jobId)),
     talent: state.model.talents.get(String(talentId)),
     resumeList: getTalentResumeArray(state, talentId),
     userList: getActiveTenantUserArray(state),
@@ -59,7 +79,6 @@ function mapStoreStateToProps(state, { jobId, talentId }) {
     acList: getACArray(state, String(jobId)),
     dmList: getDMArray(state, String(jobId)),
     currentUserId: state.controller.currentUser.get('id'),
-    canSkipSubmitToAM,
   };
 }
 

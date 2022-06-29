@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import Immutable from 'immutable';
 import { getApplicationStatusLabel } from './../../constants/formOptions';
 import withStyles from '@material-ui/core/styles/withStyles';
-import { getAgreedPayRateLabel2 } from '../../../utils';
 
 import { Link } from 'react-router-dom';
 import IconButton from '@material-ui/core/IconButton';
@@ -123,23 +122,6 @@ const ScoreCell = ({ rowIndex, data, col, onCustomScoreClick, ...props }) => {
   return <Cell {...props}>loading...</Cell>;
 };
 
-const PayRateCell = ({ rowIndex, data, col, ...props }) => {
-  const id = data.getIn([rowIndex, 'id']);
-  if (id) {
-    const payRate = data.getIn([rowIndex, col]);
-    return (
-      <Cell {...props}>
-        <span>
-          {getAgreedPayRateLabel2(payRate && payRate.toJS()) || 'N/A'}
-        </span>
-        <br />
-        <br />
-      </Cell>
-    );
-  }
-  return <Cell {...props}>loading...</Cell>;
-};
-
 const RecruiterNames = ({
   rowIndex,
   data,
@@ -149,20 +131,33 @@ const RecruiterNames = ({
 }) => {
   const id = data.getIn([rowIndex, 'id']);
   if (id) {
-    const recruiterNames =
-      data.getIn([rowIndex, col]) && data.getIn([rowIndex, col]).toJS();
+    const user =
+      data.getIn([rowIndex, 'ipgKpiUsers']) ||
+      data.getIn([rowIndex, 'kpiUsers']);
+
+    const userNameArr =
+      user &&
+      user.map((x) => {
+        return `${x.getIn(['user', 'firstName'])} ${x.getIn([
+          'user',
+          'lastName',
+        ])}`;
+      });
+    const userNames = userNameArr && userNameArr.toJS();
+    // const recruiterNames =
+    //   data.getIn([rowIndex, col]) && data.getIn([rowIndex, col]).toJS();
     return (
       <Cell {...props}>
         <div
           className="overflow_ellipsis_1"
-          data-tip={recruiterNames}
+          data-tip={userNames}
           style={{ width: props.width - 26 }}
         >
-          {recruiterNames && (
+          {userNames && (
             <Tooltip
               title={
                 <React.Fragment>
-                  {recruiterNames.map((item) => (
+                  {userNames.map((item) => (
                     <p
                       style={{
                         fontSize: 15,
@@ -177,7 +172,7 @@ const RecruiterNames = ({
               }
               placement="top"
             >
-              <span>{recruiterNames[0]}</span>
+              <span>{userNames[0]}</span>
             </Tooltip>
           )}
         </div>
@@ -193,8 +188,6 @@ const ApplicationCell = ({ type, onCustomScoreClick, t, ...props }) => {
       return <NameLinkCell {...props} />;
     case 'enum':
       return <StatusCell t={t} {...props} />;
-    case 'payRate':
-      return <PayRateCell t={t} {...props} />;
     case 'score':
       return <ScoreCell onCustomScoreClick={onCustomScoreClick} {...props} />;
     case 'date':
@@ -318,8 +311,7 @@ class ApplicationTable extends React.PureComponent {
                 header={
                   <Cell style={style.headerCell}>
                     <div style={style.headerText}>
-                      {t('tab:Action')}
-
+                      Action
                       {filterOpen && <br />}
                     </div>
                   </Cell>

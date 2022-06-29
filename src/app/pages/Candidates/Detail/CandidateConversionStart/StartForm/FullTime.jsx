@@ -309,9 +309,7 @@ class FullTime extends React.Component {
                   &nbsp;
                   <Tooltip
                     arrow
-                    title={t(
-                      'field:Separate from Salary. Only record billable bonus.'
-                    )}
+                    title={`Separate from Salary. Only record billable bonus.`}
                   >
                     <Info fontSize="small" color="disabled" />
                   </Tooltip>

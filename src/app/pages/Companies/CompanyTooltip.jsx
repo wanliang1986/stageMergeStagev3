@@ -8,7 +8,6 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import moment from 'moment-timezone';
-import { withTranslation } from 'react-i18next';
 
 const styles = (theme) => ({
   tooltip: {
@@ -31,32 +30,31 @@ class CompanyTooltip extends React.Component {
   }
 
   SetsalesLeadOwner = () => {
-    const { data, rowIndex, t } = this.props;
-    const dataToJS = data.toJS();
-    console.log(dataToJS[rowIndex]);
+    const { data, rowIndex, LeadOwner } = this.props;
+    const dataToJS = data && data.toJS();
+
     return (
       <Table style={{ minWidth: '800px' }} aria-label="simple table">
         <TableHead>
           <TableRow>
-            <TableCell>{t('tab:Sales Lead Owner')}</TableCell>
-            <TableCell>{t('tab:Estimated Deal Time')}</TableCell>
-            <TableCell>{t('tab:Account Progress')} </TableCell>
-            <TableCell>{t('tab:Potential Service Type')}</TableCell>
+            <TableCell>Sales Lead Owner</TableCell>
+            <TableCell>Estimated Deal Time</TableCell>
+            <TableCell>Account Progress</TableCell>
+            <TableCell>Potential Service Type</TableCell>
           </TableRow>
         </TableHead>
 
         <TableBody>
-          {dataToJS[rowIndex] && dataToJS[rowIndex]['saleLead']
-            ? dataToJS[rowIndex]['saleLead'].map((item, index) => {
+          {dataToJS[rowIndex] && dataToJS[rowIndex]['salesLeads']
+            ? dataToJS[rowIndex]['salesLeads'].map((item, index) => {
                 return (
                   <TableRow key={index}>
                     {/* saleLeadOwner */}
                     <TableCell>
-                      {item.saleLeadOwner.length > 0 &&
-                        item.saleLeadOwner.map((item2) => {
-                          return item2
-                            ? `${item2.firstName} ${item2.lastName}`
-                            : '****';
+                      {item.salesLeadAdministrators &&
+                        item.salesLeadAdministrators.length > 0 &&
+                        item.salesLeadAdministrators.map((item2) => {
+                          return item2 ? `${item2.fullName}` : '****';
                         })}
                     </TableCell>
                     {/* estimatedDealTime */}
@@ -69,9 +67,9 @@ class CompanyTooltip extends React.Component {
                     </TableCell>
                     {/* serviceTypes */}
                     <TableCell>
-                      {item.serviceTypes.length > 0 &&
-                        item.serviceTypes.map((item3) => {
-                          if (item.serviceTypes.length > 1) {
+                      {item.companyServiceTypes.length > 0 &&
+                        item.companyServiceTypes.map((item3) => {
+                          if (item.companyServiceTypes.length > 1) {
                             return item3.label + ', ';
                           } else {
                             return item3.label;
@@ -105,4 +103,4 @@ class CompanyTooltip extends React.Component {
   }
 }
 
-export default withTranslation('tab')(withStyles(styles)(CompanyTooltip));
+export default withStyles(styles)(CompanyTooltip);

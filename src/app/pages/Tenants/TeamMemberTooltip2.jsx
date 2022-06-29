@@ -10,9 +10,9 @@ const useStyles = makeStyles({
     paddingTop: 8,
     boxSizing: 'border-box',
     '&:not(:last-child)': {
-      borderBottom: '1px solid #eaeaea'
-    }
-  }
+      borderBottom: '1px solid #eaeaea',
+    },
+  },
 });
 
 function MemberCard({ user }) {
@@ -29,7 +29,7 @@ function MemberCard({ user }) {
     </div>
   );
 }
-const styles = theme => ({
+const styles = (theme) => ({
   tooltip: {
     backgroundColor: theme.palette.common.white,
     color: 'rgba(0, 0, 0, 0.87)',
@@ -39,8 +39,8 @@ const styles = theme => ({
     overflow: 'auto',
     wordBreak: 'break-all',
     margin: '4px 0',
-    padding: '8px 20px'
-  }
+    padding: '8px 20px',
+  },
 });
 
 class TeamMemberTooltip extends React.Component {
@@ -63,7 +63,7 @@ class TeamMemberTooltip extends React.Component {
         title={
           <>
             <Typography>{users.size} Members</Typography>
-            {users.map(user => {
+            {users.map((user) => {
               return <MemberCard key={user.get('id')} user={user} />;
             })}
           </>

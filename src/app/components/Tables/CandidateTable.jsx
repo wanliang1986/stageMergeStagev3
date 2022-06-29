@@ -283,7 +283,7 @@ class CandidateTable extends React.PureComponent {
       isWatchList,
       t,
     } = this.props;
-
+    console.log(talentList.toJS());
     return (
       <AutoSizer>
         {({ width, height }) => (

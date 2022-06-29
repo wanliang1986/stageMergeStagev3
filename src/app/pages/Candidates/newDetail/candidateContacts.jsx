@@ -26,19 +26,10 @@ import Message from '@material-ui/icons/Message';
 import HomeIcon from '@material-ui/icons/Home';
 import { WeChat, LinkedIn, Facebook } from '../../../components/Icons';
 
-import ApplyJob from './ApplyJob';
+import SubmitPosition from '../../../components/newApplication/submitToPosition';
 import AddHotList from '../List/AddHotList';
 import PhoneCallScripts from '../Detail/PhoneCallScripts';
 import DraggablePaperComponent from '../../../components/particial/DraggablePaperComponent';
-
-const ContactTypeList = [
-  'EMAIL',
-  'PHONE',
-  'WECHAT',
-  'LINKEDIN',
-  'FACEBOOK',
-  'PERSONAL_WEBSITE',
-];
 
 const styles = {
   root: {
@@ -54,6 +45,10 @@ const styles = {
   },
   avatarIcon: {
     fontSize: 50,
+  },
+
+  largeIcon: {
+    // width: 28, height: 28
   },
   iconButton: {
     padding: 6,
@@ -119,6 +114,7 @@ class CandidateContacts extends React.PureComponent {
       owners,
       canNotApply,
       workAuthList,
+      jobs,
     } = this.props;
 
     let phoneArr = [];
@@ -155,9 +151,6 @@ class CandidateContacts extends React.PureComponent {
         }
         if (item.type === 'FACEBOOK') {
           facebookArr.push(item);
-        }
-        if (!ContactTypeList.includes(item.type)) {
-          websiteArr.push(item);
         }
       });
 
@@ -213,7 +206,7 @@ class CandidateContacts extends React.PureComponent {
             </div>
 
             <Typography variant="caption">
-              {`${t('tab:Created by')} ${formatUserName(
+              {`Created by ${formatUserName(
                 candidate.get('createdUser')
               )} on ${moment(candidate.get('createdDate')).format('l')}`}
             </Typography>
@@ -225,12 +218,14 @@ class CandidateContacts extends React.PureComponent {
             )}
             {owners.size > 0 && (
               <Typography variant="caption" component="p">
-                {`${t('tab:Owner')}${owners.size > 1 ? t('tab:s') : ''}: `}
+                {`Owner${owners.size > 1 ? 's' : ''}: `}
                 {owners.map((s) => (
                   <span key={s.get('id')}>
-                    {`${formatUserName(s.get('user'))} (${t(
-                      'tab:Ownership expires on'
-                    )}  ${moment(s.get('expireTime')).format('l')})`}
+                    {`${formatUserName(
+                      s.get('user')
+                    )} (Ownership expires on ${moment(
+                      s.get('expireTime')
+                    ).format('l')})`}
                     <br />
                   </span>
                 ))}
@@ -240,11 +235,9 @@ class CandidateContacts extends React.PureComponent {
               <div className={clsx(classes.itemContainer, classes.error)}>
                 <Error />
                 <Typography color="inherit">
-                  {t(
-                    "tab:This candidate's submission access has been locked until"
-                  )}
-
-                  {`${moment(candidate.get('createdDate'))
+                  {`This candidate's submission access has been locked until ${moment(
+                    candidate.get('createdDate')
+                  )
                     .add(3, 'days')
                     .format('ll')}`}
                 </Typography>
@@ -252,28 +245,60 @@ class CandidateContacts extends React.PureComponent {
             )}
             {activeStartList &&
               activeStartList.map((activeStart) => {
+                const applicationBaseInfo = activeStart.getIn([
+                  'onboard',
+                  'ipgOfferBaseInfo',
+                ]);
+                console.log(activeStart);
+                //versionsFlag = true 为通用版本
+                const versionsFlag = activeStart
+                  .get('talentRecruitmentProcessNodes')
+                  .toJS()
+                  .some((x) => {
+                    return x.nodeType === 'COMMISSION';
+                  });
+                const job = jobs.get(String(activeStart.get('jobId')));
                 return (
                   <div
                     key={activeStart.get('id')}
                     className={clsx(classes.itemContainer, classes.error)}
                   >
                     <Error />
-                    <Typography color="inherit">
-                      {`${t('tab:Currently working at')} ${activeStart.get(
-                        'company'
-                      )} from ${moment(activeStart.get('startDate')).format(
-                        'll'
-                      )}
+                    {versionsFlag ? (
+                      <Typography color="inherit">
+                        {`Currently working at ${
+                          job ? job.getIn(['company', 'name']) : 'N/A'
+                        } from ${moment(
+                          activeStart.getIn(['onboard', 'startDate'])
+                        ).format('ll')}
                       `}
-                      {activeStart.get('positionType') !== 'FULL_TIME' &&
-                        `. Unavailable until ${moment(
-                          activeStart.get('endDate') ||
-                            moment(activeStart.get('startDate')).add(
-                              3,
-                              'months'
-                            )
-                        ).format('ll')}`}
-                    </Typography>
+                        {activeStart.getIn(['job', 'jobType']) !==
+                          'FULL_TIME' &&
+                          `. Unavailable until ${moment(
+                            activeStart.getIn(['onboard', 'startDate']) ||
+                              moment(
+                                activeStart.getIn(['onboard', 'startDate'])
+                              ).add(3, 'months')
+                          ).format('ll')}`}
+                      </Typography>
+                    ) : (
+                      <Typography color="inherit">
+                        {`Currently working at ${
+                          job ? job.getIn(['company', 'name']) : 'N/A'
+                        } from ${moment(
+                          applicationBaseInfo.get('onboardDate')
+                        ).format('ll')}
+                      `}
+                        {activeStart.getIn(['job', 'jobType']) !==
+                          'FULL_TIME' &&
+                          `. Unavailable until ${moment(
+                            applicationBaseInfo.get('warrantyEndDate') ||
+                              moment(
+                                applicationBaseInfo.get('onboardDate')
+                              ).add(3, 'months')
+                          ).format('ll')}`}
+                      </Typography>
+                    )}
                   </div>
                 );
               })}
@@ -320,13 +345,10 @@ class CandidateContacts extends React.PureComponent {
               )}
             </div>
             {wechatArr &&
-              wechatArr.map((item, index) => {
+              wechatArr.map((item) => {
                 if (item.contact === 'None') {
                   return (
-                    <div
-                      className={classes.itemContainer}
-                      key={'wechat' + index}
-                    >
+                    <div className={classes.itemContainer}>
                       <WeChat />
                       <Typography>
                         <a
@@ -341,12 +363,9 @@ class CandidateContacts extends React.PureComponent {
                       </Typography>
                     </div>
                   );
-                } else if (item.contact && item.contact.includes('http')) {
+                } else if (item.contact.includes('http')) {
                   return (
-                    <div
-                      className={classes.itemContainer}
-                      key={'wechat' + index}
-                    >
+                    <div className={classes.itemContainer}>
                       <WeChat />
                       <Typography>
                         <a
@@ -360,10 +379,7 @@ class CandidateContacts extends React.PureComponent {
                   );
                 } else {
                   return (
-                    <div
-                      className={classes.itemContainer}
-                      key={'wechat' + index}
-                    >
+                    <div className={classes.itemContainer}>
                       <WeChat />
                       <Typography>{item.contact}</Typography>
                     </div>
@@ -371,9 +387,9 @@ class CandidateContacts extends React.PureComponent {
                 }
               })}
             {linkedArr &&
-              linkedArr.map((item, index) => {
+              linkedArr.map((item) => {
                 return (
-                  <div className={classes.itemContainer} key={'linked' + index}>
+                  <div className={classes.itemContainer}>
                     <LinkedIn htmlColor={'#0d77b7'} />
                     <Typography>
                       <a
@@ -390,12 +406,9 @@ class CandidateContacts extends React.PureComponent {
                 );
               })}
             {facebookArr &&
-              facebookArr.map((item, index) => {
+              facebookArr.map((item) => {
                 return (
-                  <div
-                    className={classes.itemContainer}
-                    key={'facebook' + index}
-                  >
+                  <div className={classes.itemContainer}>
                     <Facebook htmlColor={'#0d77b7'} />
                     <Typography>
                       <a
@@ -412,19 +425,13 @@ class CandidateContacts extends React.PureComponent {
                 );
               })}
             {websiteArr &&
-              websiteArr.map((item, index) => {
+              websiteArr.map((item) => {
                 return (
-                  <div
-                    className={classes.itemContainer}
-                    key={'website' + index}
-                  >
+                  <div className={classes.itemContainer}>
                     <HomeIcon />
                     <Typography>
-                      <a
-                        href={externalUrl(item.details || item.contact, true)}
-                        target="_blank"
-                      >
-                        {item.details || item.contact}
+                      <a href={externalUrl(item.contact, true)} target="_blank">
+                        {item.contact}
                       </a>
                     </Typography>
                   </div>
@@ -495,13 +502,8 @@ class CandidateContacts extends React.PureComponent {
           </div>
         )}
 
-        <Dialog
-          open={this.state.jobOpen}
-          maxWidth="xl"
-          disableEnforceFocus
-          PaperComponent={DraggablePaperComponent}
-        >
-          <ApplyJob
+        <Dialog open={this.state.jobOpen} fullWidth maxWidth="md">
+          <SubmitPosition
             talentId={candidate.get('id')}
             handleRequestClose={this.handleClose('jobOpen')}
             candidate={candidate}
@@ -527,6 +529,7 @@ class CandidateContacts extends React.PureComponent {
 const mapStateToProps = (state) => {
   return {
     workAuthList: state.controller.candidateSelect.toJS().workAuthList,
+    jobs: state.model.jobs,
   };
 };
 

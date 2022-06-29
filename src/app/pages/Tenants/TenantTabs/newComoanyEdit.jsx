@@ -225,31 +225,31 @@ class NewCompanyEdit extends Component {
   getCurLoaction = (obj) => {
     let data;
     let msg;
-    if (obj.similarity === 'city') {
-      data = {
-        city: obj.city,
-        province: obj.province,
-        country: obj.country,
-      };
-      if (obj.city && obj.province && obj.country) {
-        msg = obj.city + ', ' + obj.province + ', ' + obj.country;
-      }
-    } else if (obj.similarity === 'province') {
-      data = {
-        province: obj.province,
-        country: obj.country,
-      };
-      if (obj.city && obj.province) {
-        msg = obj.city + ', ' + obj.province;
-      }
-    } else {
-      data = {
-        country: obj.country,
-      };
-      if (obj.country) {
-        msg = obj.country;
-      }
+    // if (obj.similarity === 'city') {
+    data = {
+      city: obj.city,
+      province: obj.province,
+      country: obj.country,
+    };
+    if (obj.city && obj.province && obj.country) {
+      msg = obj.city + ', ' + obj.province + ', ' + obj.country;
     }
+    // } else if (obj.similarity === 'province') {
+    //   data = {
+    //     province: obj.province,
+    //     country: obj.country,
+    //   };
+    //   if (obj.city && obj.province) {
+    //     msg = obj.city + ', ' + obj.province;
+    //   }
+    // } else {
+    //   data = {
+    //     country: obj.country,
+    //   };
+    //   if (obj.country) {
+    //     msg = obj.country;
+    //   }
+    // }
     return msg;
   };
 
@@ -445,7 +445,7 @@ class NewCompanyEdit extends Component {
             <div className="small-6 columns">
               <FormInput
                 name="tenantName"
-                label={t('tab:Tenant Name')}
+                label={t('field:tenantName')}
                 defaultValue={
                   tenantInfo ? tenantInfo.name : this.state.tenantName
                 }
@@ -505,7 +505,7 @@ class NewCompanyEdit extends Component {
             <div className="small-6 columns">
               <FormInput
                 name="address"
-                label={t('tab:address')}
+                label={t('field:address')}
                 defaultValue={
                   tenantInfo && tenantInfo.address
                     ? tenantInfo.address.address
@@ -527,7 +527,7 @@ class NewCompanyEdit extends Component {
                     fontFamily: 'Roboto',
                   }}
                 >
-                  {this.props.t('tab:City/State/Country')}
+                  {t('field:cityStateCountry')}
                 </div>
               </div>
               <div className="row expanded" style={{ marginTop: '4px' }}>
@@ -535,7 +535,7 @@ class NewCompanyEdit extends Component {
                   <Location
                     curLoaction={
                       tenantInfo && tenantInfo.address
-                        ? this.getCurLoaction(tenantInfo.address)
+                        ? this.getCurLoaction(tenantInfo.address.geoInfoEN)
                         : this.state.curLocation
                     }
                     city={
@@ -571,7 +571,7 @@ class NewCompanyEdit extends Component {
               />
             </div>
             <div className="small-6 columns">
-              <FormReactSelectContainer label={t('tab:Founded')}>
+              <FormReactSelectContainer label={t('field:Founded')}>
                 <DatePicker
                   // className={classes.fullWidth}
                   selected={this.state.foundedDate}
@@ -584,7 +584,7 @@ class NewCompanyEdit extends Component {
               </FormReactSelectContainer>
             </div>
             <div className="small-6 columns">
-              <FormReactSelectContainer label={t('tab:Staff Size')}>
+              <FormReactSelectContainer label={t('field:Staff Size')}>
                 <Select
                   name="Staff Size"
                   value={this.state.staffSizeType}
@@ -625,7 +625,7 @@ class NewCompanyEdit extends Component {
               }}
               style={{ marginRight: '10px' }}
             >
-              {t('action:cancel')}
+              Cancel
             </Button>
             <PrimaryButton
               type="Button"

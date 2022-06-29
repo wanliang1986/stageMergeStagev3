@@ -14,10 +14,8 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { useTheme, makeStyles } from '@material-ui/core/styles';
 import Column from './Column';
-import lodash from 'lodash';
+import lodash, { set } from 'lodash';
 import { columns, isRequiredAdvanced } from '../../../../../../utils/search';
-
-import { withTranslation } from 'react-i18next';
 
 const styles = makeStyles({
   action: {
@@ -158,9 +156,8 @@ const styles = makeStyles({
   },
 });
 
-function AdvancedDialog({ show, close, t }) {
+export default function AdvancedDialog({ show, close }) {
   const classes = styles();
-
   const { newSearchJobs } = useSelector((state) => state.controller);
   const advancedFilter = newSearchJobs.toJS()['advancedFilter'];
   const [arr, setArr] = useState([{ value: '' }, { value: '' }]);
@@ -225,7 +222,6 @@ function AdvancedDialog({ show, close, t }) {
     } else {
       dispatch(upDateStopFlag(true));
       setArrs(data);
-      return;
     }
   };
 
@@ -276,7 +272,7 @@ function AdvancedDialog({ show, close, t }) {
       className={classes.dialogs}
     >
       <DialogTitle className="title" id="responsive-dialog-title">
-        {t('tab:Advanced Search')}
+        {'Advanced Search'}
       </DialogTitle>
       <DialogContent>
         <div className="list">
@@ -343,5 +339,3 @@ function AdvancedDialog({ show, close, t }) {
     </Dialog>
   );
 }
-
-export default withTranslation('tab')(AdvancedDialog);

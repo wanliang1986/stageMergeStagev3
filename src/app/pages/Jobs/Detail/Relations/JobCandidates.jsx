@@ -63,14 +63,14 @@ const columns = [
     type: 'score',
     sortable: true,
   },
-  {
-    colName: 'score2',
-    colWidth: 120,
-    flexGrow: 0,
-    col: 'customScore',
-    type: 'score',
-    sortable: true,
-  },
+  // {
+  //   colName: 'score2',
+  //   colWidth: 120,
+  //   flexGrow: 0,
+  //   col: 'customScore',
+  //   type: 'score',
+  //   sortable: true,
+  // },
 
   {
     colName: 'lastUpdate',
@@ -86,13 +86,6 @@ const columns = [
     flexGrow: 0,
     type: 'tooltip',
     col: 'expectedPayRate',
-  },
-  {
-    colName: 'agreedPayRate',
-    colWidth: 200,
-    flexGrow: 0,
-    type: 'payRate',
-    col: 'agreedPayRate',
   },
   {
     colName: 'company',
@@ -259,6 +252,24 @@ class JobCandidates extends React.PureComponent {
     });
   };
 
+  filterItem = (item) => {
+    let nodeType;
+    let eliminated = item.filter((x) => x.nodeStatus === 'ELIMINATED');
+    let active = item.filter((x) => x.nodeStatus === 'ACTIVE');
+    let onBoard = item.filter((x) => x.nodeType === 'ON_BOARD');
+    //先判断有没有淘汰的， 然后判断是否在流程中的，最后判断完成的
+    if (eliminated && eliminated.length > 0) {
+      nodeType = eliminated[0];
+      return nodeType;
+    } else if (active && active.length > 0) {
+      nodeType = active[0];
+      return nodeType;
+    } else {
+      nodeType = onBoard[0];
+      return nodeType;
+    }
+  };
+
   render() {
     const {
       showAction,
@@ -294,82 +305,58 @@ class JobCandidates extends React.PureComponent {
     );
     let filteredJobActivityListTwo =
       filteredJobActivityList && filteredJobActivityList.toJS();
-    let submitAmNum = 0;
+    let filterItemRes = filteredJobActivityListTwo.map((x) => {
+      return this.filterItem(x.talentRecruitmentProcessNodes);
+    });
+
+    let submiJobNum = 0;
     let submitClientNum = 0;
     let interviewNum = 0;
     let offerNum = 0;
     let onboardNum = 0;
+    let offerAcceptNum = 0;
+    let commissionNum = 0;
     let eliminatedNum = 0;
-    filteredJobActivityListTwo &&
-      filteredJobActivityListTwo.map((item) => {
-        if (item.status === 'Applied' || item.status === 'Qualified') {
-          submitAmNum = submitAmNum + 1;
-        } else if (
-          item.status === 'Submitted' ||
-          item.status === 'Shortlisted_By_Client'
-        ) {
+    filterItemRes &&
+      filterItemRes.map((item) => {
+        if (item.nodeType === 'SUBMIT_TO_JOB') {
+          submiJobNum = submiJobNum + 1;
+        } else if (item.nodeType === 'SUBMIT_TO_CLIENT') {
           submitClientNum = submitClientNum + 1;
-        } else if (item.status === 'Interview') {
+        } else if (item.nodeType === 'INTERVIEW') {
           interviewNum = interviewNum + 1;
-        } else if (
-          item.status === 'Offered' ||
-          item.status === 'Offer_Accepted'
-        ) {
+        } else if (item.nodeType === 'OFFER') {
           offerNum = offerNum + 1;
-        } else if (
-          item.status === 'Internal_Rejected' ||
-          item.status === 'Client_Rejected' ||
-          item.status === 'Offer_Rejected' ||
-          item.status === 'Candidate_Quit' ||
-          (item.status === 'START_FAIL_WARRANTY' && jobType === 'FULL_TIME') ||
-          (item.status === 'START_TERMINATED' && jobType === 'CONTRACT')
-        ) {
+        } else if (item.status === 'ELIMINATED') {
           eliminatedNum = eliminatedNum + 1;
-        } else if (
-          item.status === 'Started' ||
-          item.status === 'START_EXTENSION'
-        ) {
+        } else if (item.nodeType === 'OFFER_ACCEPT') {
+          offerAcceptNum = offerAcceptNum + 1;
+        } else if (item.nodeType === 'COMMISSION') {
+          commissionNum = commissionNum + 1;
+        } else if (item.nodeType === 'ON_BOARD') {
           onboardNum = onboardNum + 1;
         }
       });
-
+    console.log('filteredJobActivityList', filteredJobActivityList.toJS());
     const newFilteredJobActivityList = type
       ? filteredJobActivityList.filter((application) => {
-          if (type === 'Offered') {
-            return (
-              application.get('status') === 'Offered' ||
-              application.get('status') === 'Offer_Accepted'
-            );
-          } else if (type === 'Offer_Rejected') {
-            return (
-              application.get('status') === 'Internal_Rejected' ||
-              application.get('status') === 'Client_Rejected' ||
-              application.get('status') === 'Offer_Rejected' ||
-              application.get('status') === 'Candidate_Quit' ||
-              (jobType === 'FULL_TIME'
-                ? application.get('status') === 'START_FAIL_WARRANTY'
-                : null) ||
-              (jobType === 'CONTRACT'
-                ? application.get('status') === 'START_TERMINATED'
-                : null)
-            );
-          } else if (type === 'Applied') {
-            return (
-              application.get('status') === 'Applied' ||
-              application.get('status') === 'Qualified'
-            );
-          } else if (type === 'Submitted') {
-            return (
-              application.get('status') === 'Submitted' ||
-              application.get('status') === 'Shortlisted_By_Client'
-            );
-          } else if (type === 'Started') {
-            return (
-              application.get('status') === 'Started' ||
-              application.get('status') === 'START_EXTENSION'
-            );
+          console.log('filteredJobActivityList', filteredJobActivityList);
+          if (type === 'SUBMIT_TO_JOB') {
+            return application.get('filterStatus') === 'SUBMIT_TO_JOB';
+          } else if (type === 'SUBMIT_TO_CLIENT') {
+            return application.get('filterStatus') === 'SUBMIT_TO_CLIENT';
+          } else if (type === 'INTERVIEW') {
+            return application.get('filterStatus') === 'INTERVIEW';
+          } else if (type === 'OFFER') {
+            return application.get('filterStatus') === 'OFFER';
+          } else if (type === 'OFFER_ACCEPT') {
+            return application.get('filterStatus') === 'OFFER_ACCEPT';
+          } else if (type === 'COMMISSION') {
+            return application.get('filterStatus') === 'COMMISSION';
+          } else if (type === 'ON_BOARD') {
+            return application.get('filterStatus') === 'ON_BOARD';
           } else {
-            return application.get('status') === type;
+            return application.get('filterStatus') === type;
           }
         })
       : filteredJobActivityList;
@@ -423,9 +410,7 @@ class JobCandidates extends React.PureComponent {
                       this.filterData('');
                     }}
                   >
-                    {`${props.t('tab:All Candidates')} (${
-                      filteredJobActivityList.size
-                    })`}
+                    {`所有候选人 (${filteredJobActivityList.size})`}
                   </div>
 
                   <span className={classes.yarrow}>
@@ -436,15 +421,15 @@ class JobCandidates extends React.PureComponent {
                     <>
                       <div
                         className={
-                          type === 'Applied'
+                          type === 'SUBMIT_TO_JOB'
                             ? classes.submitToAmChecked
                             : classes.submitToAm
                         }
                         onClick={() => {
-                          this.filterData('Applied');
+                          this.filterData('SUBMIT_TO_JOB');
                         }}
                       >
-                        {`${props.t('tab:submitted to am')} (${submitAmNum})`}
+                        {`推荐至职位 (${submiJobNum})`}
                       </div>
 
                       <span className={classes.yarrow}>
@@ -454,17 +439,15 @@ class JobCandidates extends React.PureComponent {
 
                       <div
                         className={
-                          type === 'Submitted'
+                          type === 'SUBMIT_TO_CLIENT'
                             ? classes.submitToAmChecked
                             : classes.submitToAm
                         }
                         onClick={() => {
-                          this.filterData('Submitted');
+                          this.filterData('SUBMIT_TO_CLIENT');
                         }}
                       >
-                        {`${props.t(
-                          'tab:submitted to client'
-                        )} (${submitClientNum})`}
+                        {`推荐至客户 (${submitClientNum})`}
                       </div>
 
                       <span className={classes.yarrow}>
@@ -474,15 +457,15 @@ class JobCandidates extends React.PureComponent {
 
                       <div
                         className={
-                          type === 'Interview'
+                          type === 'INTERVIEW'
                             ? classes.submitToAmChecked
                             : classes.submitToAm
                         }
                         onClick={() => {
-                          this.filterData('Interview');
+                          this.filterData('INTERVIEW');
                         }}
                       >
-                        {`${props.t('tab:interview')} (${interviewNum})`}
+                        {`面试 (${interviewNum})`}
                       </div>
 
                       <span className={classes.yarrow}>
@@ -494,15 +477,15 @@ class JobCandidates extends React.PureComponent {
 
                   <div
                     className={
-                      type === 'Offered'
+                      type === 'OFFER'
                         ? classes.submitToAmChecked
                         : classes.submitToAm
                     }
                     onClick={() => {
-                      this.filterData('Offered');
+                      this.filterData('OFFER');
                     }}
                   >
-                    {`${props.t('tab:offer')} (${offerNum})`}
+                    {`Offer (${offerNum})`}
                   </div>
 
                   <span className={classes.yarrow}>
@@ -512,15 +495,47 @@ class JobCandidates extends React.PureComponent {
 
                   <div
                     className={
+                      type === 'OFFER_ACCEPT'
+                        ? classes.submitToAmChecked
+                        : classes.submitToAm
+                    }
+                    onClick={() => {
+                      this.filterData('OFFER_ACCEPT');
+                    }}
+                  >
+                    {`业绩分配 (${offerAcceptNum})`}
+                  </div>
+
+                  {/* {普通版本} */}
+                  {/* <div
+                    className={
+                      type === 'COMMISSION'
+                        ? classes.submitToAmChecked
+                        : classes.submitToAm
+                    }
+                    onClick={() => {
+                      this.filterData('COMMISSION');
+                    }}
+                  >
+                    {`Commission (${commissionNum})`}
+                  </div>
+
+                  <span className={classes.yarrow}>
+                    <span className={classes.ynext}></span>
+                    <span className={classes.yprev}></span>
+                  </span> */}
+
+                  <div
+                    className={
                       type === 'Started'
                         ? classes.submitToAmChecked
                         : classes.submitToAm
                     }
                     onClick={() => {
-                      this.filterData('Started');
+                      this.filterData('ON_BOARD');
                     }}
                   >
-                    {`${props.t('tab:onboard')}  (${onboardNum})`}
+                    {`入职 (${onboardNum})`}
                   </div>
 
                   {jobType === 'PAY_ROLL' ? null : (
@@ -540,7 +555,7 @@ class JobCandidates extends React.PureComponent {
                           this.filterData('Offer_Rejected');
                         }}
                       >
-                        {`${props.t('tab:eliminated')} (${eliminatedNum})`}
+                        {`淘汰 (${eliminatedNum})`}
                       </div>
                     </>
                   )}

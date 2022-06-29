@@ -7,7 +7,6 @@ import Grid from '@material-ui/core/Grid';
 import Chip from '@material-ui/core/Chip';
 import NotesOptions from './NotesOptions';
 import { applicationStatus2 } from '../../../constants/formOptions';
-import { withTranslation } from 'react-i18next';
 const styles = {
   root: {
     width: '650px',
@@ -107,7 +106,7 @@ class CurrentStatusNoteTemplate extends Component {
         <div className={classes.title}>
           <Grid container spacing={3}>
             <Grid item xs={4} style={{ marginLeft: '20px' }}>
-              <h5>{this.props.t('tab:Current Status Notes')} </h5>
+              <h5>Current Status Notes</h5>
             </Grid>
             <Grid item xs={2}>
               <Chip
@@ -128,6 +127,4 @@ class CurrentStatusNoteTemplate extends Component {
   }
 }
 
-export default withTranslation('tab')(
-  connect()(withStyles(styles)(CurrentStatusNoteTemplate))
-);
+export default connect()(withStyles(styles)(CurrentStatusNoteTemplate));

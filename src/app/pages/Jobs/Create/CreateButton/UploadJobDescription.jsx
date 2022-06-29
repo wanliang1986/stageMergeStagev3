@@ -131,8 +131,7 @@ class UploadJobDescription extends React.Component {
           </IconButton>
         </div>
         <Typography variant="body2" gutterBottom>
-          {console.log(getJobTypeLabel(jobType))}
-          {t('common:createJob')} - {t(`tab:${getJobTypeLabel(jobType)}`)}
+          {t('common:createJob')} - {getJobTypeLabel(jobType)}
         </Typography>
         <Typography variant="h6" paragraph>
           {t('message:Provide a Job Description')}
@@ -142,7 +141,9 @@ class UploadJobDescription extends React.Component {
           style={{ width: '100%' }}
         >
           <Typography variant="caption" gutterBottom>
-            {t('tab:FillDetails')}
+            {
+              'Fill in the job description and APN will help you parse the job details:'
+            }
           </Typography>
           <div
             className="flex-child-auto flex-container flex-dir-column"
@@ -157,7 +158,7 @@ class UploadJobDescription extends React.Component {
           <Divider />
           <div className={''}>
             <Typography variant="caption">
-              {t('message:You can also')}
+              {t('message:You can also ')}
             </Typography>
             <Link>
               <Typography
@@ -165,18 +166,18 @@ class UploadJobDescription extends React.Component {
                 component={'label'}
                 onChange={this.handleUploadJDFile}
               >
-                {t('message:upload a job description (.pdf/.txt)')}
+                {t('message:upload a job description (.pdf/.txt) ')}
                 <input type="file" style={{ display: 'none' }} />
               </Typography>
             </Link>
 
-            <Typography variant="caption">{t('message:or')} </Typography>
+            <Typography variant="caption">{t('message: or ')}</Typography>
             <Typography
               variant="caption"
               component={Link}
               onClick={() => this._handleNav()}
             >
-              {t('message:create a job manually')}
+              {t('message:create a job manually.')}
             </Typography>
           </div>
           <div className="horizontal-layout">

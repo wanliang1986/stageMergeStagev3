@@ -56,7 +56,7 @@ function mapStateToProps(state) {
     reloadKey: state.controller.reload,
     isAdmin:
       authorities &&
-      authorities.includes(Immutable.Map({ name: 'ROLE_TENANT_ADMIN' }))
+      authorities.includes(Immutable.Map({ name: 'ROLE_TENANT_ADMIN' })),
   };
 }
 

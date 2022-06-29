@@ -17,6 +17,7 @@ import PrimaryButton from '../../../../components/particial/PrimaryButton';
 
 import JobTable from './AppliedJobTable';
 import SearchBox from './SearchJobBox';
+import Loading from '../../../../components/particial/Loading';
 import AddApplicationForm from '../../../../components/applications/forms/AddApplicationForm';
 
 class ApplyJob extends React.PureComponent {
@@ -110,7 +111,8 @@ class ApplyJob extends React.PureComponent {
           }}
         >
           <div style={{ color: '#505050', fontSize: 16, fontWeight: 600 }}>
-            {t('tab:Apply to job')}：{candidate.get('fullName')}
+            {'Apply to job: '}
+            {candidate.get('fullName')}
           </div>
           <div />
         </div>

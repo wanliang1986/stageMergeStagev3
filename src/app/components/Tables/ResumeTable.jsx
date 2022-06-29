@@ -9,7 +9,6 @@ import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
 import { Table, Column, Cell } from 'fixed-data-table-2';
 import IconButton from '@material-ui/core/IconButton';
 import Checkbox from '@material-ui/core/Checkbox';
-import Typography from '@material-ui/core/Typography';
 
 import DeleteIcon from '@material-ui/icons/Delete';
 
@@ -23,7 +22,6 @@ import {
   ROW_HEIGHT,
   HEADER_WITHFILTER_HEIGHT,
 } from './params';
-import { withTranslation } from 'react-i18next';
 
 const NameLinkCell = ({ rowIndex, data, col, loadMore, ...props }) => {
   const id = data.getIn([rowIndex, 'id']);
@@ -80,43 +78,11 @@ const SourceCell = ({ rowIndex, data, col, ...props }) => {
           className="overflow_ellipsis_1"
           style={{ width: props.width - 26 }}
         >
-          {hotList ? (
-            <Typography>
-              Hotlist -{' '}
-              <Link to={`/candidates?tab=hotlist&hotlist=${hotList.id}`}>
-                {hotList.title}
-              </Link>
-            </Typography>
-          ) : single ? (
-            props.t('tab:Single Upload Resume')
-          ) : (
-            props.t('tab:Bulk Upload ResumeFrame')
-          )}
-        </div>
-      </Cell>
-    );
-  }
-
-  return <Cell {...props}>loading...</Cell>;
-};
-
-const NoteCell = ({ rowIndex, data, col, ...props }) => {
-  const id = data.getIn([rowIndex, 'id']);
-  if (id) {
-    const talentId = data.getIn([rowIndex, 'talentId']);
-    if (!talentId) {
-      return <TextCell rowIndex={rowIndex} data={data} col={col} {...props} />;
-    }
-    let text = data.getIn([rowIndex, col]);
-    return (
-      <Cell {...props}>
-        <div
-          className="overflow_ellipsis_1"
-          style={{ width: props.width - 26, textTransform: 'none' }}
-          data-tip={text}
-        >
-          <Link to={`/candidates/detail/${talentId}`}>Talent</Link> is already
-          exists. TalentId: {talentId}
+          {hotList
+            ? `Hotlist - ${hotList.title}`
+            : single
+            ? 'Single Upload Resume'
+            : 'Bulk Upload ResumeFrame'}
         </div>
       </Cell>
     );
@@ -133,8 +99,7 @@ const ParseRecordCell = ({ type, loadMore, ...props }) => {
       return <SourceCell {...props} />;
     case 'date':
       return <DateTimeCell {...props} />;
-    case 'note':
-      return <NoteCell {...props} />;
+
     default:
       return <TextCell {...props} />;
   }
@@ -270,7 +235,6 @@ class ResumeTable extends React.Component {
                       col={column.col}
                       type={column.type}
                       style={style.displayCell}
-                      t={this.props.t}
                     />
                   }
                   width={column.colWidth}
@@ -308,4 +272,4 @@ ResumeTable.propTypes = {
   parseRecordList: PropTypes.instanceOf(Immutable.List).isRequired,
 };
 
-export default withTranslation('tab')(withStyles(style)(ResumeTable));
+export default withStyles(style)(ResumeTable);

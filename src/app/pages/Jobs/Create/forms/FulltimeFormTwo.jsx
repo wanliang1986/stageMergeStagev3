@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { withTranslation } from 'react-i18next';
 import Immutable from 'immutable';
 import { upsertJob } from '../../../../actions/jobActions';
-import { showErrorMessage, showSuccessMessage } from '../../../../actions/';
+import { showErrorMessage } from '../../../../actions/';
 
 import Paper from '@material-ui/core/Paper';
 import Divider from '@material-ui/core/Divider';
@@ -13,8 +13,6 @@ import PrimaryButton from '../../../../components/particial/PrimaryButton';
 import JobBasicForm from '../../CreatFulltimeForm';
 import JobDescription from '../../JobDescriptionRich3';
 import JobLayout from '../../../../components/particial/JobLayout';
-
-import * as apnSDK from '../../../../../apn-sdk/';
 
 class JobCreate extends React.Component {
   constructor(props, context) {
@@ -31,15 +29,16 @@ class JobCreate extends React.Component {
       publicDesc: '',
       jobId: null,
       openAddUser: false,
-
-      ipgJobType: 'FULL_TIME',
     };
     this.editor = React.createRef();
     this.jobForm = React.createRef();
     this.uploader = React.createRef();
+    this.myFulltimeForm = React.createRef();
   }
 
   handleCreateJob = (e) => {
+    console.log(111);
+    // e.preventDefault();
     e.stopPropagation();
     const createJobForm = this.jobForm.current;
     const { dispatch, t, history } = this.props;
@@ -190,63 +189,9 @@ class JobCreate extends React.Component {
           // openAddUser:true,
           jobId,
         });
-
-        if (createJobForm?.ipgPost?.value === 'true') {
-          let ipgJob = {
-            id: jobId,
-            title: createJobForm.title.value,
-            jobType: this.state.ipgJobType,
-
-            jobFunctions:
-              createJobForm.jobfunction.value &&
-              JSON.parse(createJobForm.jobfunction.value),
-
-            status: 'OPEN',
-            department: createJobForm.department.value,
-            requiredSkills: JSON.parse(createJobForm.requiredskills.value),
-
-            experienceYearRange: {
-              gte: leastYear,
-              lte: mostYear,
-            },
-
-            minimumDegreeLevel: createJobForm.degreeValue.value
-              ? [createJobForm.degreeValue.value * 1]
-              : null,
-
-            locations:
-              createJobForm.location.value &&
-              JSON.parse(createJobForm.location.value),
-
-            jdUrl: null,
-            jdText: createJobForm.ipgJd.value,
-          };
-          console.log(ipgJob);
-          apnSDK
-            .upsertJob_Ipg(ipgJob, 'NO_PUBLISHED', jobId)
-            .then(({ response }) => {
-              console.log('upsert Ipgjob: ', response);
-              this.props.history.push('/jobs');
-              // this.props.dispatch(getJob(this.props.job.get('id')))
-              // my flag
-              this.props.dispatch(
-                showSuccessMessage(
-                  `You've created a new job. The job is also posted on IPG website.`
-                )
-              );
-            })
-            .catch((err) => {
-              this.props.dispatch(showErrorMessage(err));
-              throw err;
-            });
-        } else {
-          this.props.history.push('/jobs');
-        }
+        this.props.history.push('/jobs');
       })
-      .catch((err) => {
-        this.setState({ creating: false });
-        this.props.dispatch(showErrorMessage(err));
-      });
+      .catch(() => this.setState({ creating: false }));
   };
 
   // 校验
@@ -300,21 +245,9 @@ class JobCreate extends React.Component {
           t('message:Max must > Min')
         );
       }
-      if (form.maxYears.value && Number(form.maxYears.value) > 99) {
-        errorMessage = errorMessage.set(
-          'Years of Experience',
-          t('message:MaxYears Must < 100')
-        );
-      }
-      if (form.minYears.value && Number(form.minYears.value) > 99) {
-        errorMessage = errorMessage.set(
-          'Years of Experience',
-          t('message:MinYears Must < 100')
-        );
-      }
     }
 
-    if (!form.title.value) {
+    if (!form.title.value.trim()) {
       errorMessage = errorMessage.set(
         'title',
         t('message:Job title is required')
@@ -440,12 +373,6 @@ class JobCreate extends React.Component {
     });
   };
 
-  setIpgJobType = (ipgJobType) => {
-    this.setState({
-      ipgJobType,
-    });
-  };
-
   render() {
     const { errorMessage, job } = this.state;
     const { t, i18n, ...props } = this.props;
@@ -465,11 +392,11 @@ class JobCreate extends React.Component {
                 style={{ overflow: 'auto' }}
               >
                 <JobBasicForm
-                  setIpgJobType={this.setIpgJobType}
                   job={job}
                   t={t}
                   errorMessage={errorMessage}
                   removeErrorMsgHandler={this.removeErrorMessage}
+                  ref="fullForm"
                 />
               </div>
 
@@ -501,7 +428,7 @@ class JobCreate extends React.Component {
                     marginTop: 27,
                   }}
                 >
-                  {t('tab:Job Description')}
+                  Job Description
                 </p>
               </div>
               <div

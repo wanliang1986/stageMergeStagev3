@@ -319,17 +319,17 @@ class AmReport extends Component {
     return (
       <div className={classes.root}>
         <Grid container spacing={2}>
-          <Grid item xs={10}>
+          <Grid item xs={11}>
             <Paper variant="outlined">
               <div className={classes.title}>
-                {t('tab:Summary')} - {company.get('name')}
+                Summary - {company.get('name')}
               </div>
               <Divider />
               <div className={classes.count}>
                 {summary ? (
                   <Grid container>
                     <Grid item xs={1} style={{ padding: '10px' }}>
-                      <p className={classes.fontSty}> {t('tab:Active Jobs')}</p>
+                      <p className={classes.fontSty}> Active Jobs</p>
                       <h5>
                         {summary && summary.get('activeJob')
                           ? summary.get('activeJob')
@@ -337,9 +337,7 @@ class AmReport extends Component {
                       </h5>
                     </Grid>
                     <Grid item xs={2} style={{ padding: '10px' }}>
-                      <p className={classes.fontSty}>
-                        {t('tab:Weekly New Candidates')}
-                      </p>
+                      <p className={classes.fontSty}>Weekly New Candidates</p>
                       <h5>
                         {summary && summary.get('newCandidate')
                           ? summary.get('newCandidate')
@@ -347,9 +345,7 @@ class AmReport extends Component {
                       </h5>
                     </Grid>
                     <Grid item xs={2} style={{ padding: '10px' }}>
-                      <p className={classes.fontSty}>
-                        {t('tab:Active Candidates')}
-                      </p>
+                      <p className={classes.fontSty}>Active Candidates</p>
                       <h5>
                         {summary && summary.get('activeCandidate')
                           ? summary.get('activeCandidate')
@@ -357,9 +353,7 @@ class AmReport extends Component {
                       </h5>
                     </Grid>
                     <Grid item xs={2} style={{ padding: '10px' }}>
-                      <p className={classes.fontSty}>
-                        {t('tab:Total Candidates')}
-                      </p>
+                      <p className={classes.fontSty}>Total Candidates</p>
                       <h5>
                         {summary && summary.get('totalCandidate')
                           ? summary.get('totalCandidate')
@@ -367,9 +361,7 @@ class AmReport extends Component {
                       </h5>
                     </Grid>
                     <Grid item xs={2} style={{ padding: '10px' }}>
-                      <p className={classes.fontSty}>
-                        {t('tab:Total Offers by Clients')}
-                      </p>
+                      <p className={classes.fontSty}>Total Offers by Clients</p>
                       <h5>
                         {summary && summary.get('totalOffersByClient')
                           ? summary.get('totalOffersByClient')
@@ -377,9 +369,7 @@ class AmReport extends Component {
                       </h5>
                     </Grid>
                     <Grid item xs={2} style={{ padding: '10px' }}>
-                      <p className={classes.fontSty}>
-                        {t('tab:Total Offers Accepted')}
-                      </p>
+                      <p className={classes.fontSty}>Total Offers Accepted</p>
                       <h5>
                         {summary && summary.get('totalOfferAccepted')
                           ? summary.get('totalOfferAccepted')
@@ -387,9 +377,7 @@ class AmReport extends Component {
                       </h5>
                     </Grid>
                     <Grid item xs={1} style={{ padding: '10px' }}>
-                      <p className={classes.fontSty}>
-                        {t('tab:Total On Boarded')}
-                      </p>
+                      <p className={classes.fontSty}>Total On Boarded</p>
                       <h5>
                         {summary && summary.get('totalOnBoard')
                           ? summary.get('totalOnBoard')
@@ -403,14 +391,14 @@ class AmReport extends Component {
               </div>
             </Paper>
           </Grid>
-          <Grid item xs={2} style={{ textAlign: 'right' }}>
+          <Grid item xs={1} style={{ textAlign: 'right' }}>
             <PotentialButton
               processing={downloading}
               onClick={() => {
                 this.downLoad();
               }}
             >
-              {t('tab:Download')}
+              Download
             </PotentialButton>
             {/* <Button
               variant="outlined"
@@ -426,7 +414,7 @@ class AmReport extends Component {
         <Grid container spacing={3}>
           <Grid item xs={3}>
             <AmReportDropDown
-              label={t('tab:Job Type')}
+              label={'Job Type'}
               options={AMJobType}
               selected={(arr) => {
                 this.jobTypeSelected(arr);
@@ -435,7 +423,7 @@ class AmReport extends Component {
           </Grid>
           <Grid item xs={3}>
             <AmReportDropDown
-              label={t('tab:Contact')}
+              label={'Contact'}
               options={contactList}
               selected={(arr) => {
                 this.contactSelect(arr);

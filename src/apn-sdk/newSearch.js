@@ -29,16 +29,7 @@ export const distSelect = (dictCode = '') => {
     headers: {},
   };
 
-  return authRequest.sendV2(`/dict/${dictCode}`, config);
-};
-
-export const distSelectZh = (dictCode = '') => {
-  const config = {
-    method: 'GET',
-    headers: {},
-  };
-
-  return authRequest.sendV2(`/dict-cn/${dictCode}`, config);
+  return authRequest.jobSend(`/dict/${dictCode}`, config);
 };
 
 // 用户检索条件保存
@@ -52,7 +43,7 @@ export const saveFilter = (data) => {
     body: JSON.stringify(data),
   };
 
-  return authRequest.sendV2('/jobs/search/config', config);
+  return authRequest.jobSend('/jobs/search/config', config);
 };
 
 // 获取用户检索条件列表
@@ -62,7 +53,7 @@ export const getFilter = () => {
     headers: {},
   };
 
-  return authRequest.sendV2('/jobs/search/config/JOB', config);
+  return authRequest.jobSend('/jobs/search/config/JOB', config);
 };
 
 export const getFilterSearch = (value) => {
@@ -71,7 +62,7 @@ export const getFilterSearch = (value) => {
     headers: {},
   };
 
-  return authRequest.sendV2(
+  return authRequest.jobSend(
     `/jobs/search/config/JOB?searchName=${value}&module=JOB`,
     config
   );
@@ -84,7 +75,7 @@ export const deleteFilter = (id) => {
     headers: {},
   };
 
-  return authRequest.sendV2(`/jobs/search/${id}`, config);
+  return authRequest.jobSend(`/jobs/search/${id}`, config);
 };
 
 // job 搜素
@@ -102,7 +93,7 @@ export const jobSearch = ({ filter, size, page, sort = {}, initFlag }) => {
     pageNumber: page,
     module,
     timezone: moment.tz.guess(),
-    initialSearch: initFlag,
+    // initialSearch: initFlag,
   };
   if (sort && JSON.stringify(sort) != '{}') {
     query.sort = sort;
@@ -113,7 +104,7 @@ export const jobSearch = ({ filter, size, page, sort = {}, initFlag }) => {
     query.condition = '';
     config.body = JSON.stringify(query);
   }
-  return authRequest.sendV2(`/jobs/search`, config);
+  return authRequest.jobSend(`/jobs/search`, config);
 };
 
 // candidate job 搜素
@@ -142,7 +133,7 @@ export const jobCandidateSearch = ({
     module,
     jobId,
     timezone: moment.tz.guess(),
-    initialSearch: initFlag,
+    // initialSearch: initFlag,
   };
 
   if (jobId) {
@@ -158,7 +149,7 @@ export const jobCandidateSearch = ({
     query.condition = '{}';
     config.body = JSON.stringify(query);
   }
-  return authRequest.sendV2(`/talents/search`, config);
+  return authRequest.talentSendV3(`/talents/search`, config);
 };
 
 // commonPool job搜索
@@ -239,7 +230,7 @@ export const getGeneralData = ({
     },
     body: JSON.stringify(query),
   };
-  return authRequest.sendV2(`/jobs/search`, config);
+  return authRequest.jobSend(`/jobs/search`, config);
 };
 
 // jobList Columns
@@ -250,8 +241,7 @@ export const getColumns = () => {
       'Content-Type': 'application/json',
     },
   };
-
-  return authRequest.sendV2(`/jobs/preference/JOB`, config);
+  return authRequest.jobSend(`/jobs/preference/JOB`, config);
 };
 
 //  save jobList Columns
@@ -264,7 +254,7 @@ export const saveColumns = (data) => {
     body: JSON.stringify(data),
   };
 
-  return authRequest.sendV2(`/jobs/preference`, config);
+  return authRequest.jobSend(`/jobs/preference`, config);
 };
 
 // jobList InitColumns
@@ -276,7 +266,7 @@ export const getInitColumns = () => {
     },
   };
 
-  return authRequest.sendV2(`/column/1`, config);
+  return authRequest.jobSend(`/column/1`, config);
 };
 
 // changeStatus
@@ -288,7 +278,7 @@ export const changeStatus = (id, status) => {
     },
   };
 
-  return authRequest.sendV2(`/jobs/${id}/${status}`, config);
+  return authRequest.jobSend(`/jobs/${id}/${status}`, config);
 };
 
 // 添加收藏
@@ -300,7 +290,7 @@ export const saveCollect = (id) => {
     },
   };
 
-  return authRequest.sendV2(`/jobs/favorite/${id}`, config);
+  return authRequest.jobSend(`/jobs/favorite/${id}`, config);
 };
 
 // 删除收藏
@@ -315,7 +305,7 @@ export const deleteCollect = (id) => {
     }),
   };
 
-  return authRequest.sendV2(`/jobs/favorite/${id}`, config);
+  return authRequest.jobSend(`/jobs/favorite/${id}`, config);
 };
 
 export const updateCollect = (id, type) => {
@@ -330,7 +320,7 @@ export const updateCollect = (id, type) => {
   if (type === 'DELETE') config.method = 'DELETE';
   if (type === 'POST') config.method = 'POST';
 
-  return authRequest.sendV2(`/jobs/favorite/${id}`, config);
+  return authRequest.jobSend(`/jobs/favorite/${id}`, config);
 };
 
 // job chart搜素
@@ -342,7 +332,7 @@ export const jobChartSearch = (params) => {
     },
     body: JSON.stringify(params),
   };
-  return authRequest.sendV2(`/jobs/search`, config);
+  return authRequest.jobSend(`/jobs/search`, config);
 };
 
 export const getJobCompanyList = () => {
@@ -378,6 +368,9 @@ export const jobCommonPoolSearch = ({
   initialSearch,
 }) => {
   let module = jobRequestEnum.COMMON_POOL;
+  // if (jobId) {
+  //   module = jobRequestEnum.JOB_PICK_CANDIDATE;
+  // }
   const config = {
     method: 'post',
     headers: {
@@ -394,17 +387,31 @@ export const jobCommonPoolSearch = ({
     timezone: moment.tz.guess(),
   };
   if (defultStatus === '1' && commonPoolType) {
+    // let selectValue = commonPoolType.split(',');
+    // if (selectValue.length !== 2) {
+    //   query.commonPoolType = commonPoolType;
+    // }
     if (commonPoolType !== 'All_CANDIDATES') {
       query.commonPoolType = commonPoolType;
     }
   }
   if (defultStatus === '2') {
     if (commonPoolSelectList) {
+      // let selectList = commonPoolSelectList.split(',');
+      // if (selectList.length !== 2) {
+      //   query.commonPoolType = commonPoolSelectList;
+      // }
       if (commonPoolSelectList !== 'All_CANDIDATES') {
         query.commonPoolType = commonPoolSelectList;
       }
     }
   }
+  // if (defultStatus === '2') {
+  //   let selectList = commonPoolSelectList.split(',');
+  //   if (selectList.length !== 2) {
+  //     query.commonPoolType = commonPoolSelectList;
+  //   }
+  // }
 
   if (jobId) {
     query.jobId = jobId;
@@ -412,13 +419,14 @@ export const jobCommonPoolSearch = ({
   if (sort && JSON.stringify(sort) != '{}') {
     query.sort = sort;
   }
+  console.log('=========================', Object.values(filter)[0]);
   if (Object.values(filter)[0].length != 0) {
     config.body = JSON.stringify(query);
   } else {
     query.condition = '{}';
     config.body = JSON.stringify(query);
   }
-  return authRequest.sendV2(`/talents/search`, config);
+  return authRequest.talentSendV3(`/talents/search`, config);
 };
 
 // CommonPool通用搜索
@@ -430,7 +438,7 @@ export const commonPoolCurrencySearch = ({
   jobId,
   defultStatus,
   commonPoolSelectList,
-  // initialSearch,
+  initialSearch,
 }) => {
   let module = jobRequestEnum.COMMON_POOL;
   // if (jobId) {
@@ -473,7 +481,7 @@ export const commonPoolCurrencySearch = ({
     query.condition = '{}';
     config.body = JSON.stringify(query);
   }
-  return authRequest.sendV2(`/talents/search`, config);
+  return authRequest.talentSendV3(`/talents/search`, config);
 };
 
 // commonPool点击购买
@@ -485,7 +493,7 @@ export const commonPoolAddUnlock = (obj) => {
     },
     body: JSON.stringify(obj),
   };
-  return authRequest.send(`/credit-transactions/commonPool`, config);
+  return authRequest.userSendV3(`/credit-transactions/commonPool`, config);
 };
 
 // 查询用户余额
@@ -507,5 +515,5 @@ export const commonPoolAddCandidates = (data) => {
     },
     body: JSON.stringify(data),
   };
-  return authRequest.sendV2(`/talents/commonPool`, config);
+  return authRequest.talentSendV3(`/talents/commonPool`, config);
 };

@@ -20,11 +20,11 @@ import RefreshIcon from '@material-ui/icons/Refresh';
 import Logged from './Logged';
 
 const routes = [
-  {
-    path: '/',
-    label: 'dashboard',
-    exact: true,
-  },
+  // {
+  //   path: '/',
+  //   label: 'dashboard',
+  //   exact: true,
+  // },
   {
     path: '/jobs',
     label: 'jobs',
@@ -33,14 +33,14 @@ const routes = [
     path: '/candidates',
     label: 'candidates',
   },
-  {
-    path: '/emailblast',
-    label: 'emailBlast',
-  },
-  {
-    path: '/reports',
-    label: 'reports',
-  },
+  // {
+  //   path: '/emailblast',
+  //   label: 'emailBlast',
+  // },
+  // {
+  //   path: '/reports',
+  //   label: 'reports',
+  // },
   {
     path: '/myteam',
     label: 'myteam',
@@ -69,17 +69,13 @@ const routes = [
     path: '/templates',
     label: 'templates',
   },
-  // {
-  //   path: '/settings',
-  //   label: 'settings',
-  // },
+  {
+    path: '/settings',
+    label: 'settings',
+  },
   {
     path: '/tenantAdminPortal',
     label: 'Tenant Admin Portal',
-  },
-  {
-    path: '/timesheets',
-    label: 'Timesheets',
   },
 ];
 
@@ -112,7 +108,7 @@ const styles = {
   linkContainer: {
     display: 'flex',
     '& > $link': {
-      marginRight: 4,
+      marginRight: 16,
       display: 'none',
       '&:hover': {
         color: PRIMARY,
@@ -129,10 +125,8 @@ const styles = {
 };
 
 const NavLinks = ({ t, classes, location, ...props }) => {
+  console.log(props, location);
   const isFinance = location.pathname.match(/^\/(invoices|commissions)/);
-  const pathArray = location.pathname.split('/');
-  const pathFlag =
-    pathArray.includes('timesheets') && pathArray.includes('Search');
   return (
     <React.Fragment>
       {!!isFinance && (
@@ -159,7 +153,7 @@ const NavLinks = ({ t, classes, location, ...props }) => {
             className={classes.link}
           >
             {' '}
-            {t(nav.label) + `${pathFlag ? '/Expenses' : ''}`}
+            {t(nav.label)}
           </NavLink>
         );
       })}
@@ -173,7 +167,6 @@ function Nav({
   reloadKey,
   location,
   disableBack,
-  companyDetail,
   classes,
   ...props
 }) {
@@ -182,7 +175,7 @@ function Nav({
     <AppBar position="static" color="default" elevation={1}>
       {loggedin ? (
         <Toolbar>
-          <Tooltip title={props.t('tab:Go Back')} disableFocusListener>
+          <Tooltip title={'Go Back'} disableFocusListener>
             <span>
               <IconButton
                 onClick={props.history.goBack}
@@ -194,7 +187,7 @@ function Nav({
             </span>
           </Tooltip>
 
-          <Tooltip title={props.t('tab:Reload')} disableFocusListener>
+          <Tooltip title={'Reload'} disableFocusListener>
             <IconButton
               onClick={() => {
                 props.history.replace(location);
@@ -212,11 +205,6 @@ function Nav({
             className={classes.linkContainer}
           >
             <NavLinks location={location} t={props.t} classes={classes} />
-            {companyDetail && (
-              <span style={{ color: '#B3B4B4', fontSize: '16px' }}>
-                / {companyDetail.get('name')}
-              </span>
-            )}
           </Typography>
           <div className="flex-child-auto" />
 
@@ -238,17 +226,6 @@ function Nav({
 }
 
 function mapStoreStateToProps(state) {
-  const isCompanyDetail =
-    state.router.location.pathname.indexOf('/companies/detail/');
-  let companyDetail = null;
-  if (isCompanyDetail !== -1) {
-    let companyId = state.router.location.pathname.substring(
-      18,
-      state.router.location.pathname.length - 2
-    );
-    companyDetail = state.model.companies.get(companyId);
-    console.log(companyDetail);
-  }
   const currentUser = state.controller.currentUser;
   const loggedin = state.controller.loggedin;
   const disableBack =
@@ -261,11 +238,9 @@ function mapStoreStateToProps(state) {
     isMobile: state.controller.isMobile,
     reloadKey: state.controller.reload,
     disableBack,
-    companyDetail,
   };
 }
 
-export default withTranslation(
-  'nav',
-  'tab'
-)(withRouter(connect(mapStoreStateToProps)(withStyles(styles)(Nav))));
+export default withTranslation('nav')(
+  withRouter(connect(mapStoreStateToProps)(withStyles(styles)(Nav)))
+);

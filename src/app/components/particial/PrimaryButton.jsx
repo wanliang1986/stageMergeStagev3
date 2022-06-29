@@ -30,8 +30,6 @@ class PrimaryButton extends React.Component {
       children,
       disabled,
       buttonRef,
-      variant = 'contained',
-      color = 'primary',
       ...otherProps
     } = this.props;
     return (
@@ -39,8 +37,8 @@ class PrimaryButton extends React.Component {
         <Button
           disabled={disabled || processing}
           {...otherProps}
-          variant={variant}
-          color={color}
+          variant="contained"
+          color="primary"
           ref={buttonRef}
           disableElevation
         >

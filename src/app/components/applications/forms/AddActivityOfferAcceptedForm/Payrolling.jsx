@@ -33,8 +33,8 @@ class ContractForm extends Component {
     super(props);
     this.state = this._getStateFromOffer(
       props.application.applicationOfferLetter || {
-        rateUnitType: null,
-        currency: null,
+        rateUnitType: 'HOURLY',
+        currency: 'USD',
         estimatedWorkingHourPerWeek: 40,
       }
     );
@@ -45,9 +45,9 @@ class ContractForm extends Component {
   }
 
   _getStateFromOffer = (offer) => {
-    console.log('offer:', offer);
+    console.log('offer', offer);
     return {
-      currency: offer.currency || null,
+      currency: offer.currency || 'USD',
       rateUnitType: offer.rateUnitType,
       totalBillAmount: offer.totalBillAmount,
 
@@ -70,12 +70,12 @@ class ContractForm extends Component {
   getApplicationOfferLetterParam = () => {
     const { dispatch } = this.props;
     if (state.offerLetterParam) {
-      this.setState(state.offerLetterParam, () => this.computeContractGM());
+      this.setState(state.offerLetterParam);
     } else {
       getApplicationOfferLetterParam()
         .then(({ response }) => {
           state.offerLetterParam = mapOfferLetterParams(response);
-          this.setState(state.offerLetterParam, () => this.computeContractGM());
+          this.setState(state.offerLetterParam);
         })
         .catch((err) => dispatch(showErrorMessage(err)));
     }
@@ -188,7 +188,7 @@ class ContractForm extends Component {
             <FormInput
               value={positionTitle}
               name="Title"
-              label={t('field:Title')}
+              label={'Title'}
               disabled
             />
           </div>
@@ -312,7 +312,7 @@ class ContractForm extends Component {
             >
               <Select
                 labelKey={'label2'}
-                clearable={true}
+                clearable={false}
                 disabled={edit}
                 value={currency}
                 options={currencyOptions}
@@ -331,7 +331,7 @@ class ContractForm extends Component {
               isRequired
             >
               <Select
-                clearable={true}
+                clearable={false}
                 disabled={edit}
                 value={rateUnitType}
                 simpleValue
@@ -351,7 +351,7 @@ class ContractForm extends Component {
         <div className="row expanded">
           <div className="small-6 columns">
             <FormReactSelectContainer
-              label={t('field:Tax Burden Rate')}
+              label="Tax Burden Rate"
               isRequired
               errorMessage={t(errorMessage.get('taxBurdenRate'))}
             >
@@ -376,7 +376,7 @@ class ContractForm extends Component {
 
           <div className="small-6 columns">
             <FormReactSelectContainer
-              label={t('field:MSP Rate')}
+              label="MSP Rate"
               isRequired
               errorMessage={t(errorMessage.get('mspRate'))}
             >
@@ -402,7 +402,7 @@ class ContractForm extends Component {
         <div className="row expanded">
           <div className="small-6 columns">
             <FormReactSelectContainer
-              label={t('field:Immigration Cost')}
+              label="Immigration Cost"
               isRequired
               errorMessage={t(errorMessage.get('immigrationCost'))}
             >

@@ -61,6 +61,7 @@ class AdditionalInfo extends Component {
       removeErrorMsgHandler,
     } = this.props;
     // const { showPrimaryAdd, showBillingAdd, showOtherAdd } = this.state;
+    console.log(this.state.fortuneRank);
     return (
       <section style={{ margin: '0 -0.25rem' }}>
         <div className="row expanded">

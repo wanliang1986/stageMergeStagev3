@@ -29,6 +29,23 @@ import zhCN from 'rsuite/lib/IntlProvider/locales/zh_CN';
 import enUS from 'rsuite/lib/IntlProvider/locales/en_US';
 import Select from 'react-select';
 
+const ranges = [
+  {
+    label: 'This Month',
+    value: [dateFns.startOfMonth(new Date()), dateFns.endOfToday()],
+  },
+  {
+    label: 'Last 3 Months',
+    value: [
+      dateFns.addMonths(dateFns.startOfToday(), -3),
+      dateFns.endOfToday(),
+    ],
+  },
+  {
+    label: 'Year to Date',
+    value: [dateFns.startOfYear(new Date()), dateFns.endOfToday()],
+  },
+];
 const status = {};
 class BDReport extends React.PureComponent {
   constructor(props) {
@@ -188,7 +205,7 @@ class BDReport extends React.PureComponent {
     if (companyList.size === 0) {
       return (
         <div className="flex-child-auto container-padding">
-          <Typography variant="h5">{t('tab:There is no record')}</Typography>
+          <Typography variant="h5">There is no record</Typography>
         </div>
       );
     }
@@ -204,7 +221,7 @@ class BDReport extends React.PureComponent {
         <div>
           <div className={classes.actionsContainer}>
             <Typography variant="h5">
-              {t('tab:Job Analytics by Company')}
+              {t('message:Job Analytics by Company')}
             </Typography>
             <PotentialButton
               onClick={this.exportCompanyList}
@@ -222,29 +239,7 @@ class BDReport extends React.PureComponent {
               <FormReactSelectContainer label={t('field:Created Date')}>
                 <DateRangePicker
                   value={range}
-                  ranges={[
-                    {
-                      label: t('tab:This Month'),
-                      value: [
-                        dateFns.startOfMonth(new Date()),
-                        dateFns.endOfToday(),
-                      ],
-                    },
-                    {
-                      label: t('tab:Last 3 Months'),
-                      value: [
-                        dateFns.addMonths(dateFns.startOfToday(), -3),
-                        dateFns.endOfToday(),
-                      ],
-                    },
-                    {
-                      label: t('tab:Year to Date'),
-                      value: [
-                        dateFns.startOfYear(new Date()),
-                        dateFns.endOfToday(),
-                      ],
-                    },
-                  ]}
+                  ranges={ranges}
                   cleanable={false}
                   toggleComponentClass={CustomToggleButton}
                   size="md"

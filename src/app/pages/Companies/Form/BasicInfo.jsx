@@ -32,7 +32,7 @@ import lodash from 'lodash';
 import Immutable from 'immutable';
 import PrimaryButton from '../../../components/particial/PrimaryButton';
 import UserSearchSelect from '../../../components/userSearchSelect';
-import { showErrorMessage } from '../../../actions/index';
+import { showErrorMessage } from '../../../actions';
 
 const fortuneRankingList = [
   { value: 'FORTUNE_1000', label: 'FORTUNE_1000' },
@@ -80,16 +80,7 @@ class BasicInfo extends Component {
         t('message:companyWebsiteIsRequired')
       );
     }
-    if (formData.website) {
-      let reg =
-        /^(?:(http|https|ftp):\/\/)?((?:[\w-]+\.)+[a-z0-9]+)((?:\/[^/?#]*)+)?(\?[^#]+)?(#.+)?$/i;
-      if (!reg.test(formData.website)) {
-        errorMessage = errorMessage.set(
-          'CompanyWebsite',
-          t('message:CompanyWebsiteTypeError')
-        );
-      }
-    }
+
     if (!formData.primaryAddress.address) {
       errorMessage = errorMessage.set(
         'primaryAddressesAddress',
@@ -117,7 +108,6 @@ class BasicInfo extends Component {
         } else {
           arr.push({ key: index, error: false });
         }
-
         if (!item.address && item.cityId) {
           arr1.push({ key: index, error: true });
         } else {
@@ -148,12 +138,13 @@ class BasicInfo extends Component {
         t('message:teamMemberIsRequired')
       );
     }
-    // if (formData.fortuneRank && !formData.sourceLink) {
-    //   errorMessage = errorMessage.set(
-    //     'sourceLink',
-    //     t('message:sourceLinkIsRequired')
-    //   );
-    // }
+    if (formData.fortuneRank && !formData.sourceLink) {
+      errorMessage = errorMessage.set(
+        'sourceLink',
+        t('message:sourceLinkIsRequired')
+      );
+    }
+
     if (formData.sourceLink) {
       let reg =
         /^(?:(http|https|ftp):\/\/)?((?:[\w-]+\.)+[a-z0-9]+)((?:\/[^/?#]*)+)?(\?[^#]+)?(#.+)?$/i;
@@ -166,8 +157,7 @@ class BasicInfo extends Component {
     }
 
     if (formData.salesLead) {
-      let ownersValidateLsit = [];
-      let contactsValidateList = [];
+      console.log(formData.salesLead);
       let _estimatedDealTimeError = [];
       let _leadSourceError = [];
       let salesLeadError = [];
@@ -280,28 +270,28 @@ class BasicInfo extends Component {
         });
       });
       //判断sales lead owner是否有空数据
-      if (
-        ownersValidateLsit.some((item, index) => {
-          return item === false;
-        })
-      ) {
-        // salesLeadError.push(index)
-        errorMessage = errorMessage.set(
-          'salesLeadOwner',
-          t('message:salesLeadOwnerIsRequired')
-        );
-      }
-      if (
-        contactsValidateList.some((item, index) => {
-          return item === false;
-        })
-      ) {
-        // contactsError.push(index)
-        errorMessage = errorMessage.set(
-          'contacts',
-          t('message:contactsIsRequired')
-        );
-      }
+      // if (
+      //   ownersValidateLsit.some((item, index) => {
+      //     return item === false;
+      //   })
+      // ) {
+      //   // salesLeadError.push(index)
+      //   errorMessage = errorMessage.set(
+      //     'salesLeadOwner',
+      //     t('message:salesLeadOwnerIsRequired')
+      //   );
+      // }
+      // if (
+      //   contactsValidateList.some((item, index) => {
+      //     return item === false;
+      //   })
+      // ) {
+      //   // contactsError.push(index)
+      //   errorMessage = errorMessage.set(
+      //     'contacts',
+      //     t('message:contactsIsRequired')
+      //   );
+      // }
     }
     return errorMessage.size > 0 && errorMessage;
   }
@@ -360,7 +350,6 @@ class BasicInfo extends Component {
     this.setState({
       formData: newFormData,
     });
-    this.removeErrorMsgHandler('sourceLink');
   };
 
   primary = () => {
@@ -431,7 +420,6 @@ class BasicInfo extends Component {
       language: '',
     };
     let newFormData = lodash.cloneDeep(this.state.formData);
-
     if (this.state.additionalAddressErrorArr.length > 0) {
       let _additionalAddressErrorArr = lodash.cloneDeep(
         this.state.additionalAddressErrorArr
@@ -441,7 +429,6 @@ class BasicInfo extends Component {
         additionalAddressErrorArr: _additionalAddressErrorArr,
       });
     }
-
     if (this.state.addressError.length > 0) {
       let addressError = lodash.cloneDeep(this.state.addressError);
       addressError.push({ key: null, error: false });
@@ -449,7 +436,6 @@ class BasicInfo extends Component {
         addressError,
       });
     }
-
     newFormData.additionalAddress.push(address);
     this.setState({ formData: newFormData });
   };
@@ -474,12 +460,11 @@ class BasicInfo extends Component {
   };
 
   getadditionalAddress = (val, index) => {
-    const { addressError } = this.state;
-    let _addressError = lodash.cloneDeep(addressError);
+    let newFormData = lodash.cloneDeep(this.state.formData);
+    let _addressError = lodash.cloneDeep(this.state.addressError);
     if (_addressError.length > 0) {
       _addressError[index].error = false;
     }
-    let newFormData = lodash.cloneDeep(this.state.formData);
     newFormData.additionalAddress[index].address = val;
     this.setState({
       formData: newFormData,
@@ -518,7 +503,6 @@ class BasicInfo extends Component {
     this.setState({
       formData: newFormData,
     });
-    // this.removeErrorMsgHandler('additionalAddressCity');
   };
 
   //添加salesLead
@@ -530,7 +514,7 @@ class BasicInfo extends Component {
       leadSource: '',
       otherSource: '',
       owners: [{}],
-      salesLeadStatus: 'UN_ASSIGN',
+      salesLeadStatus: 'PROSPECT',
     };
 
     let newFormData = lodash.cloneDeep(this.state.formData);
@@ -604,13 +588,11 @@ class BasicInfo extends Component {
     let newFormData = lodash.cloneDeep(this.state.formData);
     let _salesLeadError = lodash.cloneDeep(this.state.salesLeadError);
     newFormData.salesLead[index].owners.splice(key, 1);
-    // let delIndex;
     _salesLeadError.forEach((_item, _index) => {
       if (_item.salesLeadIndex === index && _item.ownerIndex === key) {
         _item.errorMessage = false;
       }
     });
-    // _salesLeadError.splice(delIndex,1)
     this.setState({
       formData: newFormData,
       salesLeadError: _salesLeadError,
@@ -647,6 +629,7 @@ class BasicInfo extends Component {
       formData: newFormData,
       estimatedDealTimeError: _estimatedDealTimeError,
     });
+    // this.removeErrorMsgHandler('estimatedDealTime');
   };
 
   //accountprogress
@@ -671,13 +654,18 @@ class BasicInfo extends Component {
       formData: newFormData,
       leadSourceError: _leadSourceError,
     });
+    // this.removeErrorMsgHandler('leadSource');
   };
 
   //sendServiceType
   sendServiceType = (checkedList, index) => {
     let serviceType = [];
     checkedList.forEach((item, index) => {
-      serviceType.push(item.id);
+      // serviceType.push(item.id);
+      serviceType.push({
+        id: item.id,
+        label: item.label,
+      });
     });
     let newFormData = lodash.cloneDeep(this.state.formData);
     let _serviceTypeError = lodash.cloneDeep(this.state.serviceTypeError);
@@ -685,11 +673,11 @@ class BasicInfo extends Component {
     if (_serviceTypeError.length > 0) {
       _serviceTypeError[index].errorMessage = false;
     }
-
     this.setState({
       formData: newFormData,
       serviceTypeError: _serviceTypeError,
     });
+    // this.removeErrorMsgHandler('serviceType');
   };
 
   setContact = (name, key, index) => {
@@ -702,14 +690,12 @@ class BasicInfo extends Component {
   };
   //
   handleCheck = (user) => {
-    console.log(user);
     let newFormData = lodash.cloneDeep(this.state.formData);
-    console.log(newFormData);
     let userIndex = null;
     if (newFormData.teamNumbers && newFormData.teamNumbers.length > 0) {
       if (
         newFormData.teamNumbers.some((item, index) => {
-          if (item.id === user.id) {
+          if (item.id === user.id || item.userId === user.id) {
             userIndex = index;
             return true;
           }
@@ -728,9 +714,24 @@ class BasicInfo extends Component {
     });
     this.removeErrorMsgHandler('teamMember');
   };
+
+  ////
+  getowners = (arr) => {
+    let _arr = arr.map((item, index) => {
+      return {
+        userId: item.id,
+        fullName: item.fullName,
+        contribution: null,
+        salesLeadRoleType: 'SALES_LEAD_OWNER',
+      };
+    });
+    return _arr;
+  };
+
   createCompany = () => {
     const { t } = this.props;
     this.setState({ creating: true });
+    console.log(this.state.formData);
     let errorMessage = this._validateForm(this.state.formData, t);
     if (errorMessage) {
       return this.setState({ errorMessage, creating: false });
@@ -743,8 +744,60 @@ class BasicInfo extends Component {
       }
     });
     newFormData.additionalAddress = newAdditionalAddress;
-    if (!this.props.companyInfo.id) {
-      this.props.dispatch(createCompany(newFormData)).then((res) => {
+    let addresses = [
+      newFormData.primaryAddress,
+      ...newFormData.additionalAddress,
+    ];
+    let companyAddresses = addresses.map((item, index) => {
+      return {
+        address: item.address,
+        companyAddressType: item.companyAddressType,
+        geoInfoEN: {
+          cityId: item.cityId,
+        },
+      };
+    });
+    let salesLeadDetails = newFormData.salesLead.map((item, index) => {
+      return {
+        accountProgress: item.accountProgress,
+        salesLeadClientContacts: item.contacts,
+        estimatedDealTime: item.estimatedDealTime,
+        leadSource: item.leadSource,
+        otherSource: item.otherSource,
+        salesLeadsOwner: this.getowners(item.owners),
+        salesLeadStatus: item.salesLeadStatus,
+        companyServiceTypes: item.serviceType,
+      };
+    });
+    let companyAssignTeamMembers = newFormData.teamNumbers.map(
+      (item, index) => {
+        return {
+          userId: item.id,
+          fullName: item.fullName,
+        };
+      }
+    );
+    let companyDetail = {
+      logo: newFormData.logo,
+      name: newFormData.name,
+      industry: newFormData.industry,
+      website: newFormData.website,
+      fortuneRank: newFormData.fortuneRank,
+      sourceLink: newFormData.sourceLink,
+      businessRevenue: newFormData.businessRevenue,
+      staffSizeType: newFormData.staffSizeType,
+      linkedinCompanyProfile: newFormData.linkedinCompanyProfile,
+      crunchbaseCompanyProfile: newFormData.crunchbaseCompanyProfile,
+      companyAssignTeamMembers: companyAssignTeamMembers,
+      companyAddresses: companyAddresses,
+      salesLeadDetails: salesLeadDetails,
+      s3_link: null,
+      organizationName: null,
+    };
+    if (!this.props.companyId) {
+      companyDetail.type = 'POTENTIAL_CLIENT';
+      companyDetail.active = true;
+      this.props.dispatch(createCompany(companyDetail)).then((res) => {
         if (res) {
           let id = res.id;
           this.props.history.push(`/companies/detail/${id}/1`);
@@ -753,8 +806,8 @@ class BasicInfo extends Component {
         }
       });
     } else {
-      newFormData.id = this.props.companyInfo.id;
-      this.props.dispatch(putCompany(newFormData)).then((res) => {
+      companyDetail.id = this.props.companyId;
+      this.props.dispatch(putCompany(companyDetail)).then((res) => {
         if (res) {
           let id = res.id;
           this.setState({ creating: false });
@@ -778,11 +831,9 @@ class BasicInfo extends Component {
       }
     } else {
       newFormData.fortuneRank = null;
-      newFormData.sourceLink = null;
       this.setState({
         formData: newFormData,
       });
-      this.removeErrorMsgHandler('sourceLink');
     }
   };
 
@@ -792,6 +843,7 @@ class BasicInfo extends Component {
     const file = fileInput.files[0];
     let index = file.name.lastIndexOf('.');
     let fileType = file.name.substring(index + 1, file.name.length);
+    //判断文件类型是否符合上传标准
     let status = fileTypes.includes(fileType.toLowerCase());
 
     if (status) {
@@ -818,7 +870,6 @@ class BasicInfo extends Component {
       let newcheckedMember = companyInfo.teamNumbers.map((item, index) => {
         return {
           ...item,
-          fullName: item.firstName + ' ' + item.lastName,
         };
       });
       return newcheckedMember;
@@ -827,12 +878,10 @@ class BasicInfo extends Component {
     }
   };
   setCheckName = (companyInfo) => {
-    console.log(companyInfo);
     if (companyInfo && companyInfo.teamNumbers) {
       let newcheckedMember = companyInfo.teamNumbers.map((item, index) => {
         return {
           ...item,
-          fullName: item.firstName + ' ' + item.lastName,
         };
       });
       let names = [];
@@ -952,6 +1001,7 @@ class BasicInfo extends Component {
     if (companyInfo) {
       curLocation = this.getCurLocation(companyInfo.primaryAddress);
     }
+    console.log(userList.toJS());
     return (
       <div style={{ display: 'flex' }}>
         <CompanyLogo
@@ -982,11 +1032,9 @@ class BasicInfo extends Component {
                   this.removeErrorMsgHandler('companyName');
                 }}
                 errorMessage={
-                  errorMessage.get('companyName') ||
-                  (companyNameErrorMsg
-                    ? t(`message:${companyNameErrorMsg}`)
-                    : '')
+                  errorMessage.get('companyName') || companyNameErrorMsg
                 }
+                maxLength={300}
               />
             </div>
             <div className="small-6 columns">
@@ -1198,75 +1246,29 @@ class BasicInfo extends Component {
             contactsError={contactsError}
             serviceTypeError={serviceTypeError}
           />
-          {/* <p
-            style={{
-              color: '#cc4b37',
-              fontSize: '12px',
-              fontWeight: 'bold',
-              fontFamily: 'Roboto',
-              paddingLeft: '4px',
-            }}
-          >
-            {errorMessage && errorMessage.get('estimatedDealTime')
-              ? errorMessage.get('estimatedDealTime')
-              : null}
-          </p>
-          <p
-            style={{
-              color: '#cc4b37',
-              fontSize: '12px',
-              fontWeight: 'bold',
-              fontFamily: 'Roboto',
-              paddingLeft: '4px',
-            }}
-          >
-            {errorMessage && errorMessage.get('leadSource')
-              ? errorMessage.get('leadSource')
-              : null}
-          </p>
-          <p
-            style={{
-              color: '#cc4b37',
-              fontSize: '12px',
-              fontWeight: 'bold',
-              fontFamily: 'Roboto',
-              paddingLeft: '4px',
-            }}
-          >
-            {errorMessage && errorMessage.get('serviceType')
-              ? errorMessage.get('serviceType')
-              : null}
-          </p>
-          <p
-            style={{
-              color: '#cc4b37',
-              fontSize: '12px',
-              fontWeight: 'bold',
-              fontFamily: 'Roboto',
-              paddingLeft: '4px',
-            }}
-          >
-            {errorMessage && errorMessage.get('salesLeadOwner')
-              ? errorMessage.get('salesLeadOwner')
-              : null}
-          </p>
-          <p
-            style={{
-              color: '#cc4b37',
-              fontSize: '12px',
-              fontWeight: 'bold',
-              fontFamily: 'Roboto',
-              paddingLeft: '4px',
-            }}
-          >
-            {errorMessage && errorMessage.get('contacts')
-              ? errorMessage.get('contacts')
-              : null}
-          </p> */}
           <Divider />
           {/* Team Member 部分 */}
           <div className="row expanded" style={{ margin: '10px 0px' }}>
             <div className="small-6 columns">
+              {/* <TeamMember
+                label={`Assign Team Member`}
+                checkedMember={this.checkedMember(this.state.formData)}
+                teamMember={userList}
+                handleCheck={(user) => {
+                  this.handleCheck(user);
+                }}
+              />
+              <p
+                style={{
+                  color: '#cc4b37',
+                  fontSize: '0.75em',
+                  fontWeight: 'bold',
+                }}
+              >
+                {errorMessage && errorMessage.get('teamMember')
+                  ? errorMessage.get('teamMember')
+                  : null}
+              </p> */}
               <UserSearchSelect
                 label={t('field:AssignTeamMember')}
                 checkedMember={this.checkedMember(this.state.formData)}
@@ -1295,11 +1297,11 @@ class BasicInfo extends Component {
           {companyInfo ? (
             <div>
               <Typography style={{ marginBottom: '10px' }}>
-                {t('tab:Additional Information')}
+                Additional Information
               </Typography>
               <div className="row expanded" style={{ marginTop: '10px' }}>
                 <div className="small-6 columns">
-                  <FormReactSelectContainer label={t('tab:Staff Size')}>
+                  <FormReactSelectContainer label={t('field:Staff Size')}>
                     <Select
                       name="Staff Size"
                       value={
@@ -1318,7 +1320,7 @@ class BasicInfo extends Component {
                   </FormReactSelectContainer>
                 </div>
                 <div className="small-6 columns">
-                  <FormReactSelectContainer label={t('tab:Business Revenue')}>
+                  <FormReactSelectContainer label={t('field:Business Revenue')}>
                     <Select
                       name="Business Revenue"
                       value={
@@ -1380,7 +1382,7 @@ class BasicInfo extends Component {
               }}
               style={{ marginRight: '10px' }}
             >
-              {t('tab:Cancel')}
+              Cancel
             </Button>
             {/* <Button
               style={{ marginLeft: '10px' }}

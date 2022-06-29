@@ -6,9 +6,7 @@ import { withStyles } from '@material-ui/core/styles';
 import moment from 'moment-timezone';
 // import { getActiveClientList } from '../../selectors/clientSelector';
 // import memoizeOne from 'memoize-one';
-import FormGroup from '@material-ui/core/FormGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
+
 import DatePicker from 'react-datepicker';
 import * as apnSDK from '../../../apn-sdk/';
 import FormInput from '../../components/particial/FormInput';
@@ -28,11 +26,6 @@ import JobFunctionTree from '../../components/newCandidateTree';
 import InfoIcon from '@material-ui/icons/Info';
 import { isNum } from '../../../utils/search';
 import { getClientContactByCompanyId } from '../../../apn-sdk/';
-import JobDescription from './ipgJobPosting/JobDescriptionRich4';
-import { jobType } from './ipgJobPosting/data';
-import { getJob } from '../../actions/jobActions';
-import { showErrorMessage } from '../../../app/actions/index';
-import { withTranslation } from 'react-i18next';
 const styles = {
   fullWidth: {
     width: '100%',
@@ -50,7 +43,7 @@ const styles = {
     marginLeft: 4,
     opacity: '0.9',
   },
-  requiredSkill: {
+  preferedSkill: {
     flex: ' 0 0 50%',
     maxWidth: '50%',
     paddingRight: '0.25rem',
@@ -66,23 +59,8 @@ const styles = {
       border: '1px solid #cc4b37 !important',
     },
   },
-  formRrror: {
-    // marginTop: '-0.5rem',
-    marginBottom: '1rem',
-    fontSize: '0.75rem',
-    fontWeight: 'bold',
-    color: '#cc4b37',
-    marginTop: '3px',
-  },
 };
 let clientLoaded = false;
-
-const _jobType = jobType.map((opt) => {
-  return {
-    ...opt,
-    disabled: opt.value === 'CONTRACT' ? true : false,
-  };
-});
 class JobBasicForm extends React.PureComponent {
   constructor(props) {
     super(props);
@@ -200,14 +178,6 @@ class JobBasicForm extends React.PureComponent {
       confirmOpen: state.confirmOpen || false,
       openings: state.openings,
       prosecArr: state.prosecArr || [],
-      ipgJobStatus: state.ipgJobStatus || props.job.get('ipgJobStatus'),
-      ipgOpen: state.ipgOpen || false,
-      ipgPost: state.ipgPost || props.job.get('ipgJobStatus') === 'OPEN',
-      ipgJobType: state.ipgJobType || props.job.get('jobType'),
-      ipgJd: state.ipgJd || props.job.get('ipgJobDescription'),
-      // 判断ipg Jd是否为空
-      ipgJdEmpty: false,
-      ipgJobId: null,
     };
   };
 
@@ -230,32 +200,6 @@ class JobBasicForm extends React.PureComponent {
           });
         this.setState({ clientContactNameList: res.response });
       });
-    }
-
-    //set IpgJd （没有编辑权限时 不需要curl api 查看ipgjob 不然报错 此处优化）
-    if (this.props.canEdit) {
-      if (this.state.ipgJobStatus === 'OPEN') {
-        apnSDK
-          .getJd_Ipg(this.props.job.get('id'))
-          .then((res) => {
-            if (res.status === 200) {
-              const body = JSON.parse(res.response.body);
-              this.setState({
-                ipgJd: body.jdText,
-                ipgJobType: body.type,
-                ipgJobId: body.id,
-              });
-            }
-          })
-          .catch((err) => {
-            this.props.dispatch(showErrorMessage(err));
-            throw err;
-          });
-      } else {
-        this.setState({
-          ipgJd: this.props.job.get('publicDesc'),
-        });
-      }
     }
   }
 
@@ -536,7 +480,8 @@ class JobBasicForm extends React.PureComponent {
   changeSetSkills = (skills) => {
     let arr = [];
     let add = this.state.skills ? [...this.state.skills] : [];
-    arr = skills && skills.split(',').map((skill) => ({ skillName: skill }));
+    arr =
+      skills.trim() && skills.split(',').map((skill) => ({ skillName: skill }));
     arr = arr && arr.filter((item) => Number.isNaN(Number(item.skillName)));
     arr &&
       arr.map((item) => {
@@ -552,13 +497,13 @@ class JobBasicForm extends React.PureComponent {
             }
           });
       });
-    console.log(arr);
     this.setState({ skills: arr });
   };
   changeRequireSkills = (skills) => {
     let arr = [];
     let add = this.state.PreferredSkills ? [...this.state.PreferredSkills] : [];
-    arr = skills && skills.split(',').map((skill) => ({ skillName: skill }));
+    arr =
+      skills.trim() && skills.split(',').map((skill) => ({ skillName: skill }));
     arr = arr && arr.filter((item) => Number.isNaN(Number(item.skillName)));
     arr &&
       arr.map((item) => {
@@ -652,123 +597,11 @@ class JobBasicForm extends React.PureComponent {
     }
     this.props.removeErrorMsgHandler('Years of Experience');
   };
-
-  handleIpgCheck = (e) => {
-    console.log(e);
-    //Close Job
-    if (this.state.ipgPost && this.state.ipgJobStatus === 'OPEN') {
-      this.setState({
-        ipgPost: false,
-        ipgOpen: true,
-      });
-    }
-    //Cancel create
-    else if (this.state.ipgPost && this.state.ipgJobStatus !== 'OPEN') {
-      this.setState({
-        ipgPost: false,
-      });
-    } else {
-      this.setState({
-        ipgOpen: e.target.checked,
-      });
-    }
-  };
-  //Open Edit Details
-  handleIpgOpen = () => {
-    this.setState({
-      ipgOpen: true,
-    });
-  };
-
-  handleCancel = () => {
-    this.setState({
-      ipgOpen: false,
-    });
-  };
-
-  handleCancelClose = () => {
-    this.setState({
-      ipgOpen: false,
-      ipgPost: true,
-      ipgJobStatus: 'OPEN',
-    });
-  };
-
-  handleIpgJobTypeChange = (e) => {
-    this.setState({
-      ipgJobType: e,
-    });
-    this.props.setIpgJobType(e);
-  };
-
-  handleipgJdChange = (Jd) => {
-    this.setState({
-      ipgJd: Jd,
-      ipgJdEmpty: false,
-    });
-  };
-
-  handleConfirmIpg = () => {
-    if (
-      this.state.ipgJd ===
-      '<!DOCTYPE html>\n<html>\n<head>\n</head>\n<body>\n\n</body>\n</html>'
-    ) {
-      console.log('ipg jd 为空');
-      this.setState({
-        ipgJdEmpty: true,
-      });
-    } else {
-      this.setState({
-        ipgOpen: false,
-        ipgPost: true,
-        // ipgJobStatus: 'OPEN',
-        ipgJdEmpty: false,
-      });
-    }
-  };
-
-  handleCloseJob = () => {
-    this.setState({
-      ipgPost: false,
-      ipgOpen: false,
-    });
-    const jobId = this.props.job.get('id');
-    apnSDK
-      .closeJob_Ipg(jobId)
-      .then((res) => {
-        console.log(res);
-        this.setState({
-          ipgJobStatus: 'CLOSED',
-        });
-      })
-      .catch((err) => {
-        this.props.dispatch(showErrorMessage(err));
-        throw err;
-      });
-  };
-
-  handleViewDetail = () => {
-    const ipgJobUrl = `https://www.intelliprogroup.com/jobDetail?id=${this.state.ipgJobId}`;
-    window.open(ipgJobUrl);
-  };
-
-  // 判断一下job类型 来控制Post on IPG website的disbled
-  jugdeJobStatus = () => {
-    const jobStatus = this.props.job.get('status');
-    switch (jobStatus) {
-      case 'OPEN':
-      case 'REOPENED':
-        return false;
-      default:
-        return true;
-    }
-  };
-
   render() {
-    //console.time('job form');
+    console.log(this.state);
+    console.time('job form');
     const {
       t,
-      i18n,
       classes,
       disabled,
       job,
@@ -776,11 +609,6 @@ class JobBasicForm extends React.PureComponent {
       companyOptions,
       isLimitUser,
       removeErrorMsgHandler,
-      functionOptions,
-      functionOptionsZh,
-      language,
-      degreeOptions,
-      languagesOptions,
     } = this.props;
     const { companyId } = this.state;
     // const {companyOptions } = getCompanyOptions(
@@ -821,7 +649,7 @@ class JobBasicForm extends React.PureComponent {
               disabled={disabled}
               value={this.state.openings}
               onChange={this.changeOpening}
-              placeholder={t('tab:Enter a number')}
+              placeholder="Enter a number"
               errorMessage={errorMessage ? errorMessage.get('openings') : null}
               onBlur={() => {
                 if (removeErrorMsgHandler) removeErrorMsgHandler('openings');
@@ -894,12 +722,6 @@ class JobBasicForm extends React.PureComponent {
               label={t('field:department')}
               defaultValue={job.get('department')}
               disabled={disabled}
-              errorMessage={
-                errorMessage ? errorMessage.get('department') : null
-              }
-              onBlur={() => {
-                if (removeErrorMsgHandler) removeErrorMsgHandler('department');
-              }}
             />
           </div>
         </div>
@@ -924,7 +746,7 @@ class JobBasicForm extends React.PureComponent {
                     }}
                     simpleValue
                     disabled={disabled}
-                    placeholder={t('tab:select')}
+                    placeholder="Select category"
                     noResultsText={''}
                     autoBlur={true}
                     clearable={false}
@@ -985,7 +807,7 @@ class JobBasicForm extends React.PureComponent {
                 }}
                 onClick={this.addLocation}
               >
-                {t('tab:Add')}
+                Add
               </p>
             )}
 
@@ -1006,11 +828,7 @@ class JobBasicForm extends React.PureComponent {
                 addressLine = item.city;
               }
               if (item.province) {
-                if (item.city) {
-                  addressLine = addressLine + ', ' + item.province;
-                } else {
-                  addressLine = item.province;
-                }
+                addressLine = addressLine + ', ' + item.province;
               }
               if (item.country) {
                 addressLine = addressLine + ', ' + item.country;
@@ -1117,7 +935,7 @@ class JobBasicForm extends React.PureComponent {
                   label={t('field:salary')}
                   disabled={disabled}
                   name="minsalary"
-                  placeholder={t('field:Min')}
+                  placeholder="Min"
                   type="number"
                   value={this.state.minValue}
                   onChange={this.handMinValue}
@@ -1137,7 +955,7 @@ class JobBasicForm extends React.PureComponent {
                   label="&nbsp;"
                   disabled={disabled}
                   name="maxsalary"
-                  placeholder={t('field:Max')}
+                  placeholder="Max"
                   type="number"
                   value={this.state.maxValue}
                   onChange={this.handMaxValue}
@@ -1160,7 +978,7 @@ class JobBasicForm extends React.PureComponent {
               className={errorMessage.get('jobfunction') ? classes.autoBox : ''}
             >
               <JobFunctionTree
-                jobData={language ? functionOptions : functionOptionsZh}
+                jobData={this.state.jobList}
                 selected={this.state.jobCheckedList}
                 sendServiceType={this.handleJobFunctionChange}
                 disabled={disabled}
@@ -1185,7 +1003,7 @@ class JobBasicForm extends React.PureComponent {
               {errorMessage ? errorMessage.get('jobfunction') : null}
             </span>
           </div>
-          <div className={classes.requiredSkill}>
+          <div className={classes.preferedSkill}>
             <FormReactSelectContainer
               label={t('field:requiredskills')}
               isRequired={true}
@@ -1200,7 +1018,7 @@ class JobBasicForm extends React.PureComponent {
                 multi
                 simpleValue
                 disabled={disabled}
-                placeholder={t('tab:Required Skills')}
+                placeholder="Required Skills"
                 onChange={(skills) => {
                   this.changeSetSkills(skills);
                 }}
@@ -1224,7 +1042,7 @@ class JobBasicForm extends React.PureComponent {
         <div className="row expanded" style={{ position: 'relative' }}>
           {disabled ? null : (
             <div style={{ position: 'absolute', right: '-4px', top: '-10px' }}>
-              {t('tab:Only visible to you')}
+              Only visible to you
               <Switch
                 checked={this.state.switchFlag}
                 onChange={this.handleSwitch}
@@ -1351,49 +1169,11 @@ class JobBasicForm extends React.PureComponent {
                     this.state.switchFlag || disabled ? null : this.showMyDialog
                   }
                 >
-                  {t('tab:Add user from program team')}
+                  Add user from program team
                 </p>
               )}
               {/* <InfoIcon color="disabled" fontSize="small" /> */}
             </div>
-          </div>
-          {/* ipg job posting*/}
-          <div style={{ width: '100%' }}>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <FormGroup>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      size="small"
-                      color="primary"
-                      onChange={this.handleIpgCheck}
-                    />
-                  }
-                  label={t('tab:Post on IPG website')}
-                  name="ipgPost"
-                  disabled={disabled || this.jugdeJobStatus()}
-                  checked={this.state.ipgPost}
-                  value={this.state.ipgPost}
-                />
-              </FormGroup>
-              {this.state.ipgPost && !disabled ? (
-                <span
-                  style={{ color: '#3398dc', cursor: 'pointer' }}
-                  onClick={this.handleIpgOpen}
-                >
-                  {this.state.ipgJobStatus === 'CLOSED' ||
-                  this.state.ipgJobStatus === 'NO_PUBLISHED'
-                    ? t('tab:Edit Details')
-                    : t('tab:View Job Details')}
-                </span>
-              ) : null}
-            </div>
-            <input type="hidden" name="ipgJd" value={this.state.ipgJd} />
-            <input
-              type="hidden"
-              name="ipgJobStatus"
-              value={this.state.ipgJobStatus}
-            />
           </div>
         </div>
         <Divider />
@@ -1405,7 +1185,7 @@ class JobBasicForm extends React.PureComponent {
             marginTop: '15px',
           }}
         >
-          {t('tab:Additional Information')}
+          Additional Information
         </p>
         <p
           style={{
@@ -1415,14 +1195,15 @@ class JobBasicForm extends React.PureComponent {
             marginBottom: '16px',
           }}
         >
-          {t('tab:moreInformation')}
+          Filling in more job information can get more accurate candidate
+          recommendation.
         </p>
         <div className="row expanded" style={{ display: 'felx' }}>
           {this.state.additionalOne ? null : (
             <div className="small-6 columns">
               <FormReactSelectContainer label={t('field:Degree Requirement')}>
                 <Select
-                  options={degreeOptions}
+                  options={this.state.degreeList}
                   value={this.state.degreeValue}
                   onChange={(degreeValue) => this.setState({ degreeValue })}
                   simpleValue
@@ -1431,7 +1212,6 @@ class JobBasicForm extends React.PureComponent {
                   clearable={false}
                   openOnFocus={true}
                   disabled={disabled}
-                  placeholder={t('tab:select')}
                 />
               </FormReactSelectContainer>
             </div>
@@ -1442,7 +1222,7 @@ class JobBasicForm extends React.PureComponent {
                 <div
                   style={{ position: 'absolute', right: '-4px', top: '-10px' }}
                 >
-                  {t('tab:Fresh Graduates')}
+                  Fresh Graduates
                   <Switch
                     checked={this.state.switchFlagTwo}
                     onChange={disabled ? null : this.handleSwitchTwo}
@@ -1456,19 +1236,10 @@ class JobBasicForm extends React.PureComponent {
                     label={t('field:Years of Experience')}
                     defaultValue={job.get('leastExperienceYear')}
                     name="minYear"
-                    placeholder={t('tab:Min Year')}
+                    placeholder="Min Year"
                     value={this.state.minYear}
                     onChange={(e) => {
                       this.changeMinYear(e);
-                    }}
-                    errorMessage={
-                      errorMessage
-                        ? errorMessage.get('Years of Experience')
-                        : null
-                    }
-                    onBlur={() => {
-                      if (removeErrorMsgHandler)
-                        removeErrorMsgHandler('Years of Experience');
                     }}
                     disabled={this.state.switchFlagTwo || disabled}
                   />
@@ -1481,31 +1252,31 @@ class JobBasicForm extends React.PureComponent {
                     label="&nbsp;"
                     name="maxYear"
                     defaultValue={job.get('mostExperienceYear')}
-                    placeholder={t('tab:Max Year')}
+                    placeholder="Max Year"
                     value={this.state.maxYear}
                     onChange={(e) => {
                       this.changeMaxYear(e);
-                    }}
-                    errorMessage={
-                      errorMessage
-                        ? errorMessage.get('Years of Experience')
-                        : null
-                    }
-                    onBlur={() => {
-                      if (removeErrorMsgHandler)
-                        removeErrorMsgHandler('Years of Experience');
                     }}
                     disabled={this.state.switchFlagTwo || disabled}
                   />
                 </div>
               </div>
+              <span
+                style={{
+                  color: '#CC4B37',
+                  fontWeight: 'bold',
+                  fontSize: '0.75rem',
+                }}
+              >
+                {errorMessage ? errorMessage.get('Years of Experience') : null}
+              </span>
             </div>
           )}
           {this.state.additionalThree ? null : (
             <div className="small-6 columns">
               <span>{t('field:Required Languages')}</span>
               <JobTree
-                jobData={languagesOptions}
+                jobData={this.state.languageList}
                 selected={this.state.reLanguageCheckedList}
                 sendServiceType={this.handleReLanguageChange}
                 disabled={disabled}
@@ -1517,7 +1288,7 @@ class JobBasicForm extends React.PureComponent {
             <div className="small-6 columns">
               <span>{t('field:Preferred Languages')}</span>
               <JobTree
-                jobData={languagesOptions}
+                jobData={this.state.languageList}
                 selected={this.state.preLanguageCheckedList}
                 sendServiceType={this.handlePreLanguageChange}
                 disabled={disabled}
@@ -1526,7 +1297,7 @@ class JobBasicForm extends React.PureComponent {
             </div>
           )}
           {this.state.additionalFive ? null : (
-            <div className={classes.requiredSkill}>
+            <div className={classes.preferedSkill}>
               <FormReactSelectContainer
                 label={t('field:Preferred Skills')}
                 errorMessage={
@@ -1540,7 +1311,7 @@ class JobBasicForm extends React.PureComponent {
                   disabled={disabled}
                   multi
                   simpleValue
-                  placeholder={t('field:Preferred Skills')}
+                  placeholder="Preferred Skills"
                   onChange={(PreferredSkills) => {
                     this.changeRequireSkills(PreferredSkills);
                   }}
@@ -1613,7 +1384,7 @@ class JobBasicForm extends React.PureComponent {
               }
             >
               <AddCircleIcon style={{ color: '#8e8e8e' }} fontSize="small" />
-              <p className={classes.font}>{t('field:Degree Requirement')}</p>
+              <p className={classes.font}>Degree Requirement</p>
             </div>
           ) : null}
           {this.state.additionalTwo ? (
@@ -1631,7 +1402,7 @@ class JobBasicForm extends React.PureComponent {
               }
             >
               <AddCircleIcon style={{ color: '#8e8e8e' }} fontSize="small" />
-              <p className={classes.font}>{t('field:Years of Experience')}</p>
+              <p className={classes.font}>Years of Experience</p>
             </div>
           ) : null}
           {this.state.additionalThree ? (
@@ -1647,7 +1418,7 @@ class JobBasicForm extends React.PureComponent {
               }
             >
               <AddCircleIcon style={{ color: '#8e8e8e' }} fontSize="small" />
-              <p className={classes.font}>{t('field:Required Languages')}</p>
+              <p className={classes.font}>Required Languages</p>
             </div>
           ) : null}
           {this.state.additionalFour ? (
@@ -1663,7 +1434,7 @@ class JobBasicForm extends React.PureComponent {
               }
             >
               <AddCircleIcon style={{ color: '#8e8e8e' }} fontSize="small" />
-              <p className={classes.font}>{t('field:Preferred Languages')}</p>
+              <p className={classes.font}>Preferred Languages</p>
             </div>
           ) : null}
           {this.state.additionalFive ? (
@@ -1679,16 +1450,16 @@ class JobBasicForm extends React.PureComponent {
               }
             >
               <AddCircleIcon style={{ color: '#8e8e8e' }} fontSize="small" />
-              <p className={classes.font}>{t('field:Preferred Skills')}</p>
+              <p className={classes.font}>Preferred Skills</p>
             </div>
           ) : null}
         </div>
 
         <MyDialog
           show={this.state.open}
-          modalTitle={t('tab:Add Assigned User')}
-          CancelBtnMsg={t('tab:Cancel')}
-          SubmitBtnMsg={t('tab:Confirm')}
+          modalTitle={'Add Assigned User'}
+          CancelBtnMsg={'Cancel'}
+          SubmitBtnMsg={'Confirm'}
           CancelBtnShow={true}
           SubmitBtnShow={true}
           handleClose={this.handleClose}
@@ -1700,7 +1471,7 @@ class JobBasicForm extends React.PureComponent {
                 options={this.state.assignedTeamList}
                 value={this.state.assignedTeam}
                 onChange={this.changeAssignedTeam}
-                placeholder={t('tab:Select a program team')}
+                placeholder="Select a program team"
                 simpleValue
                 noResultsText={''}
                 autoBlur={true}
@@ -1709,7 +1480,7 @@ class JobBasicForm extends React.PureComponent {
               />
             </FormReactSelectContainer>
             <span style={{ color: '#505050', fontSize: 14, marginTop: 18 }}>
-              {t('tab:Assigned User')}
+              Assigned User
             </span>
             {this.state.assignedTeamDialogUser &&
               this.state.assignedTeamDialogUser.map((item, index) => {
@@ -1760,112 +1531,17 @@ class JobBasicForm extends React.PureComponent {
         </MyDialog>
         <MyDialog
           show={this.state.confirmOpen}
-          modalTitle={t('tab:Assigned User')}
-          CancelBtnMsg={t('tab:Cancel')}
-          SubmitBtnMsg={t('tab:Confirm')}
+          modalTitle={'Assigned User'}
+          CancelBtnMsg={'Cancel'}
+          SubmitBtnMsg={'Confirm'}
           SubmitBtnShow={true}
           CancelBtnShow={true}
           handleClose={this.handleConfirmClose}
           primary={this.cancelAssignedUser}
         >
           <p style={{ width: 400, height: 40 }}>
-            {t('tab:Are you sure to empty Assigned Group/User')}
+            Are you sure to empty Assigned Group/User？
           </p>
-        </MyDialog>
-
-        {/* ipg job posting review and close*/}
-        <MyDialog
-          show={this.state.ipgOpen}
-          modalTitle={
-            this.state.ipgJobStatus === 'OPEN'
-              ? this.state.ipgPost
-                ? t('tab:Views Posted Job')
-                : t('tab:Delete Posted Job')
-              : t('tab:Post Job')
-          }
-          CancelBtnMsg={t('tab:Cancel')}
-          SubmitBtnMsg={t('tab:Confirm')}
-          CancelBtnShow={false}
-          SubmitBtnShow={false}
-          ipgCreate={this.state.ipgJobStatus !== 'OPEN'}
-          ipgViewDetail={
-            this.state.ipgPost && this.state.ipgJobStatus === 'OPEN'
-          }
-          ipgDelete={!this.state.ipgPost && this.state.ipgJobStatus === 'OPEN'}
-          handleCancel={this.handleCancel}
-          handleConfirm={this.handleConfirmIpg}
-          handleCloseJob={this.handleCloseJob}
-          handleCancelClose={this.handleCancelClose}
-          handleViewDetail={this.handleViewDetail}
-          //解决Editor组件search & replace input 无法获取焦点的bug
-          disableEnforceFocus={true}
-        >
-          <div>
-            <div>
-              {/* {this.state.ipgJobStatus === 'OPEN' && (
-                <p style={{ color: '#505050' }}>
-                  In order to edit posted job, you need to uncheck the checkbox
-                  to take down this job posting and then reselect it.
-                </p>
-              )} */}
-              {this.state.ipgJobStatus !== 'OPEN' && (
-                <p style={{ color: '#505050' }}>
-                  {t(
-                    'tab:Please enter job type and job description. It will show on IPG website'
-                  )}
-                </p>
-              )}
-              <FormReactSelectContainer
-                label={t('tab:Job Type')}
-                isRequired={true}
-              >
-                <Select
-                  disabled={disabled || this.state.ipgJobStatus === 'OPEN'}
-                  options={_jobType}
-                  value={this.state.ipgJobType}
-                  onChange={this.handleIpgJobTypeChange}
-                  onBlur={() => {
-                    if (removeErrorMsgHandler)
-                      removeErrorMsgHandler('clientcontact');
-                  }}
-                  simpleValue
-                  placeholder={t('tab:select')}
-                  noResultsText={''}
-                  autoBlur={true}
-                  clearable={false}
-                  openOnFocus={true}
-                  isOptionDisabled={(option) => option.disabled}
-                />
-              </FormReactSelectContainer>
-            </div>
-          </div>
-          <div>
-            <div
-              className="flex-child-auto flex-container flex-dir-column"
-              style={{ overflow: 'inherit', width: 600 }}
-            >
-              <FormReactSelectContainer
-                label={t('tab:Public Job Description')}
-                isRequired={true}
-              >
-                {this.state.ipgJdEmpty && (
-                  <p className={classes.formRrror}>
-                    {t('message:Public Job Description is required')}
-                  </p>
-                )}
-                <JobDescription
-                  ipgJobStatus={this.state.ipgJobStatus}
-                  disabled={disabled}
-                  job={job}
-                  t={t}
-                  name="ipgJd"
-                  onChange={this.handleipgJdChange}
-                  value={this.state.ipgJd}
-                  lang={i18n.language}
-                />
-              </FormReactSelectContainer>
-            </div>
-          </div>
         </MyDialog>
       </div>
     );
@@ -1881,18 +1557,10 @@ const mapStateToProps = (state, { job }) => {
       !authorities ||
       authorities.includes(Immutable.Map({ name: 'ROLE_LIMIT_USER' })),
     briefUsers: state.controller.newCandidateJob.toJS().dialogAllUser,
-    functionOptionsZh:
-      state.controller.newSearchOptions.toJS().functionOptionsZh,
-    functionOptions: state.controller.newSearchOptions.toJS().functionOptions,
-    degreeOptions: state.controller.newSearchOptions.toJS().degreeOptions,
-    languagesOptions: state.controller.newSearchOptions.toJS().languagesOptions,
-    language: state.controller.language,
   };
 };
+export default connect(mapStateToProps)(withStyles(styles)(JobBasicForm));
 
-export default withTranslation(['action', 'message', 'field', 'tab'])(
-  connect(mapStateToProps)(withStyles(styles)(JobBasicForm))
-);
 // const getCompanyOptions = memoizeOne((companiesList) => {
 //   const companyOptions = Object.keys(companiesList.toJS()).map((v) =>({
 //       value: parseInt(v, 10),

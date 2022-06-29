@@ -10,12 +10,12 @@ import { Table, Column, Cell } from 'fixed-data-table-2';
 import ReactTooltip from 'react-tooltip';
 
 import EditIcon from '@material-ui/icons/Edit';
-import PersonIcon from '@material-ui/icons/Person';
+
 import HeaderCell from './TableCell/HeaderCell';
 import DateCell from './TableCell/DateCell';
 import TextCell from './TableCell/TextCell';
 import LinkButton from './../particial/LinkButton';
-import { withTranslation } from 'react-i18next';
+
 import {
   style,
   HEADER_HEIGHT,
@@ -69,7 +69,7 @@ const StatusCell = ({ rowIndex, data, col, ...props }) => {
   const id = data.getIn([rowIndex, 'id']);
   if (id) {
     const value = data.getIn([rowIndex, col]);
-    const text = value ? `${props.t('common:Active')}` : 'inactive';
+    const text = value ? 'active' : 'inactive';
     return <Cell {...props}>{text}</Cell>;
   }
   return <Cell {...props}>loading...</Cell>;
@@ -110,9 +110,6 @@ class ClientsTable extends React.Component {
       onSelect,
       onSelectAll,
       onCandidateClick,
-      onPreson,
-      approverStatus,
-      t,
     } = this.props;
 
     return (
@@ -201,7 +198,6 @@ class ClientsTable extends React.Component {
                       style={style.displayCell}
                       candidateClick={onCandidateClick}
                       onEdit={onEdit}
-                      t={t}
                     />
                   }
                   width={column.colWidth}
@@ -214,7 +210,7 @@ class ClientsTable extends React.Component {
                   header={
                     <Cell style={style.headerCell}>
                       <div style={style.headerText}>
-                        {t('tab:Action')}
+                        Action
                         {filterOpen && <br />}
                       </div>
                     </Cell>
@@ -226,44 +222,11 @@ class ClientsTable extends React.Component {
                           className="flex-container align-spaced"
                           style={{ position: 'relative', left: -6 }}
                         >
-                          {approverStatus ? (
-                            clientList.toJS()[rowIndex].active ? (
-                              <IconButton
-                                onClick={() => onPreson(rowIndex)}
-                                style={{ padding: 4 }}
-                              >
-                                <PersonIcon style={{ color: '#3398dc' }} />
-                              </IconButton>
-                            ) : (
-                              <IconButton
-                                // onClick={() => onPreson(rowIndex)}
-                                style={{ padding: 4 }}
-                              >
-                                <PersonIcon />
-                              </IconButton>
-                            )
-                          ) : null}
-                          {/* {clientList.toJS()[rowIndex].active ? (
-                            <IconButton
-                              onClick={() => onPreson(rowIndex)}
-                              style={{ padding: 4 }}
-                            >
-                              <PersonIcon style={{ color: '#3398dc' }} />
-                            </IconButton>
-                          ) : (
-                            <IconButton
-                              // onClick={() => onPreson(rowIndex)}
-                              style={{ padding: 4 }}
-                            >
-                              <PersonIcon />
-                            </IconButton>
-                          )} */}
-
                           <IconButton
                             onClick={() => onEdit(rowIndex)}
                             style={{ padding: 4 }}
                           >
-                            <EditIcon style={{ color: '#3398dc' }} />
+                            <EditIcon />
                           </IconButton>
                         </div>
                       </Cell>
@@ -287,4 +250,4 @@ ClientsTable.propTypes = {
   onCandidateClick: PropTypes.func.isRequired,
 };
 
-export default withTranslation('tab')(withStyles(style)(ClientsTable));
+export default withStyles(style)(ClientsTable);

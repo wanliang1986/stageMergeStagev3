@@ -174,16 +174,18 @@ class ClientContacts extends React.PureComponent {
 
   viewContract = (id) => {
     getContractById(id).then((res) => {
+      console.log(res);
       // console.log('view', res.response);
       // var link = document.createElement('a');
       // link.href = res.response.s3url;
       // link.target = '_blank';
       // link.click();
-      let file = res.response;
+      let file = res;
       file.name = 'pdf';
-      file = Immutable.fromJS(res.response);
+      file.s3url = res.message;
+      let _file = Immutable.fromJS(file);
 
-      this.setState({ fileToView: file });
+      this.setState({ fileToView: _file });
     });
   };
 

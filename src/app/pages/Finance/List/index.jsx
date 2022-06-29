@@ -17,7 +17,7 @@ class FinanceTabs extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      value: tabs.indexOf(props.location.search || '?tab=invoices')
+      value: tabs.indexOf(props.location.search || '?tab=invoices'),
     };
   }
   componentDidMount(): void {
@@ -28,7 +28,7 @@ class FinanceTabs extends React.Component {
     const newValue = tabs.indexOf(props.location.search || '?tab=invoices');
     if (newValue !== state.value) {
       return {
-        value: newValue
+        value: newValue,
       };
     }
     return null;
@@ -74,7 +74,7 @@ class FinanceTabs extends React.Component {
 function mapStateToProps(state) {
   const currentUserId = state.controller.currentUser.get('id');
   return {
-    currentUserId
+    currentUserId,
   };
 }
 export default withTranslation(['tab', 'action', 'field', 'message'])(

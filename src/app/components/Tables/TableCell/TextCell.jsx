@@ -28,14 +28,8 @@ class TextCell extends React.Component {
   };
 
   render() {
-    const {
-      rowIndex,
-      data,
-      col,
-      classes,
-      disableTooltip,
-      ...props
-    } = this.props;
+    const { rowIndex, data, col, classes, disableTooltip, ...props } =
+      this.props;
     const id = data.getIn([rowIndex, 'id']);
     if (id) {
       let text = data.getIn([rowIndex, col]);

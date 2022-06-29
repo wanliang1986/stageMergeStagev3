@@ -121,7 +121,7 @@ class JobCreate extends React.Component {
   _validateForm = (form, t) => {
     let errorMessage = Immutable.Map();
 
-    if (!form.title.value) {
+    if (!form.title.value.trim()) {
       errorMessage = errorMessage.set(
         'title',
         t('message:Job title is required')
@@ -246,10 +246,7 @@ class JobCreate extends React.Component {
                         marginRight: 10,
                       }}
                     >
-                      {this.props.t('tab:Create Job')}:{' '}
-                      {this.props.t(
-                        `tab:${getJobTypeLabel(JOB_TYPES.Payrolling)}`
-                      )}
+                      Create Job: {getJobTypeLabel(JOB_TYPES.Payrolling)}
                     </p>
                     <MyTooltip title={<ToolInfor />}>
                       <div
@@ -262,7 +259,7 @@ class JobCreate extends React.Component {
                       >
                         <InfoIcon color="disabled" fontSize="small" />
                         <span style={{ color: '#777777', fontSize: 13 }}>
-                          {this.props.t('tab:AM Checklist')}
+                          AM Checklist
                         </span>
                       </div>
                     </MyTooltip>

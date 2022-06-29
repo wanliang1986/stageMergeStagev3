@@ -201,7 +201,7 @@ class MyDBCandidates extends React.Component {
         <div className="flex-container" style={{ marginBottom: 8 }}>
           <Typography variant="h6">
             {/* {t('tab:myStoppedJobStatusMonitor')} */}
-            {t('tab:My Inactive Job Status Monitor')}
+            My Inactive Job Status Monitor
           </Typography>
           <StyledTooltip
             arrow
@@ -221,10 +221,7 @@ class MyDBCandidates extends React.Component {
           </StyledTooltip>
         </div>
         <div style={{ marginBottom: 8, color: '#505050' }}>
-          <Typography variant="subtitle1">
-            {' '}
-            {t('tab:Total Count')}: {data.size}
-          </Typography>
+          <Typography variant="subtitle1">Total Count: {data.size}</Typography>
         </div>
         <Divider />
         <div className="flex-container align-justify">

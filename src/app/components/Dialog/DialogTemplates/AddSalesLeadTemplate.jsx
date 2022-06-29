@@ -109,7 +109,7 @@ class AddSalesLeadTemplate extends Component {
             <div className="row expanded">
               <div className="small-6 columns">
                 <AddSales
-                  label={t('tab:Sales Lead Owner')}
+                  label={t('field:Sales Lead Owner')}
                   saleLeadOwner={formData.owners}
                   addShare={() => {
                     this.addShare();
@@ -170,7 +170,7 @@ class AddSalesLeadTemplate extends Component {
                 <DatePicker
                   customInput={
                     <FormInput
-                      label={t('tab:Estimated Deal Time')}
+                      label={t('field:Estimated Deal Time')}
                       isRequired={true}
                       errorMessage={
                         errorMessage.get('estimatedDealTime')
@@ -208,25 +208,21 @@ class AddSalesLeadTemplate extends Component {
                   tip={
                     <React.Fragment>
                       <div style={{ fontSize: '14px', marginBottom: '10px' }}>
-                        {t('tab:Progress Milestones')}
+                        Progress Milestones
                       </div>
                       <div style={{ fontSize: '14px', marginBottom: '10px' }}>
-                        0%：{t('tab:Have not contacted client yet')}
+                        0%： Have not contacted client yet
                       </div>
                       <div style={{ fontSize: '14px', marginBottom: '10px' }}>
-                        25%:{' '}
-                        {t(
-                          'tab:Initial contact (conference call, email contact, etc…)'
-                        )}
+                        25%: Initial contact (conference call, email contact,
+                        etc…)
                       </div>
                       <div style={{ fontSize: '14px', marginBottom: '10px' }}>
-                        50%:{' '}
-                        {t(
-                          'tab:Meet client in person/have lunch, client shows interest'
-                        )}
+                        50%: Meet client in person/have lunch, client shows
+                        interest
                       </div>
                       <div style={{ fontSize: '14px' }}>
-                        75%: {t('tab:Negotiating terms')}
+                        75%: Negotiating terms
                       </div>
                     </React.Fragment>
                   }
@@ -301,7 +297,7 @@ class AddSalesLeadTemplate extends Component {
               </div>
               <div className="small-6 columns">
                 <FormReactSelectContainer
-                  label={t('tab:Lead Source')}
+                  label={t('field:Lead Source')}
                   isRequired={true}
                   errorMessage={
                     errorMessage && errorMessage.get('leadSource')

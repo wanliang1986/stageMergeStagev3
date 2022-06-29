@@ -12,7 +12,6 @@ import School from './School';
 import Major from './Major';
 import Location from './Location';
 import { isNum, isSymbol } from '../../../../../../utils/search';
-import { useTranslation } from 'react-i18next';
 
 const style = {
   double: {
@@ -298,7 +297,6 @@ export const Inputdiys = ({ handleSave, data, show, msg }) => {
     item.value = val;
     arr[index] = item;
     setArr([...arr]);
-    console.log(arr);
   };
 
   return (
@@ -519,7 +517,7 @@ export const DoubleInputNumber = ({ handleSave, data, show, msg }) => {
       setLte(0);
     }
   };
-  const [t] = useTranslation();
+
   return (
     <div>
       {/* <div style={{ marginLeft: '165px' }}>
@@ -545,7 +543,7 @@ export const DoubleInputNumber = ({ handleSave, data, show, msg }) => {
             handleChangeMin(e);
           }}
           value={gte}
-          placeholder={t('tab:Min Year')}
+          placeholder={`Min Year`}
           disabled={disabled}
           errorMessage={errorMessage[0]}
         />
@@ -555,7 +553,7 @@ export const DoubleInputNumber = ({ handleSave, data, show, msg }) => {
           onChange={(e) => {
             handleChangeMax(e);
           }}
-          placeholder={t('tab:Max Year')}
+          placeholder={`Max Year`}
           value={lte}
           disabled={disabled}
           errorMessage={errorMessage[1]}

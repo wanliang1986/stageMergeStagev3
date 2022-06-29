@@ -40,18 +40,14 @@ class FormInput extends Component {
           )}
           {toolTip && (
             <Tooltip title={toolTip} arrow placement="top">
-              {this.props.icon ? (
-                this.props.icon
-              ) : (
-                <InfoIcon
-                  style={{
-                    fontSize: '15px',
-                    color: '#bdbdbd',
-                    verticalAlign: 'middle',
-                    marginLeft: '5px',
-                  }}
-                />
-              )}
+              <InfoIcon
+                style={{
+                  fontSize: '15px',
+                  color: '#bdbdbd',
+                  verticalAlign: 'middle',
+                  marginLeft: '5px',
+                }}
+              />
             </Tooltip>
           )}
           <input

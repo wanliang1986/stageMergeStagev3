@@ -5,10 +5,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { searchLocation2 as searchLocation } from '../../../apn-sdk/location';
 
 import TextField from '@material-ui/core/TextField';
-
 import Autocomplete from '@material-ui/lab/Autocomplete';
-
-import { withTranslation } from 'react-i18next';
 
 const styles = {
   root: {
@@ -69,7 +66,6 @@ class Location extends React.Component {
       inputValue: '',
       value,
       loading: false,
-      oneFlag: false,
     };
     this.handleInputThrottled = throttle(this._search, 500);
   }
@@ -137,29 +133,15 @@ class Location extends React.Component {
         inputValue: query,
       },
       () => {
-        if (reason === 'input') {
-          this.props.handleChange({
-            location: query,
-            city: '',
-            province: '',
-            country: '',
-          });
-          if (query.length > 2) {
-            this.handleInputThrottled(query);
-          }
+        if (query.length > 2 && reason === 'input') {
+          this.handleInputThrottled(query);
         }
-        // 第一次数据进入回显会调用这个方法，如果是下拉选择的数据，那么第一次数据进入就不应该调用this.props.handleChange
-        this.setState({
-          oneFlag: true,
+        this.props.handleChange({
+          location: query,
+          city: '',
+          province: '',
+          country: '',
         });
-        if (this.state.oneFlag) {
-          this.props.handleChange({
-            location: query,
-            city: '',
-            province: '',
-            country: '',
-          });
-        }
       }
     );
   };
@@ -213,10 +195,7 @@ class Location extends React.Component {
                   autoComplete: 'nope',
                   type: null,
                 }}
-                placeholder={
-                  placeholder ||
-                  this.props.t('tab:Enter a city/state/country name')
-                }
+                placeholder={placeholder || 'Enter a city/state/country name'}
               />
             );
           }}
@@ -230,7 +209,7 @@ Location.defaultProps = {
   handleChange: () => {},
 };
 
-export default withTranslation('tab')(withStyles(styles)(Location));
+export default withStyles(styles)(Location);
 
 export const _mapOldAddress = (address) => {
   // console.log(address);

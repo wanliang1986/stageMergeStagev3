@@ -1,7 +1,7 @@
 import Immutable from 'immutable';
 import * as ActionTypes from '../../constants/actionTypes';
 
-export default function(state = Immutable.OrderedMap(), action = {}) {
+export default function (state = Immutable.OrderedMap(), action = {}) {
   let newState;
   switch (action.type) {
     case ActionTypes.RECEIVE_COMMISSION_LIST:

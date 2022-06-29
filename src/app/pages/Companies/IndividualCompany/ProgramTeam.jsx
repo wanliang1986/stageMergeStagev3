@@ -34,7 +34,7 @@ const columns = [
   {
     colName: 'teamLeader',
     colWidth: 100,
-    col: 'users',
+    col: 'companyProjectTeamUsers',
     type: 'leader',
     disableSearch: true,
     flexGrow: 3,
@@ -42,7 +42,7 @@ const columns = [
   {
     colName: 'teamMembers',
     colWidth: 100,
-    col: 'users',
+    col: 'companyProjectTeamUsers',
     type: 'list',
     disableSearch: true,
     flexGrow: 3,

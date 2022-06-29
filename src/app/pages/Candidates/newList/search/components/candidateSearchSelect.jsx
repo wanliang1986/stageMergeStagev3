@@ -556,13 +556,13 @@ export const CurrentSalary = ({ width = 320, handleSave, show, data, msg }) => {
             }}
             // value={money.min}
             value={min || ''}
-            placeholder={'Min'}
+            placeholder="Min"
             errorMessage={errorMessage[0]}
           />
           <span className={classes.span}>-</span>
           <FormInput
             isRequired={false}
-            placeholder={'Max'}
+            placeholder="Max"
             onChange={(e) => {
               handleMax(e);
             }}

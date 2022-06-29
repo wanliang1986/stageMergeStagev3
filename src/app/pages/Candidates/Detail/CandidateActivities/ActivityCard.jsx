@@ -169,7 +169,7 @@ class ActivityCard extends React.PureComponent {
   };
 
   render() {
-    const { classes, activityList, users, t } = this.props;
+    const { classes, activityList, users } = this.props;
 
     console.log('[###act[]]', activityList.toJS());
     return (
@@ -185,11 +185,7 @@ class ActivityCard extends React.PureComponent {
               <Paper className="flex-child-auto vertical-layout container-padding">
                 <div className="horizontal-layout">
                   <Typography variant="subtitle1" className="flex-child-auto">
-                    {t(
-                      `tab:${getApplicationStatusLabel(
-                        first.get('status')
-                      ).toLowerCase()}`
-                    )}
+                    {getApplicationStatusLabel(first.get('status'))}
                   </Typography>
                   <Typography variant="body2" className={classes.subtitle}>
                     {formatBy(
@@ -228,7 +224,7 @@ class ActivityCard extends React.PureComponent {
                             this.showDetails(activity);
                           }}
                         >
-                          {t('tab:View Details')}
+                          View Details
                         </span>
                       )}
                     </div>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import Immutable from 'immutable';
+import * as jobActions from '../../../actions/jobActions';
 import {
   makeCancelable,
   sortList,
@@ -149,6 +150,27 @@ class RecentJobList extends React.PureComponent {
     return null;
   }
 
+  fetchFavoriteJobList = () => {
+    this.favJobTask = makeCancelable(
+      this.props.dispatch(jobActions.getFavoriteJobList())
+    );
+    this.favJobTask.promise.catch((reason) => {
+      if (reason.isCanceled) {
+        console.log('isCanceled');
+      } else {
+        console.log(reason);
+      }
+    });
+  };
+
+  onFavorite = (id) => {
+    if (this.props.myFavJobIds.includes(id)) {
+      this.props.dispatch(jobActions.deleteFavoriteJob([id]));
+    } else {
+      this.props.dispatch(jobActions.addFavoriteJob([id]));
+    }
+  };
+
   onFilter = (input) => {
     let filters = this.state.filters;
 
@@ -223,7 +245,8 @@ class RecentJobList extends React.PureComponent {
   };
 
   render() {
-    const { jobIds, hideAction, jobList, t, ...props } = this.props;
+    const { jobIds, myFavJobIds, hideAction, jobList, t, ...props } =
+      this.props;
 
     if (!jobIds) {
       return <Loading />;
@@ -268,6 +291,8 @@ class RecentJobList extends React.PureComponent {
             <JobTable
               ownColumns={columns}
               jobList={filteredJobList}
+              myFavJobIds={myFavJobIds}
+              onFavorite={this.onFavorite}
               onFilter={this.onFilter}
               filterOpen={filterOpen}
               colSortDirs={colSortDirs}

@@ -162,7 +162,7 @@ class CandidateFilter extends React.PureComponent {
                         inputProps={{ name: 'chinese' }}
                       />
                     }
-                    label={t('field:Mandarin Speaking')}
+                    label="Mandarin Speaking"
                   />
                 </div>
                 <div className="small-4 columns">

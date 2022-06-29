@@ -127,7 +127,7 @@ class NextStepsButton extends React.Component {
                         key={option.value}
                         onClick={() => this.handleOpenForm(option.value)}
                       >
-                        {this.props.t(`tab:${option.label.toLowerCase()}`)}
+                        {option.label}
                       </MenuItem>
                     ))}
                   </MenuList>

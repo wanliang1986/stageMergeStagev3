@@ -124,7 +124,7 @@ const NewJobTrees = ({
       if (language) {
         List = functionOptions;
       } else {
-        List = functionOptionsZh;
+        List = functionOptions;
       }
     }
     filterOthers(List);
@@ -160,7 +160,7 @@ const NewJobTrees = ({
       if (language) {
         List2 = functionOptions;
       } else {
-        List2 = functionOptionsZh;
+        List2 = functionOptions;
       }
     }
     if (data.length) {
@@ -257,10 +257,10 @@ const NewJobTrees = ({
   };
 
   const showDialog = () => {
-    setOpen(true);
+    setOpen(!open);
   };
   const closeDialog = () => {
-    setOpen(false);
+    setOpen(!open);
   };
 
   // 回调获取实时选中id
@@ -294,9 +294,9 @@ const NewJobTrees = ({
       ></div>
       <div className={classes.icondown}>
         {open ? (
-          <ArrowDropUpIcon style={{ color: '#999' }} />
+          <ArrowDropUpIcon onClick={showDialog} style={{ color: '#999' }} />
         ) : (
-          <ArrowDropDownIcon style={{ color: '#999' }} />
+          <ArrowDropDownIcon onClick={showDialog} style={{ color: '#999' }} />
         )}
       </div>{' '}
       <div className={open ? classes.dialog : classes.shrinkage}>

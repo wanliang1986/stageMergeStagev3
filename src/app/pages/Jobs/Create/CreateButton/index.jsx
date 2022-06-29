@@ -151,8 +151,7 @@ class CreateJobButton extends React.Component {
               this.handleMenuItemClick(showBtnType);
             }}
           >
-            {this.props.t('tab:Create Job')} -{' '}
-            {showBtnType && this.props.t(`tab:${showBtnType.label}`)}
+            Create Job - {showBtnType && showBtnType.label}
           </Button>
 
           <Button
@@ -176,7 +175,6 @@ class CreateJobButton extends React.Component {
           anchorEl={anchorEl}
           transition
           placement={'bottom-start'}
-          style={{ zIndex: 1200 }}
         >
           {({ TransitionProps, placement }) => (
             <Grow {...TransitionProps}>
@@ -191,7 +189,7 @@ class CreateJobButton extends React.Component {
                         key={index}
                         onClick={() => this.handleMenuItemClick(item)}
                       >
-                        {this.props.t(`tab:${item.label}`)}
+                        {item.label}
                       </MenuItem>
                     ))}
                   </MenuList>

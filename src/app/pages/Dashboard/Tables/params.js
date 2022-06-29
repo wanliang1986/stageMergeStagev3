@@ -41,7 +41,6 @@ export const styles = {
     fontWeight: 500,
     color: Colors.TEXT,
     backgroundColor: 'white',
-    tableLayout: 'fixed',
   },
 
   headerText: {

@@ -12,7 +12,6 @@ import Location from './Location';
 import { isNum, isSymbol } from '../../../../../../utils/search';
 import { getNewSearch } from '../../../../../actions/newSearchJobs';
 import { connect, useSelector, useDispatch } from 'react-redux';
-import { useTranslation } from 'react-i18next';
 
 const style = {
   double: {
@@ -251,7 +250,7 @@ export const DoubleInputNumber = ({ handleSave, data, show, msg }) => {
       setLte('');
     }
   };
-  const [t] = useTranslation();
+
   return (
     <div>
       <div className={classes.doubles}>
@@ -262,7 +261,7 @@ export const DoubleInputNumber = ({ handleSave, data, show, msg }) => {
             handleChangeMin(e);
           }}
           value={gte}
-          placeholder={t('tab:Min Year')}
+          placeholder={`Min Year`}
           disabled={disabled}
           errorMessage={errorMessage[0]}
         />
@@ -272,7 +271,7 @@ export const DoubleInputNumber = ({ handleSave, data, show, msg }) => {
           onChange={(e) => {
             handleChangeMax(e);
           }}
-          placeholder={t('tab:Max Year')}
+          placeholder={`Max Year`}
           value={lte}
           disabled={disabled}
           errorMessage={errorMessage[1]}
@@ -288,7 +287,7 @@ export const DoubleInputNumber = ({ handleSave, data, show, msg }) => {
             size="small"
           />
         }
-        label={t('tab:Fresh Graduates')}
+        label="Fresh Graduates"
         labelPlacement="start"
       />
     </div>

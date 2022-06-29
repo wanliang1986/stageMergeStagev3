@@ -6,14 +6,14 @@ jobs:
   build:
     docker:
       # specify the version you desire here
-      - image: cimg/node:14.16.1
+      - image: circleci/node:14.16.1
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
       # documented at https://circleci.com/docs/2.0/circleci-images/
       # - image: circleci/mongo:3.4.4
 
-    working_directory: ~/altomni-apn
+    working_directory: ~/altomni-apn-v3
 
     steps:
       - checkout
@@ -50,7 +50,7 @@ jobs:
     docker:
       - image: cimg/python:3.6
 
-    working_directory: ~/altomni-apn
+    working_directory: ~/altomni-apn-v3
 
     steps:
       - checkout
@@ -66,66 +66,28 @@ jobs:
       # Deploy to S3
       - aws-s3/sync:
           from: build/
-          to: s3://apn-staging.hitalentech.com
+          to: s3://apn-v3-staging
           arguments: --region us-west-2 --cache-control "max-age=31536000"
 
       - aws-s3/sync:
           from: build/locales/
-          to: s3://apn-staging.hitalentech.com
+          to: s3://apn-v3-staging
           arguments: --region us-west-2 --cache-control "max-age=0"
 
       - aws-s3/copy:
           from: build/index.html
-          to: s3://apn-staging.hitalentech.com
+          to: s3://apn-v3-staging
           arguments: --region us-west-2 --cache-control "max-age=0"
       - aws-s3/copy:
           from: build/asset-manifest.json
-          to: s3://apn-staging.hitalentech.com
+          to: s3://apn-v3-staging
           arguments: --region us-west-2 --cache-control "max-age=0"
 
-  deploy-stage2:
-    docker:
-      - image: cimg/python:3.6
-
-    working_directory: ~/altomni-apn
-
-    steps:
-      - checkout
-      # Log the current branch
-      - run:
-          name: Show current branch
-          command: echo ${CIRCLE_BRANCH}
-      # Restore cache from the build job which contains the
-      # build folder that needs to be deployed
-      - restore_cache:
-          key: build-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
-
-      # Deploy to S3
-      - aws-s3/sync:
-          from: build/
-          to: s3://apn-staging-singapore
-          arguments: --region us-west-2 --cache-control "max-age=31536000"
-
-      - aws-s3/sync:
-          from: build/locales/
-          to: s3://apn-staging-singapore
-          arguments: --region us-west-2 --cache-control "max-age=0"
-
-      - aws-s3/copy:
-          from: build/index.html
-          to: s3://apn-staging-singapore
-          arguments: --region us-west-2 --cache-control "max-age=0"
-      - aws-s3/copy:
-          from: build/asset-manifest.json
-          to: s3://apn-staging-singapore
-          arguments: --region us-west-2 --cache-control "max-age=0"
-
- 
   deploy-cn:
     docker:
-      - image: cimg/node:14.16.1
+      - image: circleci/node:14.16.1
 
-    working_directory: ~/altomni-apn
+    working_directory: ~/altomni-apn-v3
 
     steps:
       - checkout
@@ -144,29 +106,7 @@ jobs:
           command: npm install ali-oss walk dotenv
       # Deploy to OSS
       - run: node cn-deploy
-  deploy-cn2:
-    docker:
-      - image: cimg/node:14.16.1
 
-    working_directory: ~/altomni-apn
-
-    steps:
-      - checkout
-      # Log the current branch
-      - run:
-          name: Show current branch
-          command: echo ${CIRCLE_BRANCH}
-      # Restore cache from the build job which contains the
-      # build folder that needs to be deployed
-      - restore_cache:
-          key: build-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
-
-      # Install ali cli
-      - run:
-          name: Install ali cli
-          command: npm install ali-oss walk dotenv
-      # Deploy to OSS
-      - run: node cn2-deploy
 workflows:
   version: 2
 
@@ -177,9 +117,7 @@ workflows:
             branches:
               only:
                 - stage
-                - stage2
                 - cn
-                - cn2
       - deploy-stage:
           requires:
             - build
@@ -187,14 +125,6 @@ workflows:
             branches:
               only:
                 - stage
-      - deploy-stage2:
-          requires:
-            - build
-          filters:
-            branches:
-              only:
-                - stage2
- 
       - deploy-cn:
           requires:
             - build
@@ -202,10 +132,3 @@ workflows:
             branches:
               only:
                 - cn
-      - deploy-cn2:
-          requires:
-            - build
-          filters:
-            branches:
-              only:
-                - cn2

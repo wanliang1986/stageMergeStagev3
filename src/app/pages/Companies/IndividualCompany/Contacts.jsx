@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Immutable from 'immutable';
@@ -23,8 +23,6 @@ import PrimaryButton from '../../../components/particial/PrimaryButton';
 import Loading from '../../../components/particial/Loading';
 import CandidateListInClient from '../../Candidates/List/CandidateListInClient';
 import AddClientContactForm from './AddClientContactForm';
-import ApproverFrom from './ApproverFrom';
-import ResetProtalComponent from './ResetProtalComponent';
 import AddAddRessForm from '../../../components/Dialog/DialogTemplates/AddAddRessForm';
 import { withStyles } from '@material-ui/core/styles';
 import { Link } from 'react-router-dom';
@@ -34,13 +32,8 @@ import MyDialog from '../../../components/Dialog/myDialog';
 import { postClientContactAddress } from '../../../actions/clientActions';
 import AddEmailBlastButton3 from '../../Candidates/List/AddEmailBlastButton3';
 import memoizeOne from 'memoize-one';
-import {
-  getClientContactList,
-  gethasApproverPermissionList,
-} from '../../../actions/clientActions';
-import { upsertapprover } from '../../../actions/clientActions';
-import { showErrorMessage } from '../../../actions/index';
-import { upsertClientContact } from '../../../actions/clientActions';
+import { getClientContactList } from '../../../actions/clientActions';
+
 const styles = {
   noContactMsg: {
     width: '660px',
@@ -166,135 +159,6 @@ function onScrollEnd(scrollLeft, scrollTop) {
   status.scrollLeft = scrollLeft;
   status.scrollTop = scrollTop;
 }
-// 点击save且勾选Inactivate
-const InactivateDialog = (props) => {
-  const { getCel, getInactivate, inactivateLoding, client } = props;
-  const [open, setOpen] = useState(true);
-  return (
-    <Dialog open={open}>
-      <div
-        style={{
-          width: '464px',
-          borderRadius: '4px',
-          padding: '24px',
-        }}
-      >
-        <div
-          style={{
-            marginBottom: '20px',
-            color: '#505050',
-            fontSize: '16px',
-            fontWeight: '500',
-          }}
-        >
-          Are you sure to inactivate {client.get('name')}'s account?
-        </div>
-
-        <div style={{ display: 'flex' }}>
-          <div style={{ marginRight: '8px' }}>
-            <PrimaryButton
-              style={{
-                background: 'white',
-                color: '#3398dc',
-                border: 'solid 1px #3398dc',
-              }}
-              type="submit"
-              fullWidth
-              onClick={() => getCel()}
-            >
-              Cancel
-            </PrimaryButton>
-          </div>
-          <div>
-            <PrimaryButton
-              style={{
-                border: 'solid 1px #3398dc',
-              }}
-              type="submit"
-              fullWidth
-              processing={inactivateLoding}
-              onClick={() => getInactivate()}
-            >
-              Inactivate
-            </PrimaryButton>
-          </div>
-        </div>
-      </div>
-    </Dialog>
-  );
-};
-
-// Edit修改Active的弹框
-const InactivateAccountDialog = (props) => {
-  const {
-    getAccountCel,
-    getInactivateAccount,
-    inactivateAccountLodingStatus,
-    client,
-  } = props;
-  const [open, setOpen] = useState(true);
-  return (
-    <Dialog open={open}>
-      <div
-        style={{
-          width: '464px',
-          borderRadius: '4px',
-          padding: '24px',
-        }}
-      >
-        <div
-          style={{
-            marginBottom: '20px',
-            color: '#505050',
-            fontSize: '16px',
-            fontWeight: '500',
-          }}
-        >
-          Are you sure to inactivate {client.get('name')}'s account?
-        </div>
-        <div
-          style={{
-            marginBottom: '20px',
-            color: '#505050',
-            fontSize: '14px',
-          }}
-        >
-          Once you incativated this account, its timesheet approver status will
-          also be inactivated.
-        </div>
-        <div style={{ display: 'flex' }}>
-          <div style={{ marginRight: '8px' }}>
-            <PrimaryButton
-              style={{
-                background: 'white',
-                color: '#3398dc',
-                border: 'solid 1px #3398dc',
-              }}
-              type="submit"
-              fullWidth
-              onClick={() => getAccountCel()}
-            >
-              Cancel
-            </PrimaryButton>
-          </div>
-          <div>
-            <PrimaryButton
-              style={{
-                border: 'solid 1px #3398dc',
-              }}
-              type="submit"
-              fullWidth
-              processing={inactivateAccountLodingStatus}
-              onClick={() => getInactivateAccount()}
-            >
-              Inactivate
-            </PrimaryButton>
-          </div>
-        </div>
-      </div>
-    </Dialog>
-  );
-};
 
 class ClientContacts extends React.PureComponent {
   constructor(props) {
@@ -315,8 +179,6 @@ class ClientContacts extends React.PureComponent {
       clientIdShowTalents: null,
 
       openContactForm: false,
-      openContactApprover: false,
-      openResetProtalComponentr: false,
       selectedClient: null,
       type: '1',
       addAddressDialog: false,
@@ -324,11 +186,6 @@ class ClientContacts extends React.PureComponent {
       selected: Immutable.Set(),
       loading: true,
       warningOpen: false,
-      inactiveShowStatus: false,
-      inactivateLodingStatus: false,
-      accountStatus: false,
-      EditDataObj: null,
-      approverStatus: false,
     };
   }
 
@@ -350,18 +207,7 @@ class ClientContacts extends React.PureComponent {
     status.filterOpen = this.state.filterOpen;
     status.colSortDirs = this.state.colSortDirs;
   }
-  gethasApproverPermission() {
-    this.props
-      .dispatch(gethasApproverPermissionList(this.props.companyId))
-      .then((res) => {
-        console.log(res);
-        if (res) {
-          this.setState({
-            approverStatus: res.response,
-          });
-        }
-      });
-  }
+
   componentDidMount() {
     this.props
       .dispatch(getClientContactList(this.props.companyId))
@@ -372,7 +218,6 @@ class ClientContacts extends React.PureComponent {
           });
         }
       });
-    this.gethasApproverPermission();
   }
 
   onFilter = (input) => {
@@ -425,22 +270,7 @@ class ClientContacts extends React.PureComponent {
       selectedClient,
     });
   };
-  // 点击新增的编辑Approver
-  handleOpenApprover = (selectedClient) => {
-    if (selectedClient.get('approverId')) {
-      this.setState({
-        // openContactApprover: true,
-        selectedClient,
-        openResetProtalComponentr: true,
-      });
-    } else {
-      this.setState({
-        openContactApprover: true,
-        selectedClient,
-        // openResetProtalComponentr: true,
-      });
-    }
-  };
+
   handleCloseContactForm = () => {
     // this.setState({
     //   loading: true,
@@ -456,131 +286,9 @@ class ClientContacts extends React.PureComponent {
     //   });
     this.setState({ openContactForm: false });
   };
-  handlePortalClose = () => {
-    this.setState({
-      openResetProtalComponentr: false,
-    });
-  };
-  showStatus = (data) => {
-    this.setState({
-      inactiveShowStatus: data,
-      openResetProtalComponentr: false,
-    });
-  };
-  handleShow = (data) => {
-    this.setState({
-      openResetProtalComponentr: data,
-    });
-  };
-  getClientData = (data) => {
-    this.setState({
-      EditDataObj: data,
-    });
-  };
-  // 点击inactivate
-  getInactivateAccount = () => {
-    const { dispatch } = this.props;
-    const { EditDataObj } = this.state;
-    this.setState({
-      inactivateAccountLodingStatus: true,
-    });
-    let params = {
-      contactId: this.state.selectedClient.get('id'),
-      password: null,
-      inactived: false,
-      received: true,
-    };
 
-    dispatch(
-      upsertClientContact(EditDataObj, this.state.selectedClient.get('id'))
-    )
-      .then((res) => {
-        this.setState({
-          inactivateAccountLodingStatus: false,
-        });
-        dispatch(getClientContactList(this.props.company_Id)).then((res) => {
-          if (res) {
-            this.setState({
-              inactiveShowStatus: false,
-              accountStatus: false,
-              openContactForm: false,
-            });
-          }
-        });
-      })
-      .catch((err) => {
-        this.setState({
-          inactivateAccountLodingStatus: false,
-        });
-        this.props.dispatch(showErrorMessage(err));
-      });
-
-    // dispatch(upsertapprover(params))
-    //   .then((res) => {
-    //     this.setState({
-    //       inactivateAccountLodingStatus: false,
-    //     });
-
-    //     dispatch(getClientContactList(this.props.company_Id)).then((res) => {
-    //       if (res) {
-    //         this.setState({
-    //           inactiveShowStatus: false,
-    //           accountStatus: false,
-    //           openContactForm: false,
-    //         });
-    //       }
-    //     });
-    //   })
-    //   .catch((err) => {
-    //     this.setState({
-    //       inactivateAccountLodingStatus: false,
-    //     });
-    //     this.props.dispatch(showErrorMessage(err));
-    //   });
-  };
-  getInactivate = () => {
-    const { dispatch } = this.props;
-    this.setState({
-      inactivateLodingStatus: true,
-    });
-    let params = {
-      contactId: this.state.selectedClient.get('id'),
-      password: null,
-      inactived: true,
-      received: false,
-    };
-    dispatch(upsertapprover(params))
-      .then((res) => {
-        this.setState({
-          inactivateLodingStatus: false,
-        });
-        dispatch(getClientContactList(this.props.company_Id)).then((res) => {
-          if (res) {
-            this.setState({
-              inactiveShowStatus: false,
-            });
-          }
-        });
-      })
-      .catch((err) => {
-        this.setState({
-          inactivateLodingStatus: false,
-        });
-        this.props.dispatch(showErrorMessage(err));
-      });
-  };
-  handleAppRequestClose = () => {
-    this.setState({
-      openContactApprover: false,
-    });
-  };
   clickedCandidatesNumber = (id) => {
     this.setState({ clientIdShowTalents: id });
-  };
-  getActiveStatu = (data) => {
-    this.setState({
-      accountStatus: data,
-    });
   };
 
   addAddress = () => {
@@ -614,10 +322,11 @@ class ClientContacts extends React.PureComponent {
   saveAddress = () => {
     let obj = {
       address: this.state.address,
-      cityId: this.state.cityId,
-      addressType: 'CLIENT_CONTACT',
-      companyAddressType: 'OTHER',
       companyId: this.props.companyId,
+      geoInfoENDTO: {
+        cityId: this.state.cityId,
+      },
+      companyAddressType: 'OTHER',
     };
     this.props.dispatch(postClientContactAddress(obj)).then((res) => {
       if (res) {
@@ -665,21 +374,7 @@ class ClientContacts extends React.PureComponent {
       addAddressDialog: true,
     });
   };
-  handleRequestShow = (data) => {
-    this.setState({
-      openContactApprover: data,
-    });
-  };
-  getCel = () => {
-    this.setState({
-      inactiveShowStatus: false,
-    });
-  };
-  getAccountCel = () => {
-    this.setState({
-      accountStatus: false,
-    });
-  };
+
   render() {
     const { clientList, onSelect, classes, ...props } = this.props;
     const {
@@ -689,9 +384,6 @@ class ClientContacts extends React.PureComponent {
       addAddressDialog,
       selected,
       warningOpen,
-      inactiveShowStatus,
-      accountStatus,
-      approverStatus,
     } = this.state;
     const filteredSelected = getFilteredSelected(selected, clientList);
 
@@ -717,7 +409,7 @@ class ClientContacts extends React.PureComponent {
               {props.t('action:create')}
             </PrimaryButton>
           </div> */}
-          {/* <Dialog open={this.state.openContactForm} fullWidth maxWidth="sm">
+          <Dialog open={this.state.openContactForm} fullWidth maxWidth="sm">
             <AddClientContactForm
               {...props}
               client={this.state.selectedClient}
@@ -725,12 +417,11 @@ class ClientContacts extends React.PureComponent {
               addAddress={this.addAddress}
               handleRequestClose={this.handleCloseContactForm}
             />
-          </Dialog> */}
-
+          </Dialog>
           <MyDialog
             btnShow={true}
             show={addAddressDialog}
-            modalTitle={props.t('tab:Add Additional Address')}
+            modalTitle={`Add Additional Address`}
             SubmitBtnShow={true}
             SubmitBtnMsg={'Save'}
             SumbitBtnVariant={'contained'}
@@ -790,6 +481,7 @@ class ClientContacts extends React.PureComponent {
       );
     }
     const filteredClientList = indexList.map((index) => clientList.get(index));
+
     let { clientIdShowTalents } = this.state;
     return (
       <div className="flex-child-auto flex-container flex-dir-column">
@@ -798,50 +490,6 @@ class ClientContacts extends React.PureComponent {
             className="flex-container align-middle item-padding"
             style={{ height: 56 }}
           >
-            {/* 点击Action person图标 */}
-            <Dialog
-              open={this.state.openContactApprover}
-              fullWidth
-              maxWidth="sm"
-            >
-              <ApproverFrom
-                {...props}
-                client={this.state.selectedClient}
-                handleAppRequestClose={this.handleAppRequestClose}
-                handleRequestShow={this.handleRequestShow}
-              />
-            </Dialog>
-            <Dialog
-              open={this.state.openResetProtalComponentr}
-              fullWidth
-              maxWidth="sm"
-            >
-              <ResetProtalComponent
-                {...props}
-                client={this.state.selectedClient}
-                handlePortalClose={this.handlePortalClose}
-                showStatus={this.showStatus}
-                handleShow={this.handleShow}
-              />
-            </Dialog>
-            {inactiveShowStatus ? (
-              <InactivateDialog
-                client={this.state.selectedClient}
-                getCel={this.getCel}
-                getInactivate={this.getInactivate}
-                inactivateLoding={this.state.inactivateLodingStatus}
-              />
-            ) : null}
-            {accountStatus ? (
-              <InactivateAccountDialog
-                client={this.state.selectedClient}
-                getAccountCel={this.getAccountCel}
-                getInactivateAccount={this.getInactivateAccount}
-                inactivateAccountLodingStatus={
-                  this.state.inactivateAccountLodingStatus
-                }
-              />
-            ) : null}
             <div>
               <PrimaryButton
                 onClick={() => this.handleOpenContactUpsert()}
@@ -882,14 +530,9 @@ class ClientContacts extends React.PureComponent {
               onEdit={(index) =>
                 this.handleOpenContactUpsert(filteredClientList.get(index))
               }
-              onPreson={(index) =>
-                this.handleOpenApprover(filteredClientList.get(index))
-              }
               onSelect={this.onSelect}
               onSelectAll={this.checkAllBoxOnCheckHandler}
               onCandidateClick={this.clickedCandidatesNumber}
-              approverStatus={approverStatus}
-              t={props.t}
             />
           </div>
         ) : (
@@ -919,15 +562,13 @@ class ClientContacts extends React.PureComponent {
             requiredType={this.state.type}
             addAddress={this.addAddress}
             handleRequestClose={this.handleCloseContactForm}
-            getActiveStatu={this.getActiveStatu}
-            getClientData={this.getClientData}
             {...props}
           />
         </Dialog>
         <MyDialog
           btnShow={true}
           show={addAddressDialog}
-          modalTitle={props.t('tab:Add Additional Address')}
+          modalTitle={`Add Additional Address`}
           SubmitBtnShow={true}
           SubmitBtnMsg={'Save'}
           SumbitBtnVariant={'contained'}
@@ -961,7 +602,7 @@ class ClientContacts extends React.PureComponent {
           aria-describedby="alert-dialog-description"
         >
           <DialogTitle id="alert-dialog-title">
-            {props.t('tab:Add Additional Address')}
+            {'Add Additional Address'}
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">

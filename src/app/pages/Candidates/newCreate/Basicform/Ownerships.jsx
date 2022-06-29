@@ -15,7 +15,6 @@ class Ownerships extends React.Component {
   constructor(props) {
     super(props);
     const paserBasicInfo = props.basicInfo ? props.basicInfo.toJS() : {};
-
     this.state = {
       createdBy: props.basicInfo.get('id')
         ? props.basicInfo.getIn(['createdUser', 'id'])
@@ -82,7 +81,7 @@ class Ownerships extends React.Component {
               <FormReactSelectContainer
                 label={
                   <div className="flex-container">
-                    <span>{t('field:Shares')}</span>
+                    <span>{t('field:shares')}</span>
                   </div>
                 }
               >

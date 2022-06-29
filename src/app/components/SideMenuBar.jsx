@@ -13,8 +13,6 @@ import ReportIcon from '@material-ui/icons/InsertChart';
 import Search from '@material-ui/icons/Search';
 import CreditCard from '@material-ui/icons/CreditCard';
 import TenantsIcon from '@material-ui/icons/SupervisedUserCircle';
-import ClearAllTwoToneIcon from '@material-ui/icons/ClearAllTwoTone';
-import SettingsIcon from '@material-ui/icons/Settings';
 import { EmailBlastIcon } from './Icons';
 
 import NavMenu from './particial/NavMenu';
@@ -30,37 +28,18 @@ class SideMenuBar extends React.Component {
   };
 
   render() {
-    const { loggedin, mobile, authorities, t } = this.props;
-    let isRole = false;
-    if (authorities) {
-      isRole =
-        authorities.includes(Immutable.Map({ name: 'ROLE_HR' })) ||
-        authorities.includes(Immutable.Map({ name: 'ROLE_ADMIN' })) ||
-        authorities.includes(Immutable.Map({ name: 'ROLE_TENANT_ADMIN' }));
-    }
-    const isMyTeam =
-      authorities &&
-      !authorities.includes(Immutable.Map({ name: 'ROLE_LIMIT_USER' }));
-
+    // console.log(this.props);
+    const { loggedin, mobile, authorities, currentRoute, t } = this.props;
     if (mobile) {
       return null;
     }
 
     let authItems = [
-      {
-        label: t('dashboard'),
-        icon: HomeIcon,
-        children: [
-          {
-            label: 'User Dashboard',
-            key: 'dashboard',
-          },
-          {
-            label: 'Onboarding Dashboard',
-            key: 'Document',
-          },
-        ],
-      },
+      // {
+      //   label: t('dashboard'),
+      //   icon: HomeIcon,
+      //   key: '',
+      // },
       {
         label: t('jobs'),
         icon: JobIcon,
@@ -82,16 +61,16 @@ class SideMenuBar extends React.Component {
           icon: ClientIcon,
           key: 'companies',
         },
-        {
-          label: t('emailBlast'),
-          icon: EmailBlastIcon,
-          key: 'emailblast',
-        },
-        {
-          label: t('templates'),
-          icon: TemplateIcon,
-          key: 'templates',
-        },
+        // {
+        //   label: t('emailBlast'),
+        //   icon: EmailBlastIcon,
+        //   key: 'emailblast',
+        // },
+        // {
+        //   label: t('templates'),
+        //   icon: TemplateIcon,
+        //   key: 'templates',
+        // },
       ]);
     }
 
@@ -101,16 +80,16 @@ class SideMenuBar extends React.Component {
         authorities.includes(Immutable.Map({ name: 'ROLE_PRIMARY_RECRUITER' })))
     ) {
       authItems = authItems.concat([
-        {
-          label: t('reports'),
-          icon: ReportIcon,
-          key: 'reports',
-        },
-        {
-          label: t('finance'),
-          icon: CreditCard,
-          key: 'finance',
-        },
+        // {
+        //   label: t('reports'),
+        //   icon: ReportIcon,
+        //   key: 'reports',
+        // },
+        // {
+        //   label: t('finance'),
+        //   icon: CreditCard,
+        //   key: 'finance',
+        // },
       ]);
     } else {
       if (
@@ -118,13 +97,23 @@ class SideMenuBar extends React.Component {
         !authorities.includes(Immutable.Map({ name: 'ROLE_LIMIT_USER' }))
       ) {
         authItems = authItems.concat([
-          {
-            label: t('reports'),
-            icon: ReportIcon,
-            key: 'reports',
-          },
+          // {
+          //   label: t('reports'),
+          //   icon: ReportIcon,
+          //   key: 'reports',
+          // },
         ]);
       }
+    }
+    if (
+      authorities &&
+      !authorities.includes(Immutable.Map({ name: 'ROLE_LIMIT_USER' }))
+    ) {
+      authItems.push({
+        label: t('myteam'),
+        icon: TenantsIcon,
+        key: 'myteam',
+      });
     }
     // authItems.push({
     //   label: t('search'),
@@ -137,83 +126,10 @@ class SideMenuBar extends React.Component {
     //     icon: ReportIcon,
     //     key: 'reports'
     // });
-    // authItems.push({
-    //   label: t('Document'),
-    //   icon: ReportIcon,
-    //   key: 'Document',
-    // });
 
-    if (isMyTeam && isRole) {
-      authItems.push({
-        label: t('settings'),
-        icon: SettingsIcon,
-        children: [
-          {
-            label: 'Onboarding',
-            children: [
-              {
-                label: 'Documents',
-                key: 'setting/document',
-              },
-              {
-                label: 'Packages',
-                key: 'setting/package',
-              },
-              {
-                label: 'E-Signature',
-                key: 'setting/esignature',
-              },
-            ],
-          },
-          {
-            label: 'My Team',
-            key: 'myteam',
-          },
-        ],
-      });
-    } else if (isRole) {
-      authItems.push({
-        label: t('settings'),
-        icon: SettingsIcon,
-        children: [
-          {
-            label: 'Onboarding',
-            children: [
-              {
-                label: 'Documents',
-                key: 'setting/document',
-              },
-              {
-                label: 'Packages',
-                key: 'setting/package',
-              },
-              {
-                label: 'E-Signature',
-                key: 'setting/esignature',
-              },
-            ],
-          },
-        ],
-      });
-    } else if (isMyTeam) {
-      authItems.push({
-        label: t('settings'),
-        icon: SettingsIcon,
-        children: [
-          {
-            label: 'My Team',
-            key: 'myteam',
-          },
-        ],
-      });
-    }
-
-    authItems.push({
-      label: t('Timesheets'),
-      icon: ClearAllTwoToneIcon,
-      key: 'timesheets',
-    });
-
+    let selectedIndex = authItems.findIndex(
+      (item) => item.key === currentRoute
+    );
     authItems = loggedin ? authItems : [];
     if (
       authorities &&
@@ -227,11 +143,10 @@ class SideMenuBar extends React.Component {
         },
       ];
     }
-
     return (
       <NavMenu
         menuItems={authItems}
-        // selectedIndex={selectedIndex}
+        selectedIndex={selectedIndex}
         handleMenuItemClick={this.handleMenuItemClick}
       />
     );
@@ -240,8 +155,10 @@ class SideMenuBar extends React.Component {
 
 function mapStoreStateToProps(state) {
   const loggedin = state.controller.loggedin;
+  const currentRoute = state.router.location.pathname.split('/')[1];
   return {
     loggedin,
+    currentRoute,
     mobile: state.mobile,
     authorities: state.controller.currentUser.get('authorities'),
   };

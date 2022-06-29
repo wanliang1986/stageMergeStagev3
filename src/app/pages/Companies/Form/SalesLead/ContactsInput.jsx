@@ -6,29 +6,12 @@ import Select from 'react-select';
 import DeleteIcon from '@material-ui/icons/Delete';
 import FormReactSelectContainer from '../../../../components/particial/FormReactSelectContainer';
 import FormInput from '../../../../components/particial/FormInput';
-import { withTranslation } from 'react-i18next';
+
 const styles = {
   root: {
     width: '100%',
   },
 };
-// 校验名字是否含有中文
-function sortingName(ChineseName, EnglishName) {
-  let reg = new RegExp('[\\u4E00-\\u9FFF]+', 'g');
-  if (reg.test(ChineseName) || reg.test(EnglishName)) {
-    return EnglishName + ChineseName || '';
-  } else {
-    if (ChineseName && EnglishName) {
-      let tmp =
-        EnglishName.substring(0, 1).toUpperCase() + EnglishName.substring(1);
-      let chaTmp =
-        ChineseName.substring(0, 1).toUpperCase() + ChineseName.substring(1);
-      return chaTmp + ' ' + tmp;
-    } else {
-      return '';
-    }
-  }
-}
 
 class ContactsInput extends Component {
   constructor(props) {
@@ -37,7 +20,6 @@ class ContactsInput extends Component {
       owner: '',
     };
   }
-
   hasError = (index) => {
     const { leadIndex, contactsError } = this.props;
     let arr = contactsError.filter((_item, _index) => {
@@ -83,7 +65,7 @@ class ContactsInput extends Component {
                   this.props.addContact();
                 }}
               >
-                {this.props.t('tab:Add Contact')}
+                Add Contact
               </Button>
             </div>
           </div>
@@ -111,7 +93,7 @@ class ContactsInput extends Component {
                       {companyId ? (
                         <Select
                           name="contacts"
-                          value={sortingName(val.firstName, val.lastName)}
+                          value={val.name}
                           onChange={(name) => {
                             this.props.setContact(name, key);
                           }}
@@ -126,10 +108,7 @@ class ContactsInput extends Component {
                       ) : (
                         <FormInput
                           name="contact"
-                          defaultValue={
-                            sortingName(val.firstName, val.lastName)
-                            // val.firstName + val.lastName || ''
-                          }
+                          defaultValue={val.name}
                           disabled={true}
                           errorMessage={
                             errorMessage &&
@@ -165,4 +144,4 @@ class ContactsInput extends Component {
   }
 }
 
-export default withTranslation('tab')(withStyles(styles)(ContactsInput));
+export default withStyles(styles)(ContactsInput);

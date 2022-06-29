@@ -15,7 +15,7 @@ import Down from '@material-ui/icons/KeyboardArrowDown';
 import SecondaryButton from '../../../components/particial/SecondaryButton';
 import * as Colors from '../../../styles/Colors/index';
 
-const styles = theme => ({
+const styles = (theme) => ({
   skill: {
     border: '2px solid gray',
     borderRadius: '28px',
@@ -23,23 +23,23 @@ const styles = theme => ({
     padding: '0 12px',
     fontSize: '14px',
     color: Colors.SUB_TEXT,
-    borderColor: Colors.GRAY_2
+    borderColor: Colors.GRAY_2,
   },
   rightIcon: {
     marginLeft: theme.spacing(1),
     marginRight: -theme.spacing(1),
     transform: 'rotate(0deg)',
     transition: theme.transitions.create('transform', {
-      duration: theme.transitions.duration.shortest
+      duration: theme.transitions.duration.shortest,
     }),
     '&$expandOpen': {
-      transform: 'rotate(180deg)'
-    }
+      transform: 'rotate(180deg)',
+    },
   },
   expandOpen: {},
   rewriteBoxShadow: {
-    boxShadow: 'none'
-  }
+    boxShadow: 'none',
+  },
 });
 
 const Experience = ({ experience }) => {
@@ -76,7 +76,7 @@ class Qualification extends React.Component {
     this.state = {
       showSkill: false,
       showExperience: false,
-      showEducation: false
+      showEducation: false,
     };
   }
 
@@ -110,14 +110,14 @@ class Qualification extends React.Component {
                   this.setState({
                     showExperience: !showExperience,
                     showSkill: false,
-                    showEducation: false
+                    showEducation: false,
                   })
                 }
               >
                 {showExperience ? t('action:less') : t('action:more')}
                 <Down
                   className={clsx(classes.rightIcon, {
-                    [classes.expandOpen]: showExperience
+                    [classes.expandOpen]: showExperience,
                   })}
                 />
               </SecondaryButton>
@@ -150,14 +150,14 @@ class Qualification extends React.Component {
                   this.setState({
                     showSkill: !showSkill,
                     showExperience: false,
-                    showEducation: false
+                    showEducation: false,
                   })
                 }
               >
                 {showSkill ? t('action:less') : t('action:more')}
                 <Down
                   className={clsx(classes.rightIcon, {
-                    [classes.expandOpen]: showSkill
+                    [classes.expandOpen]: showSkill,
                   })}
                 />
               </SecondaryButton>
@@ -187,14 +187,14 @@ class Qualification extends React.Component {
                   this.setState({
                     showEducation: !showEducation,
                     showSkill: false,
-                    showExperience: false
+                    showExperience: false,
                   })
                 }
               >
                 {showEducation ? t('action:less') : t('action:more')}
                 <Down
                   className={clsx(classes.rightIcon, {
-                    [classes.expandOpen]: showEducation
+                    [classes.expandOpen]: showEducation,
                   })}
                 />
               </SecondaryButton>

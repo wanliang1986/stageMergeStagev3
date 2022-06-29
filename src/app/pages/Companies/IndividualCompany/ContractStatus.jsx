@@ -15,15 +15,15 @@ class ContractStatus extends React.Component {
     let startDate = moment(moment(selectData.get('startDate'))).toJSON();
     let endDate = moment(moment(selectData.get('endDate'))).toJSON();
     let newSignnes = [];
-    selectData.get('signees').forEach((item, index) => {
-      newSignnes.push(item.get('id'));
+    selectData.get('signers').forEach((item, index) => {
+      newSignnes.push({ id: item.get('id') });
     });
     let newSelectData = selectData
       .set('status', status)
       .set('startDate', startDate)
       .set('endDate', endDate)
-      .set('signees', newSignnes)
-      .set('requiredFile', true);
+      .set('signers', newSignnes);
+    // .set('requiredFile', true);
     dispatch(createContract(newSelectData.toJS(), companyId)).then((res) => {
       this.props.fetchData();
     });

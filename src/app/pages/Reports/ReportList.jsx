@@ -140,35 +140,30 @@ const reportCategoriesMap = {
 
     // add by bill
     {
-      title: 'tab:Hires Report',
+      title: 'Hires Report',
       ab: 'H',
       defaultExpanded: true,
       reports: [
         {
           value: 52,
           label:
-            'tab:Hires Report - General Recruiting(FTE)/General Staffing(Contract) ',
-        },
-        {
-          value: 55,
-          label:
-            'tab:Weekly New Offers Report - General Recruiting(FTE)/General Staffing(Contract)',
+            'Hires Report - General Recruiting(FTE)/General Staffing(Contract) ',
         },
       ],
     },
 
-    // {
-    //   title: 'Weekly New Offers Report',
-    //   ab: 'W',
-    //   defaultExpanded: true,
-    //   reports: [
-    //     {
-    //       value: 55,
-    //       label:
-    //         'Weekly New Offers Report - General Recruiting(FTE)/General Staffing(Contract)',
-    //     },
-    //   ],
-    // },
+    {
+      title: 'Weekly New Offers Report',
+      ab: 'W',
+      defaultExpanded: true,
+      reports: [
+        {
+          value: 55,
+          label:
+            'Weekly New Offers Report - General Recruiting(FTE)/General Staffing(Contract)',
+        },
+      ],
+    },
   ],
   leader: [
     {

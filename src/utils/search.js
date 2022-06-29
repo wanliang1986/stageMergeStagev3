@@ -178,20 +178,6 @@ export const filterSearch = (data) => {
             label: str,
           };
           break;
-        case 'published':
-          if (data[item].length == 0) break;
-          data[item].forEach((items, index) => {
-            if (data[item].length - 1 != index) {
-              str += '"' + items.label + '"' + 'or';
-            } else {
-              str += '"' + items.label + '"';
-            }
-          });
-          obj = {
-            value: data[item],
-            label: str,
-          };
-          break;
         case 'locations':
           data[item].forEach((items, index) => {
             if (data[item].length > 1 && data[item].length - 1 != index) {
@@ -434,15 +420,6 @@ export const requestFilter = (data) => {
         obj.or = valueArr;
         questData['and'].push(obj);
         break;
-      case 'published':
-        item['value'].forEach((item) => {
-          valueArr.push({
-            published: item.value,
-          });
-        });
-        obj.or = valueArr;
-        questData['and'].push(obj);
-        break;
       case 'locations':
         item['value'].forEach((item) => {
           if (typeof item == 'object') {
@@ -673,7 +650,6 @@ export const filterAdvinced = (data) => {
         };
         questData.push(obj);
         break;
-
       case 'companyId':
         keys = item['andOr'];
         // 多选
@@ -758,7 +734,6 @@ export const filterAdvinced = (data) => {
         break;
       case 'status':
       case 'type':
-      case 'published':
         item['value'].forEach((items) => {
           valueArr.push({
             [item.value1]: items.value,
@@ -941,8 +916,6 @@ export const filterAdvinced = (data) => {
 
         questData.push(obj);
         break;
-      case '':
-
       default:
         break;
     }
@@ -1103,7 +1076,6 @@ export const showAdvincedFilter = (data) => {
         break;
       case 'status':
       case 'type':
-      case 'published':
         if (item['value'].length == 0) break;
         item['value'].forEach((items, index) => {
           if (item['value'].length - 1 != index) {
@@ -1197,6 +1169,7 @@ export const showAdvincedFilter = (data) => {
           label: str,
         };
         break;
+
       default:
         break;
     }
@@ -1660,14 +1633,6 @@ export const checkEvery = (data) => {
         data['value']['gte'] * 1 > data['value']['lte'] * 1
       ) {
         data['errorMsg'] = ['', 'Experience is error'];
-        isSearch = false;
-      } else {
-        data['errorMsg'] = '';
-      }
-      break;
-    case 'published':
-      if (data['value']?.length === 0) {
-        data['errorMsg'] = ['Job Posting Status is required'];
         isSearch = false;
       } else {
         data['errorMsg'] = '';
@@ -2240,18 +2205,18 @@ export const columns = [
     andOr: 'and',
     changeAndOr: false,
   },
-  {
-    colName: 'Job Posting Status',
-    colWidth: 200,
-    flexGrow: 3,
-    col: 'title',
-    fixed: true,
-    sortable: true,
-    type: 'selects',
-    field: 'published',
-    andOr: 'or',
-    changeAndOr: false,
-  },
+  // {
+  //   colName: 'Job Posting Status',
+  //   colWidth: 200,
+  //   flexGrow: 3,
+  //   col: 'title',
+  //   fixed: true,
+  //   sortable: true,
+  //   type: 'selects',
+  //   field: 'published',
+  //   andOr: 'or',
+  //   changeAndOr: false,
+  // },
 ];
 
 export const isNum = (str, length) => {

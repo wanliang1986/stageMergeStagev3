@@ -112,20 +112,15 @@ class TreeSelect extends Component {
   onClickRowExpand(item, e) {
     e.stopPropagation();
     const { onExpand } = this.props;
-    const {
-      renderIdList,
-      treeDataMap,
-      updateListState,
-      searchVal,
-    } = this.state;
+    const { renderIdList, treeDataMap, updateListState, searchVal } =
+      this.state;
     const { value } = item;
     let _renderIdList = renderIdList.concat([]);
     // const disabled = item.disabled && (!item.children ||
     // !isEmptyArray(item.children)) if(disabled) {     return }
 
-    const isExpand = (treeDataMap[item.value].isExpand = !treeDataMap[
-      item.value
-    ].isExpand);
+    const isExpand = (treeDataMap[item.label].isExpand =
+      !treeDataMap[item.label].isExpand);
     if (isExpand) {
       // 展开
       if (!isEmptyArray(item.children)) {
@@ -319,12 +314,8 @@ class TreeSelect extends Component {
     style, // Style object to be applied to row (to position it);
     // This must be passed through to the rendered row element.
   }) {
-    const {
-      checkbox,
-      customIconRender,
-      customTitleRender,
-      selectedVal,
-    } = this.props;
+    const { checkbox, customIconRender, customTitleRender, selectedVal } =
+      this.props;
     const { treeDataMap, renderIdList, selectVal } = this.state;
     const prefixClassName = defaultProps.prefixClassName;
     const idx = renderIdList[index];
@@ -362,11 +353,11 @@ class TreeSelect extends Component {
         : '';
     const disabled =
       item.disabled && (!item.children || !isEmptyArray(item.children));
-    const isSelectVal = selectVal === item.value;
+    const isSelectVal = selectVal === item.label;
     const _checkbox = checkbox || defaultProps.checkbox;
     return (
       <div
-        key={item.value}
+        key={item.label}
         style={{
           ..._style,
           width: 'auto',

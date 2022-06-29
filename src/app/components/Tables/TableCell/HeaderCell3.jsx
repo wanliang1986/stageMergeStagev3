@@ -38,7 +38,8 @@ const enums = {
   // type: templateTypes2,
   jobType: jobType,
   priority: jobPriority,
-  type: levelList,
+  companyClientLevelType: levelList,
+  industryType: industryList,
   industry: industryList,
   invoiceType: invoiceType,
   active: componiesStatus,
@@ -52,7 +53,7 @@ class HeaderCell3 extends React.PureComponent {
     const { column, filters } = props;
     let value = (filters && filters.get(column.col)) || '';
     let ids = [];
-    if (column.col === 'serviceTypes') {
+    if (column.col === 'companyServiceTypes') {
       value.length > 0 &&
         value.forEach((item, index) => {
           ids.push(item.id);
@@ -102,11 +103,12 @@ class HeaderCell3 extends React.PureComponent {
   };
 
   sendServiceType = (checkedList) => {
+    console.log('checkedList', checkedList);
     let checkedId = [];
     checkedList.forEach((item, index) => {
       checkedId.push(item.id);
     });
-    this.props.onSerciceTypeFilter(checkedList, 'serviceTypes');
+    this.props.onSerciceTypeFilter(checkedList, 'companyServiceTypes');
     this.setState({
       serviceTypeSelect: checkedId,
     });
@@ -135,34 +137,29 @@ class HeaderCell3 extends React.PureComponent {
             className="flex-container align-justify align-middle"
           >
             <span>
-              {column.type === 'activityCount' && <div>{t('Sum of')}</div>}
+              {column.type === 'activityCount' && <div>Sum of</div>}
               {t(column.colName)}
-              {console.log(column.colName)}
             </span>
             {column.tooltip ? (
               <MyTooltip
                 title={
                   <React.Fragment>
                     <div style={{ fontSize: '14px', marginBottom: '10px' }}>
-                      {t('tab:Progress Milestones')}
+                      Progress Milestones
                     </div>
                     <div style={{ fontSize: '14px', marginBottom: '10px' }}>
-                      0%：{t('tab:Have not contacted client yet')}
+                      0%： Have not contacted client yet
                     </div>
                     <div style={{ fontSize: '14px', marginBottom: '10px' }}>
-                      25%:{' '}
-                      {t(
-                        'tab:Initial contact (conference call, email contact, etc…)'
-                      )}
+                      25%: Initial contact (conference call, email contact,
+                      etc…)
                     </div>
                     <div style={{ fontSize: '14px', marginBottom: '10px' }}>
-                      50%:{' '}
-                      {t(
-                        'tab:Meet client in person/have lunch, client shows interest'
-                      )}
+                      50%: Meet client in person/have lunch, client shows
+                      interest
                     </div>
                     <div style={{ fontSize: '14px' }}>
-                      75%: {t('tab:Negotiating terms')}
+                      75%: Negotiating terms
                     </div>
                   </React.Fragment>
                 }
@@ -196,7 +193,7 @@ class HeaderCell3 extends React.PureComponent {
                 column.type !== 'boolean' &&
                 column.type !== 'progress' &&
                 column.type !== 'salesLeadOwner' &&
-                column.type !== 'serviceTypes' && (
+                column.type !== 'companyServiceTypes' && (
                   <input
                     style={{ width: '100%' }}
                     name={column.col}
@@ -251,7 +248,7 @@ class HeaderCell3 extends React.PureComponent {
                   onBlur={(e) => onFilter(e.target)}
                 />
               )}
-              {column.type === 'serviceTypes' && (
+              {column.type === 'companyServiceTypes' && (
                 <ServiceTypesSelect
                   name={column.col}
                   labelShow={true}

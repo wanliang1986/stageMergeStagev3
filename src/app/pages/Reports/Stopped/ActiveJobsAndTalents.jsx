@@ -123,7 +123,7 @@ class StoppedJob extends React.PureComponent {
       >
         <div>
           <Typography variant="h6" style={{ margin: '10px' }}>
-            {t('tab:Current Jobs and Candidates')}
+            Current Jobs and Candidates
           </Typography>
           {/*<Typography variant="subtitle1" style={{ margin: '10px' }}>*/}
           {/*  No activities during the past three months.*/}

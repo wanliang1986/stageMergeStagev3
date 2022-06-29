@@ -57,13 +57,6 @@ class JobDetail extends React.Component {
     dispatch(getJob(jobId));
   }
 
-  canceledGetJob = () => {
-    // console.log('canceledGetJob::::', jobId);
-    const { jobId, dispatch } = this.props;
-    dispatch(newGetJobApplications(jobId));
-    dispatch(getJob(jobId));
-  };
-
   handleUpdateJob = (job) => {
     return this.props.dispatch(upsertJob(job, this.props.jobId));
   };
@@ -95,7 +88,6 @@ class JobDetail extends React.Component {
             jobId={jobId}
             canEdit={canEdit}
             handleUpdateJob={this.handleUpdateJob}
-            canceledGetJob={this.canceledGetJob}
             t={t}
             i18n={i18n}
           />
@@ -133,13 +125,9 @@ function mapStoreStateToProps(state, { match }) {
 
   const isAdmin =
     !!authorities &&
-    authorities.includes(Immutable.Map({ name: 'ROLE_ADMIN' }));
-
-  const isTenantAdmin =
-    !!authorities &&
     authorities.includes(Immutable.Map({ name: 'ROLE_TENANT_ADMIN' }));
 
-  const canEdit = !!assignedUser || isAdmin || isTenantAdmin;
+  const canEdit = !!assignedUser || isAdmin;
   console.log('canEdit', canEdit);
   return {
     job,

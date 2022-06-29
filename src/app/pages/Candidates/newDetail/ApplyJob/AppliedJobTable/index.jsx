@@ -12,7 +12,7 @@ import Typography from '@material-ui/core/Typography';
 import PostingTimeCell from './PostingTimeCell';
 import JobTypeCell from './JobTypeCell';
 import CompanyCell from './CompanyCell';
-import { withTranslation } from 'react-i18next';
+
 const styles = {
   root: {
     // overflow: 'hidden',
@@ -118,7 +118,7 @@ class AppliedJobTable extends Component {
     return (
       <div className={clsx('ag-theme-alpine', classes.root)}>
         <Typography variant={'subtitle2'} gutterBottom>
-          {this.props.t('tab:Other applied jobs')}
+          {'Other applied jobs'}
         </Typography>
         <div style={{ height: 'calc(100% - 50px)', minHeight: 300 }}>
           <AgGridReact
@@ -157,6 +157,4 @@ const mapStateToProps = (state, { candidateId }) => {
   };
 };
 
-export default withTranslation('tab')(
-  connect(mapStateToProps)(withStyles(styles)(AppliedJobTable))
-);
+export default connect(mapStateToProps)(withStyles(styles)(AppliedJobTable));

@@ -18,7 +18,6 @@ import HeaderCell from './TableCell/HeaderCell';
 import DateCell from './TableCell/DateCell';
 import Typography from '@material-ui/core/Typography';
 import ToolTip from '@material-ui/core/Tooltip';
-import { withTranslation } from 'react-i18next';
 
 import {
   style,
@@ -326,14 +325,13 @@ class TenantAdminportalTable extends React.Component {
       onSortChange,
       colSortDirs,
       onStatusChange,
-      t,
     } = this.props;
 
     // console.log(':::', contractList.toJS());
     if (tenantList.size === 0) {
       return (
         <div className="flex-child-auto container-padding">
-          <Typography variant="h5">{t('tab:There is no record')}</Typography>
+          <Typography variant="h5">There is no record</Typography>
         </div>
       );
     }
@@ -395,6 +393,4 @@ class TenantAdminportalTable extends React.Component {
 //     onCandidateClick: PropTypes.func.isRequired
 // };
 
-export default withTranslation('tab')(
-  withStyles(style)(TenantAdminportalTable)
-);
+export default withStyles(style)(TenantAdminportalTable);

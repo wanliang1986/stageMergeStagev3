@@ -13,7 +13,6 @@ import { getPeriod } from '../../../../utils';
 import { emailHistoryStatus } from '../../../constants/formOptions';
 import { CircularProgress } from '@material-ui/core';
 import ReportsChart from './ReportsChart';
-import { withTranslation } from 'react-i18next';
 
 const styles = {
   dataList: {
@@ -129,7 +128,7 @@ class EmailReports extends Component {
             margin: '20px 0px 0px 20px',
           }}
         >
-          {this.props.t('tab:Summary')}
+          Summary
         </Typography>
         <div
           style={{
@@ -192,7 +191,7 @@ class EmailReports extends Component {
             ) : (
               <p>
                 {' '}
-                {this.props.t('tab:There is no activity during the')}
+                There is no activity during the{' '}
                 {periodOptions
                   .find((ele) => ele.value === period)
                   .label.toLocaleLowerCase()}
@@ -208,7 +207,7 @@ class EmailReports extends Component {
             margin: '20px 0px 10px 20px',
           }}
         >
-          {this.props.t('tab:Reports by Campaign')}
+          Reports by Campaign
         </Typography>
 
         <Paper
@@ -222,4 +221,4 @@ class EmailReports extends Component {
   }
 }
 
-export default withTranslation('tab')(withStyles(styles)(EmailReports));
+export default withStyles(styles)(EmailReports);

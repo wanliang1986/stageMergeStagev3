@@ -39,11 +39,21 @@ class CandidatePreference extends React.Component {
     const basicInfo = props.basicInfo ? props.basicInfo.toJS() : {};
     this.state = {
       candidateFlag:
-        basicInfo.preferredLocations || basicInfo.preferredSalaryRange || false,
-      preferredPayType: basicInfo.preferredPayType || 'YEARLY',
-      preferredCurrency: basicInfo.preferredCurrency || 'USD',
+        basicInfo.preferredLocations ||
+        (basicInfo.additionalInfo &&
+          basicInfo.additionalInfo.preferredSalaryRange) ||
+        false,
+      preferredPayType:
+        (basicInfo.additionalInfo &&
+          basicInfo.additionalInfo.preferredPayType) ||
+        'YEARLY',
+      preferredCurrency:
+        (basicInfo.additionalInfo &&
+          basicInfo.additionalInfo.preferredCurrency) ||
+        'USD',
       preferredLocations: basicInfo.preferredLocations || [{ id: Date.now() }],
-      preferredSalaryRange: basicInfo.preferredSalaryRange || {
+      preferredSalaryRange: (basicInfo.additionalInfo &&
+        basicInfo.additionalInfo.preferredSalaryRange) || {
         gte: null,
         lte: null,
       },
@@ -68,9 +78,9 @@ class CandidatePreference extends React.Component {
 
   addLocationList = () => {
     this.setState({
-      preferredLocations: [{ id: Date.now() }].concat(
-        this.state.preferredLocations
-      ),
+      preferredLocations: this.state.preferredLocations.concat([
+        { id: Date.now() },
+      ]),
     });
   };
 
@@ -107,15 +117,6 @@ class CandidatePreference extends React.Component {
     });
   };
 
-  translationLabel = (data) => {
-    const { t } = this.props;
-    let newOpt = data.map((item) => ({
-      value: item.value,
-      label: t(`tab:${item.label}`),
-    }));
-    return newOpt;
-  };
-
   render() {
     const { t, classes, removeErrorMessage, errorMessage } = this.props;
     const {
@@ -125,26 +126,21 @@ class CandidatePreference extends React.Component {
       preferredLocations,
       preferredSalaryRange,
     } = this.state;
-
-    const _payRateUnitTypes = this.translationLabel(payRateUnitTypes);
-    console.log(_payRateUnitTypes);
     return (
       <div>
         <div className="flex-container align-justify align-middle">
-          <Typography variant="h6"> {t('tab:Candidate Preference')}</Typography>
+          <Typography variant="h6">{'Candidate Preference'}</Typography>
           {candidateFlag ? (
             <div className={classes.flex} onClick={this.deleteCandidate}>
               <DeleteOutlineIcon
                 style={{ color: '#e85919', fontSize: '21px' }}
               />
-              <p style={{ color: '#e85919', marginTop: 0 }}>
-                {t('tab:Delete')}
-              </p>
+              <p style={{ color: '#e85919', marginTop: 0 }}>{'Delete'}</p>
             </div>
           ) : (
             <div className={classes.flex} onClick={this.addCandidate}>
               <AddIcon style={{ color: '#3398dc', fontSize: '21px' }} />
-              <p style={{ color: '#3398dc', marginTop: 0 }}>{t('tab:Add')}</p>
+              <p style={{ color: '#3398dc', marginTop: 0 }}>{'Add'}</p>
             </div>
           )}
         </div>
@@ -180,7 +176,7 @@ class CandidatePreference extends React.Component {
                         preferredPayType && this.setState({ preferredPayType })
                       }
                       simpleValue
-                      options={_payRateUnitTypes}
+                      options={payRateUnitTypes}
                       autoBlur={true}
                       searchable={false}
                       clearable={false}

@@ -31,7 +31,6 @@ class SalesLead extends Component {
       salesLeadError,
       contactsError,
       serviceTypeError,
-
       ...props
     } = this.props;
     const { salesLeadList } = this.state;
@@ -40,7 +39,7 @@ class SalesLead extends Component {
       <div className={classes.leadroot}>
         <div className="row expanded">
           <div className="small-6 columns">
-            <Typography>{this.props.t('tab:Sales Lead')}</Typography>
+            <Typography>Sales Lead</Typography>
           </div>
           <div className="small-6 columns" style={{ textAlign: 'right' }}>
             <Button
@@ -49,7 +48,7 @@ class SalesLead extends Component {
                 this.props.addSalesLead();
               }}
             >
-              {this.props.t('tab:Add New Sales Lead')}
+              Add New Sales Lead
             </Button>
           </div>
         </div>

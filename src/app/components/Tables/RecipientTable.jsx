@@ -22,22 +22,22 @@ import {
   style,
   HEADER_HEIGHT,
   HEADER_WITHFILTER_HEIGHT,
-  ROW_HEIGHT
+  ROW_HEIGHT,
 } from './params';
 
 const permissions = {
   Owner: 'Owner',
   Apply_Candidate: 'Recruiter',
-  Admin: 'P.Recruiter'
+  Admin: 'P.Recruiter',
   // Edit: 'Edit',
 };
 const styles = {
   switchRoot: {
-    left: -10
+    left: -10,
   },
   switchBase: {
-    height: '100%'
-  }
+    height: '100%',
+  },
 };
 
 class NameCell extends React.PureComponent {
@@ -119,7 +119,7 @@ const ActiveCell = withStyles(styles)(
           color="primary"
           classes={{
             root: classes.switchRoot,
-            switchBase: classes.switchBase
+            switchBase: classes.switchBase,
           }}
           disabled={!onActiveChange}
         />
@@ -166,7 +166,7 @@ class UserTable extends React.PureComponent {
     ReactTooltip.rebuild();
   }
 
-  isSelected = id => this.props.selected && this.props.selected.includes(id);
+  isSelected = (id) => this.props.selected && this.props.selected.includes(id);
 
   render() {
     const {
@@ -187,7 +187,7 @@ class UserTable extends React.PureComponent {
       onActiveChange,
       onScrollEnd,
       scrollLeft,
-      scrollTop
+      scrollTop,
     } = this.props;
 
     return (
@@ -285,7 +285,7 @@ class UserTable extends React.PureComponent {
 
 UserTable.propTypes = {
   dataList: PropTypes.object.isRequired,
-  isSelected: PropTypes.func
+  isSelected: PropTypes.func,
 };
 
 export default withStyles(style)(UserTable);

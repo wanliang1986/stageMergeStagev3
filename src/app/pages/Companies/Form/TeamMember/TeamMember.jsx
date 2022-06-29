@@ -38,6 +38,7 @@ const BootstrapInput = withStyles((theme) => ({
   },
   input: {
     position: 'relative',
+    // backgroundColor: theme.palette.background.paper,
     border: '1px solid #ced4da',
     fontSize: 16,
     padding: '2px 26px 2px 12px',
@@ -138,6 +139,12 @@ export default function MultipleSelect(props) {
         multiple
         value={teamMemberList}
         fullWidth
+        // onChange={handleChange}
+        input={<BootstrapInput />}
+        renderValue={(selected) => {
+          selected.join(', ');
+        }}
+        MenuProps={MenuProps}
         style={
           errorMessage &&
           errorMessage.get('accountManager') &&
@@ -148,12 +155,6 @@ export default function MultipleSelect(props) {
               }
             : {}
         }
-        // onChange={handleChange}
-        input={<BootstrapInput />}
-        renderValue={(selected) => {
-          selected.join(', ');
-        }}
-        MenuProps={MenuProps}
       >
         {teamMember.map((item, index) => (
           <MenuItem key={item.get('fullName')} value={item.get('fullName')}>

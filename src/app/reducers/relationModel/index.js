@@ -17,6 +17,7 @@ import starts from './starts';
 import invoices from './invoiceReducer';
 import invoiceActivities from './invoiceActivitiesReducer';
 import commissions from './commissionReducer'; //finance commissions
+import applicationCommissions from './applicationCommissions';
 
 export default combineReducers({
   activities, // users & applications relation
@@ -33,4 +34,5 @@ export default combineReducers({
   invoices,
   invoiceActivities,
   commissions,
+  applicationCommissions,
 });

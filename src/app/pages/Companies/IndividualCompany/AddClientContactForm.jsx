@@ -9,10 +9,7 @@ import {
   formatUserName,
 } from '../../../../utils';
 
-import {
-  upsertClientContact,
-  getClientContactList,
-} from '../../../actions/clientActions';
+import { upsertClientContact } from '../../../actions/clientActions';
 import * as FormOptions from '../../../constants/formOptions';
 import { showErrorMessage } from '../../../actions';
 import { getActiveUserList } from '../../../selectors/userSelector';
@@ -65,8 +62,6 @@ class AddClientContactForm extends Component {
       phone: null,
       wechat: null,
       addressValue: props.client.get('address') || '',
-      addressStatus: false,
-      endData: moment().endOf('day'),
     };
   }
 
@@ -77,38 +72,18 @@ class AddClientContactForm extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    const clientForm = e.target;
-    const { t, dispatch, handleRequestClose } = this.props;
 
+    const clientForm = e.target;
+    const { t, dispatch, handleRequestClose, companyId } = this.props;
     let errorMessage = this._validateForm(clientForm, t);
     if (errorMessage) {
       return this.setState({ errorMessage });
     }
-    if (this.state.addressValue == '') {
-      return this.setState({
-        addressStatus: true,
-      });
-    } else {
-      this.setState({
-        addressStatus: false,
-      });
-    }
+    this.setState({ processing: true });
     const client = {
-      esId: this.props.client.get('esId') || null,
-      address: this.state.addressValue,
-      active: this.state.active,
-      addressId: this.state.addressId,
-      name: clientForm.name.value + clientForm.LastName.value,
-      firstName: clientForm.name.value,
-      lastName: clientForm.LastName.value,
-      zipcode: clientForm.zipCode.value,
-      companyEntityId: this.props.companyId,
-      // company: clientForm.company.value,
+      name: clientForm.name.value,
+      companyId: companyId,
       title: clientForm.title.value,
-      departmentTier1: clientForm.department && clientForm.department.value,
-      // departmentTier2: clientForm.departmentTier2.value,
-      // departmentTier3: clientForm.departmentTier3.value,
-      // department: clientForm.department && clientForm.department.value,
       email: clientForm.email ? clientForm.email.value.trim() : null,
       phone:
         clientForm.phone && clientForm.phone.value !== ''
@@ -118,49 +93,28 @@ class AddClientContactForm extends Component {
         clientForm.WeChat && clientForm.WeChat.value !== ''
           ? clientForm.WeChat.value
           : null,
-      // accountManagerId:
-      //   clientForm.accountManager && clientForm.accountManager.value,
-      // relationshipRating:
-      //   clientForm.relationshipRating && clientForm.relationshipRating.value,
-      // comments,
-
-      // addressLine: clientForm.addressLine.value,
-      // country: clientForm.country.value,
-      // city: clientForm.city.value,
-      // province: clientForm.province.value,
-      // zipcode: clientForm.zipcode.value,
       contactCategory: this.state.ContactCategory,
-      // clientForm.contactCategory &&clientForm.contactCategory.value,
-      profile: clientForm.LinkedInProfile
-        ? clientForm.LinkedInProfile.value
-        : this.state.profile,
-      otherCategory: clientForm.otherCategory && clientForm.otherCategory.value,
-      lastContactDate: this.state.lastContactDate
-        ? Moment(this.state.lastContactDate).utc().format()
-        : '',
+      department: clientForm.department && clientForm.department.value,
+      active: this.state.active,
       businessGroup: clientForm.businessGroup && clientForm.businessGroup.value,
       businessUnit: clientForm.businessUnit && clientForm.businessUnit.value,
-      comments: clientForm.comments
+      companyAddressId: this.state.addressId,
+      linkedinProfile: clientForm.profile
+        ? clientForm.profile.value
+        : this.state.profile,
+      lastContactDate: this.state.lastContactDate
+        ? this.state.lastContactDate.utc().format()
+        : '',
+      tenantId: this.props.companyId,
+      otherCategory: clientForm.otherCategory && clientForm.otherCategory.value,
+      remark: clientForm.comments
         ? clientForm.comments.value
         : this.state.comments,
     };
-    let aprID = this.props.client.get('approverId');
 
-    if (!this.state.active && aprID) {
-      this.props.getActiveStatu(!this.state.active);
-      this.props.getClientData(client);
-      return;
-    }
-    this.setState({ processing: true });
     dispatch(upsertClientContact(client, this.props.client.get('id')))
       .then((res) => {
-        this.props
-          .dispatch(getClientContactList(this.props.companyId))
-          .then((response) => {
-            if (res) {
-              this.props.handleRequestClose();
-            }
-          });
+        this.props.handleRequestClose();
       })
       .catch((err) => {
         dispatch(showErrorMessage(err));
@@ -171,13 +125,7 @@ class AddClientContactForm extends Component {
   _validateForm = (form, t) => {
     let errorMessage = Immutable.Map();
     if (!form.name.value) {
-      errorMessage = errorMessage.set('name', t('message:firstNameIsRequired'));
-    }
-    if (!form.LastName.value) {
-      errorMessage = errorMessage.set(
-        'LastName',
-        t('message:lastNameIsRequired')
-      );
+      errorMessage = errorMessage.set('name', t('message:fullNameIsRequired'));
     }
     if (!this.state.ContactCategory) {
       errorMessage = errorMessage.set(
@@ -191,31 +139,7 @@ class AddClientContactForm extends Component {
         t('message:otherCategoryIsRequired')
       );
     }
-    if (!form.title.value) {
-      errorMessage = errorMessage.set('title', t('message:titleIsRequired'));
-    }
-    if (!form.phone.value) {
-      errorMessage = errorMessage.set('phone', t('message:phoneIsRequired'));
-    } else if (form.phone.value && form.phone.value !== '') {
-      let regName = /^([\d+(-][-\d+\s\/)(*.·]{8,25}(\s*ext\s*\d{3,})?)$/i;
-      if (!regName.test(form.phone.value)) {
-        errorMessage = errorMessage.set('phone', t('message:phoneFormatError'));
-      }
-    }
-    if (!form.zipCode.value) {
-      errorMessage = errorMessage.set(
-        'zipCode',
-        t('message:Zip Code Is Required')
-      );
-    } else {
-      let regCode = /^[0-9]*$/;
-      if (!regCode.test(form.zipCode.value)) {
-        errorMessage = errorMessage.set(
-          'zipCode',
-          t('message:Please enter a digital zip code')
-        );
-      }
-    }
+
     // if (!form.title.value) {
     //   errorMessage = errorMessage.set('title', t('message:titleIsRequired'));
     // }
@@ -247,19 +171,18 @@ class AddClientContactForm extends Component {
     // if (!form.title.value) {
     //   errorMessage = errorMessage.set('title', t('message:titleIsRequired'));
     // }
-    // if (form.phone.value && form.phone.value !== '') {
-    //   let regName = /^([\d+(-][-\d+\s\/)(*.·]{8,25}(\s*ext\s*\d{3,})?)$/i;
-    //   if (!regName.test(form.phone.value)) {
-    //     errorMessage = errorMessage.set('phone', t('message:phoneFormatError'));
-    //   }
-    // }
+    if (form.phone.value && form.phone.value !== '') {
+      let regName = /^([\d+(-][-\d+\s\/)(*.·]{8,25}(\s*ext\s*\d{3,})?)$/i;
+      if (!regName.test(form.phone.value)) {
+        errorMessage = errorMessage.set('phone', t('message:phoneFormatError'));
+      }
+    }
     if (form.email.value && !isEmail(form.email.value.trim())) {
       errorMessage = errorMessage.set('email', t('message:emailIsInvalid'));
     }
     if (!form.email.value) {
       errorMessage = errorMessage.set('email', t('message:emailIsRequired'));
     }
-
     return errorMessage.size > 0 && errorMessage;
   };
 
@@ -269,33 +192,19 @@ class AddClientContactForm extends Component {
     });
   };
   getAddressId = (id, value) => {
-    console.log('id', id);
-    console.log('value', value);
-
+    console.log(id);
     this.setState({
       addressId: id,
       addressValue: value,
     });
   };
-  // cityId = (id) => {
-  //   this.setState({
-  //     addressId: id,
-  //   });
-  // };
   activeChecked = () => {
     this.setState({
       active: !this.state.active,
     });
   };
-
   render() {
-    const {
-      errorMessage,
-      processing,
-      addAddressDialog,
-      comments,
-      addressStatus,
-    } = this.state;
+    const { errorMessage, processing, addAddressDialog, comments } = this.state;
     const {
       t,
       client,
@@ -329,7 +238,7 @@ class AddClientContactForm extends Component {
                   }}
                 />
               }
-              label={t('common:Active')}
+              label="Active"
               labelPlacement="start"
             />
           ) : (
@@ -346,27 +255,14 @@ class AddClientContactForm extends Component {
               <div className="small-6 columns">
                 <FormInput
                   name="name"
-                  label={t('field:First Name')}
-                  defaultValue={client.get('firstName')}
+                  label={t('field:name')}
+                  defaultValue={client.get('name')}
                   isRequired={true}
                   onBlur={() => this.removeErrorMessage('name')}
                   errorMessage={errorMessage.get('name')}
                   maxLength={200}
                 />
               </div>
-              <div className="small-6 columns">
-                <FormInput
-                  name="LastName"
-                  label={t('field:Last Name')}
-                  defaultValue={client.get('lastName')}
-                  isRequired={true}
-                  onBlur={() => this.removeErrorMessage('LastName')}
-                  errorMessage={errorMessage.get('LastName')}
-                  maxlength={200}
-                />
-              </div>
-            </div>
-            <div className="row flex-child-auto">
               <div className="small-6 columns">
                 <FormReactSelectContainer
                   label={t('field:Contact Category')}
@@ -410,15 +306,22 @@ class AddClientContactForm extends Component {
                   ''
                 )}
               </div>
+            </div>
+            <div className="row flex-child-auto">
               <div className="small-6 columns">
                 <FormInput
                   name="title"
                   label={t('field:title')}
                   defaultValue={client.get('title')}
                   maxLength={200}
-                  isRequired={true}
-                  onBlur={() => this.removeErrorMessage('title')}
-                  errorMessage={errorMessage.get('title')}
+                />
+              </div>
+              <div className="small-6 columns">
+                <FormInput
+                  name="department"
+                  label={t('field:Department')}
+                  defaultValue={client.get('departmentTier1')}
+                  maxLength={200}
                 />
               </div>
             </div>
@@ -437,30 +340,6 @@ class AddClientContactForm extends Component {
                   label={t('field:Business Unit')}
                   defaultValue={client.get('businessUnit')}
                   maxLength={200}
-                />
-              </div>
-            </div>
-            <div className="row flex-child-auto">
-              <div className="small-6 columns">
-                <FormInput
-                  name="department"
-                  label={t('field:Department')}
-                  defaultValue={client.get('departmentTier1')}
-                  maxlength={200}
-                />
-              </div>
-              <div className="small-6  columns">
-                <FormInput
-                  name="LinkedInProfile"
-                  label={t('field:LinkedIn Profile')}
-                  onChange={(e) => {
-                    this.setState({
-                      profile: e.target.value,
-                    });
-                  }}
-                  defaultValue={client.get('profile') || ''}
-                  errorMessage={errorMessage.get('profile')}
-                  onBlur={() => this.removeErrorMessage('profile')}
                 />
               </div>
             </div>
@@ -489,7 +368,6 @@ class AddClientContactForm extends Component {
                   <FormInput
                     name="phone"
                     label={t('field:phone')}
-                    isRequired={true}
                     defaultValue={client.get('phone') || null}
                     onBlur={() => this.removeErrorMessage('phone')}
                     errorMessage={errorMessage.get('phone')}
@@ -498,20 +376,24 @@ class AddClientContactForm extends Component {
               </div>
             </div>
             <div className="row flex-child-auto">
-              <div className="small-6 columns">
+              <div className="small-6  columns">
                 <FormInput
-                  name="zipCode"
-                  label={t('field:Zip Code')}
-                  defaultValue={client.get('zipcode') || null}
-                  errorMessage={errorMessage.get('zipCode')}
-                  onBlur={() => this.removeErrorMessage('zipCode')}
-                  isRequired={true}
+                  name="LinkedInProfile"
+                  label={t('field:LinkedIn Profile')}
+                  onChange={(e) => {
+                    this.setState({
+                      profile: e.target.value,
+                    });
+                  }}
+                  defaultValue={client.get('profile') || ''}
+                  errorMessage={errorMessage.get('profile')}
+                  onBlur={() => this.removeErrorMessage('profile')}
                 />
               </div>
               <div className="small-6 columns">
                 <FormInput
                   name="WeChat"
-                  label={t('field:wechat')}
+                  label={t('field:WeChat')}
                   defaultValue={client.get('wechat') || null}
                   errorMessage={errorMessage.get('wechat')}
                   onBlur={() => this.removeErrorMessage('wechat')}
@@ -522,10 +404,7 @@ class AddClientContactForm extends Component {
               {/* {props.addressShow ? ( */}
               <div className="small-12 columns">
                 <div>
-                  <div style={{ fontSize: '12px', float: 'left' }}>
-                    Working Address
-                    <span style={{ color: 'red', marginLeft: '5px' }}>*</span>
-                  </div>
+                  <div style={{ fontSize: '12px', float: 'left' }}>Address</div>
                   <div style={{ float: 'right' }}>
                     <Button
                       style={{ fontSize: '12px', padding: '0px' }}
@@ -534,12 +413,11 @@ class AddClientContactForm extends Component {
                         this.props.addAddress();
                       }}
                     >
-                      {t('tab:Add Address')}
+                      Add Address
                     </Button>
                   </div>
                 </div>
                 <AddressDropDown
-                  // cityId={this.cityId}
                   companyId={companyId}
                   companyType={companyType}
                   addressValue={this.state.addressValue}
@@ -549,18 +427,6 @@ class AddClientContactForm extends Component {
                     this.getAddressId(id, value);
                   }}
                 />
-                {addressStatus ? (
-                  <div
-                    style={{
-                      color: '#cc4b37',
-                      marginTop: '5px',
-                      fontSize: '0.75rem',
-                      fontWeight: 'bold',
-                    }}
-                  >
-                    Working Address is required
-                  </div>
-                ) : null}
               </div>
               {/* ) : (
                 ''
@@ -570,20 +436,13 @@ class AddClientContactForm extends Component {
                   label={t('field:Last Contacted Date')}
                 >
                   <DatePicker
-                    maxDate={moment(this.state.endData)}
                     selected={this.state.lastContactDate}
                     onChange={(lastContactDate) => {
-                      let dataTime = moment().endOf('day').format('x'); //当天时间23：59：59时间戳
-                      //当前选取的时间戳
-                      let endTime = moment(lastContactDate)
-                        .endOf('day')
-                        .format('x');
-                      if (Number(endTime) <= Number(dataTime)) {
-                        this.setState({
-                          lastContactDate,
-                        });
-                      }
+                      this.setState({
+                        lastContactDate,
+                      });
                     }}
+                    maxDate={moment(new Date())}
                     placeholderText="mm/dd/yyyy"
                   />
                 </FormReactSelectContainer>

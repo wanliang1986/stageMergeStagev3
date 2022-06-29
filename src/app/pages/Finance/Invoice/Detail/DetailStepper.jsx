@@ -34,9 +34,6 @@ const styles = (theme) => ({
     opacity: 0.58,
     transform: `rotateZ(-30deg)`,
   },
-  disabledLabel: {
-    opacity: 0.6,
-  },
 });
 
 const StyledConnector = withStyles({
@@ -74,36 +71,29 @@ const useCustomStepIconStyles = makeStyles({
       color: '#79D9A1',
     },
   },
-  completedIcon: {
+  active: {},
+  completed: {},
+});
+const useCustomStepIconStyles2 = makeStyles({
+  root: {
     color: '#37c771',
     boxSizing: 'border-box',
-    border: '2px solid',
+    border: '2px solid #37c771',
     display: 'flex',
     borderRadius: '50%',
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(134, 240, 178, 0.22)',
-    '&$disabled': {
-      color: '#8c8c8c',
-      backgroundColor: `rgba(196, 196, 196, 0.42)`,
-    },
   },
-  active: {},
-  completed: {},
-  disabled: {},
 });
 
 function CustomStepIcon(props) {
   const classes = useCustomStepIconStyles();
-  console.log(props);
+  const classes2 = useCustomStepIconStyles2();
 
   if (props.completed) {
     return (
-      <div
-        className={clsx(classes.root, classes.completedIcon, {
-          [classes.disabled]: props.disabled,
-        })}
-      >
+      <div className={clsx(classes.root, classes2.root)}>
         <CompleteIcon />
       </div>
     );
@@ -121,17 +111,10 @@ class DetailStepper extends Component {
     };
   }
 
-  componentDidUpdate(
-    prevProps: Readonly<P>,
-    prevState: Readonly<S>,
-    snapshot: SS
-  ) {
-    if (this.props.voidActivity && this.state.activeStep !== 0) {
-      this.setState({ activeStep: 0 });
-    }
-  }
-
   showClickBack = (index) => {
+    if (this.props.voidActivity) {
+      return;
+    }
     let currentIndex = this.state.activeStep;
     let appearFrom = '';
     if (currentIndex < index) {
@@ -146,15 +129,15 @@ class DetailStepper extends Component {
   };
 
   getSteps = () => {
-    const { t, createActivity, paidActivities } = this.props;
+    const { t, createActivity, paidActivity } = this.props;
     return [
       {
-        label: t('tab:Create'),
+        label: t('Create'),
         activity: createActivity,
       },
       {
-        label: t('tab:Get Paid'),
-        activity: paidActivities.size > 0,
+        label: t('Get Paid'),
+        activity: paidActivity,
       },
     ];
   };
@@ -166,11 +149,9 @@ class DetailStepper extends Component {
       invoice,
       activities,
       createActivity,
-      paidActivities,
-      creditActivity,
+      paidActivity,
       voidActivity,
       props,
-      t,
     } = this.props;
     console.log('sssclass', activities.toJS());
     const { appearFrom, activeStep } = this.state;
@@ -187,20 +168,10 @@ class DetailStepper extends Component {
         >
           {steps.map(({ label, activity }, index) => {
             return (
-              <Step
-                key={label}
-                completed={Boolean(activity)}
-                disabled={!!voidActivity}
-              >
+              <Step key={label} completed={Boolean(activity)}>
                 <StepButton onClick={() => this.showClickBack(index)}>
-                  <StepLabel
-                    StepIconComponent={CustomStepIcon}
-                    className={clsx({
-                      [classes.disabledLabel]: !!voidActivity,
-                    })}
-                    StepIconProps={{ disabled: !!voidActivity }}
-                  >
-                    <Typography variant="subtitle2">{label}</Typography>
+                  <StepLabel StepIconComponent={CustomStepIcon}>
+                    {label}
                   </StepLabel>
                 </StepButton>
               </Step>
@@ -209,17 +180,12 @@ class DetailStepper extends Component {
         </Stepper>
 
         {activeStep === 0 && (
-          <StepperController1
-            data={createActivity}
-            appearFrom={appearFrom}
-            voidActivity={voidActivity}
-          />
+          <StepperController1 data={createActivity} appearFrom={appearFrom} />
         )}
 
         {activeStep === 1 && (
           <StepperController3
-            paidActivities={paidActivities}
-            creditActivity={creditActivity}
+            data={paidActivity}
             appearFrom={appearFrom}
             invoice={invoice}
             {...props}
@@ -232,7 +198,7 @@ class DetailStepper extends Component {
               color="inherit"
               style={{ fontSize: 'inherit', fontWeight: 'bold' }}
             >
-              {t('tab:VOID')}
+              VOID
             </Typography>
           </div>
         )}
@@ -248,11 +214,8 @@ const mapStateToProps = (state, { invoice }) => {
     createActivity: activities.find(
       (a) => a.get('invoiceActivityType') === 'CREATE'
     ),
-    paidActivities: activities.filter(
+    paidActivity: activities.find(
       (a) => a.get('invoiceActivityType') === 'PAYMENT'
-    ),
-    creditActivity: activities.find(
-      (a) => a.get('invoiceActivityType') === 'CREDIT_APPLY'
     ),
     voidActivity: activities.find(
       (a) => a.get('invoiceActivityType') === 'VOID'

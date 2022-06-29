@@ -224,7 +224,8 @@ class MyStoppedCandidates extends React.Component {
           style={{ marginBottom: 6, marginTop: -2 }}
         >
           <Typography variant="h6">
-            {t('tab:My Inactive Candidate Status Monitor')}
+            {/* {t('tab:myStoppedCandidatesMonitor')} */}
+            My Inactive Candidate Status Monitor
           </Typography>
           <StyledTooltip
             arrow

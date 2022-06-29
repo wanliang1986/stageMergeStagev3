@@ -39,7 +39,7 @@ class ProjectExperience extends React.Component {
     let arr = [...this.state.projectList];
     let add = [...this.state.copyProject];
     arr.push({
-      id: new Date().getTime(),
+      proId: new Date().getTime(),
       startDate: null,
       endDate: null,
       projectName: '',
@@ -47,7 +47,7 @@ class ProjectExperience extends React.Component {
       description: '',
     });
     add.push({
-      id: new Date().getTime(),
+      proId: new Date().getTime(),
       startDate: null,
       endDate: null,
       projectName: '',
@@ -105,7 +105,6 @@ class ProjectExperience extends React.Component {
       copyProject: add,
     });
     this.props.removeErrorMessage('projects');
-    this.props.removeErrorMessage('projectnewInfor');
   };
   changeListTwo = (date, index) => {
     let arr = [...this.state.projectList];
@@ -117,7 +116,6 @@ class ProjectExperience extends React.Component {
       copyProject: add,
     });
     this.props.removeErrorMessage('projects');
-    this.props.removeErrorMessage('projectnewInfor');
   };
 
   changeListDes = (e, index) => {
@@ -140,10 +138,10 @@ class ProjectExperience extends React.Component {
       <div>
         {projectList.length === 0 ? (
           <div className="flex-container align-justify align-middle">
-            <Typography variant="h6"> {t('tab:Project Experience')}</Typography>
+            <Typography variant="h6">{'Project Experience'}</Typography>
             <div className={classes.flex} onClick={this.addprojectList}>
               <AddIcon style={{ color: '#3398dc', fontSize: '21px' }} />
-              <p style={{ color: '#3398dc', marginTop: 0 }}> {t('tab:Add')}</p>
+              <p style={{ color: '#3398dc', marginTop: 0 }}>{'Add'}</p>
             </div>
           </div>
         ) : null}
@@ -154,25 +152,13 @@ class ProjectExperience extends React.Component {
               <>
                 <div id={`projects_${index}`}></div>
                 <div
-                  key={item.id}
+                  key={item.proId}
                   style={{ marginBottom: 40, position: 'relative' }}
                 >
                   <div className="flex-container align-justify align-middle">
                     {index === 0 ? (
                       <Typography variant="h6">
-                        {t('tab:Project Experience')}
-                        {errorMessage.get('projectnewDate') ? (
-                          <div
-                            style={{
-                              color: '#CC4B37',
-                              fontWeight: 'bold',
-                              fontSize: '0.75rem',
-                              marginBottom: '1rem',
-                            }}
-                          >
-                            {errorMessage.get('projectnewInfor')}
-                          </div>
-                        ) : null}
+                        {'Project Experience'}
                       </Typography>
                     ) : (
                       <Typography variant="h6">{''}</Typography>
@@ -198,9 +184,7 @@ class ProjectExperience extends React.Component {
                               <DeleteOutlineIcon
                                 style={{ color: '#e85919', fontSize: '21px' }}
                               />
-                              <p style={{ color: '#e85919' }}>
-                                {t('tab:Delete')}
-                              </p>
+                              <p style={{ color: '#e85919' }}>{'Delete'}</p>
                             </div>
                           ) : null}
 
@@ -212,7 +196,7 @@ class ProjectExperience extends React.Component {
                               style={{ color: '#3398dc', fontSize: '21px' }}
                             />
                             <p style={{ color: '#3398dc', marginTop: 0 }}>
-                              {t('tab:Add')}
+                              {'Add'}
                             </p>
                           </div>
                         </div>
@@ -227,7 +211,7 @@ class ProjectExperience extends React.Component {
                         <DeleteOutlineIcon
                           style={{ color: '#e85919', fontSize: '21px' }}
                         />
-                        <p style={{ color: '#e85919' }}>{t('tab:Delete')}</p>
+                        <p style={{ color: '#e85919' }}>{'Delete'}</p>
                       </div>
                     )}
                   </div>
@@ -247,6 +231,7 @@ class ProjectExperience extends React.Component {
                         selected={
                           item.startDate ? moment(item.startDate) : null
                         }
+                        maxDate={item.endDate && moment(item.endDate)}
                         onChange={(date) => {
                           this.changeListOne(date, index);
                         }}
@@ -258,13 +243,13 @@ class ProjectExperience extends React.Component {
                         -
                       </div>
                     </div>
+
                     <div className="small-3 columns">
                       <DatePicker
                         customInput={
                           <FormInput label="&nbsp;" name="endDate" />
                         }
                         minDate={item.startDate ? moment(item.startDate) : null}
-                        maxDate={moment(this.state.endDate)}
                         className={classes.fullWidth}
                         selected={item.endDate ? moment(item.endDate) : null}
                         onChange={(date) => {
@@ -272,19 +257,6 @@ class ProjectExperience extends React.Component {
                         }}
                         placeholderText="mm/dd/yyyy"
                       />
-                      {errorMessage.get('projectDate') &&
-                      errorMessage.get('projectDate').includes(index) ? (
-                        <div
-                          style={{
-                            color: '#CC4B37',
-                            fontWeight: 'bold',
-                            fontSize: '0.75rem',
-                            marginBottom: '1rem',
-                          }}
-                        >
-                          {errorMessage.get('projectInfor')}
-                        </div>
-                      ) : null}
                     </div>
 
                     <div className="small-5 columns"></div>
@@ -294,7 +266,7 @@ class ProjectExperience extends React.Component {
                     <div className="small-6 columns">
                       <FormInput
                         name="projectName"
-                        label={t('tab:Project name')}
+                        label="Project Name"
                         value={item.projectName}
                         maxlength={200}
                         onChange={(e) => {
@@ -305,7 +277,7 @@ class ProjectExperience extends React.Component {
                     <div className="small-6 columns">
                       <FormInput
                         name="projectTitle"
-                        label={t('tab:Title')}
+                        label="Title"
                         value={item.title}
                         maxlength={200}
                         onChange={(e) => {
@@ -318,7 +290,7 @@ class ProjectExperience extends React.Component {
                   <div className="row expanded small-12">
                     <div className="small-12 columns">
                       <FormTextArea
-                        label={t('tab:Project description')}
+                        label={t('field:Project description')}
                         name="description"
                         rows={4}
                         value={item.description}

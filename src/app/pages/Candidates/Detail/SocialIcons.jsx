@@ -70,8 +70,9 @@ class SocialIcons extends React.PureComponent {
                 contact.get('type') === CONTACT_TYPES.LinkedIn &&
                 contact.get('info')
               ) {
-                const publicIdentifier = JSON.parse(contact.get('info'))
-                  .publicIdentifier;
+                const publicIdentifier = JSON.parse(
+                  contact.get('info')
+                ).publicIdentifier;
                 if (publicIdentifier) {
                   return (
                     <a

@@ -17,31 +17,12 @@ const styles = (theme) => ({
       gridAutoFlow: 'column', //
     },
   },
-  rightContainer: {
-    height: '100%',
-    display: 'grid',
-    gridGap: '16px',
-    gridAutoRows: '100%',
-    alignContent: 'stretch',
-    '& > div': {
-      // overflow: 'auto',
-    },
-    gridAutoFlow: 'row', //
-    [theme.breakpoints.up('sm')]: {
-      gridAutoFlow: 'column', //
-    },
-  },
 });
 
 class CandidateLayout extends React.PureComponent {
   render() {
-    const { classes, children, bigFlag } = this.props;
-
-    return (
-      <div className={bigFlag ? classes.rightContainer : classes.container}>
-        {children}
-      </div>
-    );
+    const { classes, children } = this.props;
+    return <div className={classes.container}>{children}</div>;
   }
 }
 

@@ -51,7 +51,7 @@ class EducationInfor extends React.Component {
     let arr = [...this.state.educationList];
     let add = [...this.state.copyEduList];
     arr.push({
-      id: new Date().getTime(),
+      eduId: new Date().getTime(),
       current: false,
       startDate: null,
       endDate: null,
@@ -60,7 +60,7 @@ class EducationInfor extends React.Component {
       collegeName: '',
     });
     add.push({
-      id: new Date().getTime(),
+      eduId: new Date().getTime(),
       current: false,
       startDate: null,
       endDate: null,
@@ -172,12 +172,10 @@ class EducationInfor extends React.Component {
       <div>
         {educationList.length === 0 ? (
           <div className="flex-container align-justify align-middle">
-            <Typography variant="h6">
-              {t('tab:Education Information')}
-            </Typography>
+            <Typography variant="h6">{'Education Information'}</Typography>
             <div className={classes.flex} onClick={this.addeducationList}>
               <AddIcon style={{ color: '#3398dc', fontSize: '21px' }} />
-              <p style={{ color: '#3398dc', marginTop: 0 }}> {t('tab:Add')}</p>
+              <p style={{ color: '#3398dc', marginTop: 0 }}>{'Add'}</p>
             </div>
           </div>
         ) : null}
@@ -188,13 +186,13 @@ class EducationInfor extends React.Component {
               <>
                 <div id={`educations_${index}`}></div>
                 <div
-                  key={item.id}
+                  key={item.eduId}
                   style={{ marginBottom: 40, position: 'relative' }}
                 >
                   <div className="flex-container align-justify align-middle">
                     {index === 0 ? (
                       <Typography variant="h6">
-                        {t('tab:Education Information')}
+                        {'Education Information'}
                       </Typography>
                     ) : (
                       <Typography variant="h6">{''}</Typography>
@@ -219,10 +217,7 @@ class EducationInfor extends React.Component {
                             <DeleteOutlineIcon
                               style={{ color: '#e85919', fontSize: '21px' }}
                             />
-                            <p style={{ color: '#e85919' }}>
-                              {' '}
-                              {t('tab:Delete')}
-                            </p>
+                            <p style={{ color: '#e85919' }}>{'Delete'}</p>
                           </div>
 
                           <div
@@ -233,7 +228,7 @@ class EducationInfor extends React.Component {
                               style={{ color: '#3398dc', fontSize: '21px' }}
                             />
                             <p style={{ color: '#3398dc', marginTop: 0 }}>
-                              {t('tab:Add')}
+                              {'Add'}
                             </p>
                           </div>
                         </>
@@ -247,7 +242,7 @@ class EducationInfor extends React.Component {
                           <DeleteOutlineIcon
                             style={{ color: '#e85919', fontSize: '21px' }}
                           />
-                          <p style={{ color: '#e85919' }}>{t('tab:Delete')}</p>
+                          <p style={{ color: '#e85919' }}>{'Delete'}</p>
                         </div>
                       )}
                     </div>
@@ -268,6 +263,7 @@ class EducationInfor extends React.Component {
                         selected={
                           item.startDate ? moment(item.startDate) : null
                         }
+                        maxDate={item.endDate && moment(item.endDate)}
                         onChange={(date) => {
                           this.changeListOne(date, index);
                         }}
@@ -300,19 +296,6 @@ class EducationInfor extends React.Component {
                         }}
                         placeholderText="mm/dd/yyyy"
                       />
-                      {errorMessage.get('educationDate') &&
-                      errorMessage.get('educationDate').includes(index) ? (
-                        <div
-                          style={{
-                            color: '#CC4B37',
-                            fontWeight: 'bold',
-                            fontSize: '0.75rem',
-                            marginBottom: '1rem',
-                          }}
-                        >
-                          {errorMessage.get('educationInfor')}
-                        </div>
-                      ) : null}
                     </div>
                     {/* )} */}
 
@@ -344,7 +327,7 @@ class EducationInfor extends React.Component {
                     <div className="small-12 columns">
                       <FormInput
                         name="major"
-                        label={t('tab:Major')}
+                        label="Major"
                         value={item.majorName}
                         maxlength={255}
                         onChange={(e) => {
@@ -356,7 +339,7 @@ class EducationInfor extends React.Component {
 
                   <div className="row expanded small-12">
                     <div className="small-6 columns">
-                      <FormReactSelectContainer label={t('tab:Degree')}>
+                      <FormReactSelectContainer label={t('field:Degree')}>
                         <Select
                           options={degreeList}
                           value={item.degreeLevel}
@@ -374,7 +357,7 @@ class EducationInfor extends React.Component {
                     <div className="small-6 columns">
                       <FormInput
                         name="eduSchool"
-                        label={t('tab:School')}
+                        label="School"
                         maxlength={255}
                         value={item.collegeName}
                         onChange={(e) => {

@@ -33,13 +33,9 @@ import {
   candidateRequestFilter,
   commonPoolFilterSearch,
 } from '../../../../utils/search';
-import * as ActionTypes from '../../../constants/actionTypes';
-
 // import { commonPoolColumns } from '../../../../utils/newCandidate';
 import { commonPoolColumns } from '../../../../utils/search';
 import loadsh from 'lodash';
-
-import { withTranslation } from 'react-i18next';
 
 const styles = {
   root: {
@@ -50,12 +46,10 @@ const styles = {
   },
   left_box: {
     width: '90%',
-    marginRight: '15px',
     '& .list_box': {
       display: 'flex !important',
       alignItems: 'center !important',
       width: '100%',
-
       flexWrap: 'wrap',
       minHeight: '25px',
       '& span:nth-last-child(1)': {
@@ -276,53 +270,28 @@ class FilterSearch extends Component {
   };
 
   // 删除检索条件
-  handleDelete = (data, e, index) => {
-    let filterStrArr = [...this.state.filterStr];
-    var arrIndex = [];
-    for (let i in filterStrArr) {
-      arrIndex.push(filterStrArr[i]);
-    }
-    arrIndex.splice(index, 1);
-    this.props.dispatch({
-      type: ActionTypes.FILTER_ARR_INDEX,
-      payload: arrIndex,
-    });
-    // let zjArr = [];
-    // xzArr.forEach((item, index2) => {
-    //   if (index === index2) {
-
-    //   }
-    // });
-    // console.log(zjArr);
-
+  handleDelete = (data, e) => {
     // 因为degrees hight school 字段和下面方式有冲突  所以暂时写个判断
     let flag = 'Degrees';
-
     if (data.indexOf(flag) > -1) {
       let res = commonPoolColumns.filter((item) => {
         return item.colName == 'Degrees';
       })[0];
-      this.props.dispatch(commonDeleteFilter({ type: res.field }, arrIndex));
+      this.props.dispatch(commonDeleteFilter({ type: res.field }));
       console.log('--------------删除filter接口调用');
     } else {
       let items = commonPoolColumns.filter((item) => {
         return data.indexOf(item.colName) > -1;
       })[0];
       console.log(items);
-      this.props.dispatch(commonDeleteFilter({ type: items.field }, arrIndex));
+      this.props.dispatch(commonDeleteFilter({ type: items.field }));
       console.log('--------------删除filter接口调用');
     }
-
-    // xzArr.forEach((item,index2) => {
-
-    // })
-    console.log(this.state.filterStr);
   };
 
   // 清除检索条件
   handleClearAll = () => {
     this.props.dispatch(commonPoolClearAll());
-
     console.log('--------------清空filter接口调用');
   };
 
@@ -412,10 +381,7 @@ class FilterSearch extends Component {
       types,
       ...props
     } = this.props;
-    console.log('types', types);
-    console.log('arrs', arrs);
     console.log('Newcolumns', Newcolumns);
-    console.log(this.state.filterStr);
     return (
       <div style={{ ...styles.search }}>
         <Card variant="outlined" className={classes.card}>
@@ -481,7 +447,7 @@ class FilterSearch extends Component {
                         color="default"
                         size="small"
                         label={item}
-                        onDelete={(e) => this.handleDelete(item, e, index)}
+                        onDelete={(e) => this.handleDelete(item, e)}
                         // 是否弹出回显气泡
                         // onClick={(e) => this.handleClickFilter(item, e, 'update')}
                         deleteIcon={<ClearIcon color="disabled" />}
@@ -533,7 +499,7 @@ class FilterSearch extends Component {
                 color="primary"
                 onClick={this.handleAdvanced}
               >
-                {this.props?.t('tab:Advanced Filters')}
+                Advanced Filters
               </Button>
               <Button
                 style={{ width: '100%', height: 28 }}
@@ -541,7 +507,7 @@ class FilterSearch extends Component {
                 color="primary"
                 onClick={this.handleSaved}
               >
-                {this.props?.t('tab:Saved Filters')}
+                Saved Filters
               </Button>
             </div>
           </div>
@@ -574,6 +540,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default withTranslation(['tab'])(
-  connect(mapStateToProps)(withStyles(styles)(FilterSearch))
-);
+export default connect(mapStateToProps)(withStyles(styles)(FilterSearch));

@@ -3,7 +3,6 @@ import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import { dateFormat2 } from '../../../../../../utils';
 import * as Color from '../../../../../styles/Colors';
-import { withTranslation } from 'react-i18next';
 
 const styles = {
   wrapper: {
@@ -12,7 +11,7 @@ const styles = {
     margin: '20px 24px',
     position: 'relative',
     border: '1px solid transparent',
-    borderColor: '#e2e2e2',
+    borderColor: Color.GALLERY,
     borderRadius: '5px',
     '&::before, &::after': {
       bottom: '100%',
@@ -30,7 +29,7 @@ const styles = {
       marginLeft: '-15px',
     },
     '&::before': {
-      borderBottomColor: `#e2e2e2`,
+      borderBottomColor: Color.GALLERY,
       borderWidth: '17px',
       borderBottomWidth: '25px',
       marginLeft: '-17px',
@@ -66,7 +65,7 @@ class StepperController1 extends Component {
   }
 
   render() {
-    const { classes, data, voidActivity, t } = this.props;
+    const { classes, data } = this.props;
     if (!data) {
       return null;
     }
@@ -76,48 +75,19 @@ class StepperController1 extends Component {
         <section className={classes.wrapper} style={this.state.transform}>
           <Typography
             variant="h6"
+            style={{ fontWeight: '400' }}
             className={classes.headerColumn}
-            gutterBottom
           >
-            {t('tab:Create')}
-          </Typography>
-
-          <Typography variant="body2" gutterBottom={!data.get('note')}>
-            This invoice is created by {data.get('userFullName')} on{' '}
-            {dateFormat2(data.get('createdDate'))}
-          </Typography>
-          {data.get('note') && (
-            <Typography
-              variant="body2"
-              gutterBottom
-              style={{
-                textIndent: '-2rem',
-                paddingLeft: '2rem',
-                overflowWrap: 'break-word',
-              }}
-            >
-              Note: {data.get('note')}
+            Create
+            <Typography style={{ marginTop: '8px' }}>
+              This invoice is created by {data.get('userFullName')} on{' '}
+              {dateFormat2(data.get('createdDate'))}
             </Typography>
-          )}
-          {voidActivity && (
-            <Typography
-              variant="body2"
-              style={{
-                textIndent: '-2rem',
-                paddingLeft: '2rem',
-                overflowWrap: 'break-word',
-              }}
-            >
-              <b style={{ fontWeight: 500 }}>Void:&nbsp;</b>
-              The invoice was void on{' '}
-              {dateFormat2(voidActivity.get('createdDate'))},{' '}
-              {voidActivity.get('note')}.
-            </Typography>
-          )}
+          </Typography>
         </section>
       </Fragment>
     );
   }
 }
 
-export default withTranslation('tab')(withStyles(styles)(StepperController1));
+export default withStyles(styles)(StepperController1);

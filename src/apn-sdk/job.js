@@ -79,7 +79,7 @@ export const commonTalent = (esId) => {
     },
     body: JSON.stringify(query),
   };
-  return authRequest.sendV2(`/recommend-jobs-for-common-talent/esId`, config);
+  return authRequest.jobSend(`/recommend-jobs-for-common-talent/esId`, config);
 };
 
 // job detail
@@ -89,7 +89,7 @@ export const getJob = (jobId) => {
     headers: {},
   };
 
-  return authRequest.sendV2(`/jobs/${jobId}`, config);
+  return authRequest.jobSend(`/jobs/${jobId}`, config);
 };
 
 export const getJobApplications = (jobId) => {
@@ -98,7 +98,10 @@ export const getJobApplications = (jobId) => {
     headers: {},
   };
 
-  return authRequest.send(`/applications/job/${jobId}`, config);
+  return authRequest.applicationSendV1(
+    `/talent-recruitment-processes/jobId/${jobId}`,
+    config
+  );
 };
 
 export const upsertJob = (job, jobId = '') => {
@@ -119,7 +122,7 @@ export const getJobParserOutput = (uuid, type) => {
     method: 'GET',
     headers: {},
   };
-  return authRequest.sendV2(`/parsers/jd/mq/uuid/${uuid}/${type}`, config);
+  return authRequest.parserSendV2(`/parse/jd/uuid/${uuid}/${type}`, config);
 };
 
 export const parseJDAsync = (jdFile, uuid) => {
@@ -131,7 +134,7 @@ export const parseJDAsync = (jdFile, uuid) => {
     headers: {},
     body: requestBody,
   };
-  return authRequest.sendV2(`/parsers/jd/mq`, config);
+  return authRequest.parserSendV2(`/parse/jd`, config);
 };
 
 export const parseJD = async (jdFile, cb) => {
@@ -240,7 +243,7 @@ export const parseJDTextAsync = (jdText, uuid) => {
     headers: {},
     body: requestBody,
   };
-  return authRequest.sendV2(`/parsers/jd-text/mq`, config);
+  return authRequest.parserSendV2(`/parse/jd-text`, config);
 };
 
 export const parseJDText = async (jdText, cb) => {
@@ -406,7 +409,7 @@ export const parseJDTextAsyncV1 = (jdText) => {
     headers: {},
     body: jdText,
   };
-  return authRequest.send(`/parsers/jd-text/mq`, config);
+  return authRequest.send(`/parsers/jd-text`, config);
 };
 
 export const parseJDTextV1 = async (jdText, cb) => {
@@ -474,7 +477,7 @@ export const assignUsersToJobsMulti = (userRelations) => {
     body: JSON.stringify(userRelations),
   };
 
-  return authRequest.send(`/user-job-relations/multi-requests`, config);
+  return authRequest.jobSendV1(`/user-job-relations/multi-requests`, config);
 };
 
 export const deleteJobUserRelation = (userRelationId) => {
@@ -496,7 +499,7 @@ export const addJobNote = (note) => {
     },
     body: JSON.stringify(note),
   };
-  return authRequest.send(`/job-notes`, config);
+  return authRequest.jobSendV1(`/job-notes`, config);
 };
 
 export const editJobNote = (note, id) => {
@@ -507,7 +510,7 @@ export const editJobNote = (note, id) => {
     },
     body: JSON.stringify(note),
   };
-  return authRequest.send(`/job-notes/${id}`, config);
+  return authRequest.jobSendV1(`/job-notes/${id}`, config);
 };
 
 export const upsertJobInterviewQuestion = (jobQuestion, jobQuestionId = '') => {
@@ -543,7 +546,7 @@ export const getJobFunction = () => {
     method: 'GET',
     headers: {},
   };
-  return authRequest.sendV2(`/dict/1`, config);
+  return authRequest.jobSend(`/dict/1`, config);
 };
 
 export const getAllProjectTeam = () => {
@@ -551,28 +554,28 @@ export const getAllProjectTeam = () => {
     method: 'GET',
     headers: {},
   };
-  return authRequest.send(`/project-teams`, config);
+  return authRequest.companySend(`/company/project-teams`, config);
 };
 export const getAllProjectTeamUserByID = (id) => {
   const config = {
     method: 'GET',
     headers: {},
   };
-  return authRequest.send(`/project-teams/users/${id}`, config);
+  return authRequest.companySend(`/company/project-teams/users/${id}`, config);
 };
 export const getAllDegree = () => {
   const config = {
     method: 'GET',
     headers: {},
   };
-  return authRequest.sendV2(`/dict/65`, config);
+  return authRequest.jobSend(`/dict/65`, config);
 };
 export const getAllLanguages = () => {
   const config = {
     method: 'GET',
     headers: {},
   };
-  return authRequest.sendV2(`/dict/38`, config);
+  return authRequest.jobSend(`/dict/38`, config);
 };
 
 export const upsertJob_LOCAL = (job, jobId = '') => {
@@ -584,8 +587,8 @@ export const upsertJob_LOCAL = (job, jobId = '') => {
     body: JSON.stringify(job),
   };
   if (jobId) {
-    return authRequest.sendV2(`/jobs/${jobId}`, config);
+    return authRequest.jobSend(`/jobs/${jobId}`, config);
   } else {
-    return authRequest.sendV2(`/jobs`, config);
+    return authRequest.jobSend(`/jobs`, config);
   }
 };

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import { withTranslation } from 'react-i18next';
+
 const styles = {
   table: {
     height: 40,
@@ -26,7 +26,7 @@ class PipelineColumsGroup extends Component {
 
   // just thead
   render() {
-    let { columns, classes, t } = this.props;
+    let { columns, classes } = this.props;
 
     return (
       <table className={classes.table} id="myTable">
@@ -37,7 +37,7 @@ class PipelineColumsGroup extends Component {
               key={index}
               style={{ width: column.width }}
             >
-              {t(`tab:${column.name}`)}
+              {column.name}
             </th>
           ))}
         </tr>
@@ -45,4 +45,4 @@ class PipelineColumsGroup extends Component {
     );
   }
 }
-export default withTranslation('tab')(withStyles(styles)(PipelineColumsGroup));
+export default withStyles(styles)(PipelineColumsGroup);

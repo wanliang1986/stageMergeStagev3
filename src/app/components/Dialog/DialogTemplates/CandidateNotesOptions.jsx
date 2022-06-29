@@ -6,7 +6,6 @@ import Divider from '@material-ui/core/Divider';
 import Typography from '@material-ui/core/Typography';
 import moment from 'moment-timezone';
 import Chip from '@material-ui/core/Chip';
-import { withTranslation } from 'react-i18next';
 const styles = {
   Symbol: {
     width: '4px',
@@ -39,7 +38,7 @@ class CandidateNotesOptions extends Component {
             fontSize: '14px',
           }}
         >
-          {this.props.t('tab:Candidate Notes')}- {str}
+          Candidate Notes - {str}
         </Typography>
       </>
     );
@@ -162,6 +161,4 @@ class CandidateNotesOptions extends Component {
   }
 }
 
-export default withTranslation('tab')(
-  withStyles(styles)(CandidateNotesOptions)
-);
+export default withStyles(styles)(CandidateNotesOptions);

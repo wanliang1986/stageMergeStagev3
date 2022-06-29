@@ -20,14 +20,14 @@ class AddDivisionForm extends Component {
     super();
     this.state = {
       errorMessage: Immutable.Map(),
-      country: props.division.get('country')
+      country: props.division.get('country'),
     };
   }
   componentDidMount() {
     console.log('AddDivisionForm componentDidMount');
   }
 
-  handleSubmit = e => {
+  handleSubmit = (e) => {
     e.preventDefault();
 
     const divisionForm = e.target;
@@ -39,22 +39,22 @@ class AddDivisionForm extends Component {
 
     const newDivision = {
       name: divisionForm.name.value,
-      addressLine: divisionForm.addressLine.value,
+      address: divisionForm.addressLine.value,
       country: divisionForm.country.value,
       city: divisionForm.city.value,
       province: divisionForm.province.value,
-      zipcode: divisionForm.zipcode.value
+      zipcode: divisionForm.zipcode.value,
     };
 
     dispatch(upsertDivision(newDivision, division.get('id')))
       .then(onClose)
-      .catch(err => {
+      .catch((err) => {
         dispatch({
           type: ActionTypes.ADD_MESSAGE,
           message: {
             type: 'error',
-            message: err.message || err
-          }
+            message: err.message || err,
+          },
         });
       });
   };
@@ -72,17 +72,17 @@ class AddDivisionForm extends Component {
     return errorMessage.size > 0 && errorMessage;
   }
 
-  removeErrorMessage = key =>
+  removeErrorMessage = (key) =>
     this.setState({ errorMessage: this.state.errorMessage.delete(key) });
 
   handleClose = () => {
     this.props.onClose();
     this.setState({
-      errorMessage: this.state.errorMessage.clear()
+      errorMessage: this.state.errorMessage.clear(),
     });
   };
 
-  handleCountryChange = country => {
+  handleCountryChange = (country) => {
     country = country || this.state.country;
     this.setState({ country });
   };
@@ -121,7 +121,7 @@ class AddDivisionForm extends Component {
               <FormInput
                 name="addressLine"
                 label={t('field:addressLine')}
-                defaultValue={division.get('addressLine') || ''}
+                defaultValue={division.get('address') || ''}
               />
             </div>
             <div className="small-6 medium-4 columns">
@@ -185,11 +185,11 @@ class AddDivisionForm extends Component {
 AddDivisionForm.propTypes = {
   division: PropTypes.instanceOf(Immutable.Map),
   onClose: PropTypes.func.isRequired,
-  t: PropTypes.func.isRequired
+  t: PropTypes.func.isRequired,
 };
 
 AddDivisionForm.defaultProps = {
-  division: Immutable.Map()
+  division: Immutable.Map(),
 };
 
 export default AddDivisionForm;

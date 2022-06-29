@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import Immutable from 'immutable';
 import * as ActionTypes from '../constants/actionTypes';
 import { withStyles } from '@material-ui/core/styles';
-// import CheckIcon from '@material-ui/core/Check';
+
 import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
 import Autocomplete from '@material-ui/lab/Autocomplete';
@@ -11,12 +11,9 @@ import ArrowDropDown from '@material-ui/icons/ArrowDropDown';
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Checkbox from '@material-ui/core/Checkbox';
-import CheckIcon from '@material-ui/icons/Check';
-
 import clsx from 'clsx';
 // import { getFilterData } from '../../store/actions/searchAudience';
 import { CandidateGetGeneral } from '../actions/commonPoolAction';
-import { withTranslation } from 'react-i18next';
 const styles = {
   root: {
     width: 250,
@@ -113,17 +110,16 @@ class Degrees extends React.Component {
   }
 
   onchangeHandler = (value) => {
-    console.log(this.props.defultOptions);
     if (value.length > 1) {
       value.splice(0, 1);
     }
-    const { dispatch, defultStatus, orderStatus } = this.props;
+    const { dispatch, defultStatus } = this.props;
     this.setState({ prevFilters: value }, () => {
       console.log('1111111111============', this.state.prevFilters);
     });
 
     let newValue = value.map((ele) => ele.value);
-    this.setState({});
+
     dispatch({
       type: ActionTypes.COMMON_POOL_SELECT_VALUE,
       payload: newValue.toString(),
@@ -132,25 +128,6 @@ class Degrees extends React.Component {
       type: ActionTypes.COMMON_POOL_SELECT_DEFULT_STATUS,
       payload: defultStatus,
     });
-
-    //  orderStatus && orderStatus.and
-    //    ? orderStatus.and.length === 0
-    //    : orderStatus.length === 0 && !unSelectStatus;
-    if (
-      orderStatus && orderStatus.and
-        ? orderStatus.and.length === 0
-        : orderStatus.length === 0
-    ) {
-      dispatch({
-        type: ActionTypes.UN_SELECT_STATUS,
-        payload: false,
-      });
-    } else {
-      dispatch({
-        type: ActionTypes.UN_SELECT_STATUS,
-        payload: true,
-      });
-    }
     dispatch(
       CandidateGetGeneral(
         '',
@@ -180,49 +157,21 @@ class Degrees extends React.Component {
           }}
           options={defultOptions}
           // disableCloseOnSelect
-          getOptionLabel={(option, index) => option.label}
+          getOptionLabel={(option) => option.label}
           renderOption={(option, { selected }) => (
             <React.Fragment>
+              {/* <Checkbox
+                color="primary"
+                size="small"
+                style={{ marginRight: 8 }}
+                checked={selected}
+              /> */}
               {option.label}
-              {selected ? (
-                <CheckIcon
-                  style={{
-                    color: '#3398dc',
-                    position: 'absolute',
-                    right: '10px',
-                  }}
-                />
-              ) : null}
             </React.Fragment>
           )}
-          renderTags={(value) => {
-            return value.map((item) => {
-              return (
-                <React.Fragment>
-                  <span
-                    style={{
-                      color: 'white',
-                      backgroundColor: '#3498DB',
-                      padding: '0px 8px 0px 8px',
-                      borderRadius: '16px',
-                      height: '23px',
-                      lineHeight: '23px',
-                      fontSize: '0.812rem',
-                    }}
-                  >
-                    {item.label}
-                  </span>
-                </React.Fragment>
-              );
-            });
-          }}
           renderInput={(params) => (
             <TextField
-              placeholder={
-                prevFilters.length
-                  ? ''
-                  : this.props.t(`tab:${selectPlaceholderValue}`)
-              }
+              placeholder={prevFilters.length ? '' : selectPlaceholderValue}
               {...params}
               InputProps={{
                 ...params.InputProps,
@@ -246,10 +195,7 @@ const mapStateToProps = (state) => {
   return {
     filters: state.controller.searchAudience.get('filters').get('degrees'),
     commonPoolSelectList,
-    orderStatus: state.controller.newCandidateJob.toJS().orderStatus,
   };
 };
 
-export default withTranslation('tab')(
-  connect(mapStateToProps)(withStyles(styles)(Degrees))
-);
+export default connect(mapStateToProps)(withStyles(styles)(Degrees));

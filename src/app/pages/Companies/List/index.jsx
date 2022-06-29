@@ -2,7 +2,11 @@ import React from 'react';
 import { withTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
 import { makeCancelable } from '../../../../utils';
-import { getCompanyList, companySearch } from '../../../actions/clientActions';
+import {
+  getCompanyList,
+  companySearch,
+  getNoContracts,
+} from '../../../actions/clientActions';
 import { showErrorMessage } from '../../../actions/index';
 import { getCompanyList as selectAllCompany } from '../../../selectors/companySelector';
 
@@ -78,6 +82,7 @@ class AllClientsTabs extends React.PureComponent {
     });
     this._handleActive(0);
     this.fetchData(this.state.clientsFilter);
+    this.props.dispatch(getNoContracts());
   }
 
   componentWillUnmount() {
@@ -91,6 +96,7 @@ class AllClientsTabs extends React.PureComponent {
     });
     this.companyTask = makeCancelable(
       this.props.dispatch(getCompanyList(type)).then((res) => {
+        console.log('res', res);
         if (res) {
           this.setState({
             requestType: false,
@@ -243,9 +249,7 @@ class AllClientsTabs extends React.PureComponent {
               <IconInput
                 name="q"
                 style={{ paddingLeft: '2em' }}
-                placeholder={t(
-                  'tab:Search client, prospect, or contact person'
-                )}
+                placeholder={'Search client, prospect, or contact person'}
                 Icon={Search}
                 onKeyDown={this.onFilterValueChanged}
                 form="searchForm"
@@ -287,7 +291,7 @@ class AllClientsTabs extends React.PureComponent {
                   this.clickClientsType(0);
                 }}
               >
-                {t('tab:All Clients')}
+                All Clients
               </Button>
               <Button
                 className={clientType === 1 ? classes.btnColor : ''}
@@ -296,7 +300,7 @@ class AllClientsTabs extends React.PureComponent {
                 }}
                 disabled={requestType}
               >
-                {t('tab:My Clients')}
+                My Clients
               </Button>
             </ButtonGroup>
           )}
@@ -313,7 +317,7 @@ class AllClientsTabs extends React.PureComponent {
                   this.clickProspectsType(2);
                 }}
               >
-                {t('tab:All Prospects')}
+                All Prospects
               </Button>
               <Button
                 className={clientType === 3 ? classes.btnColor : ''}
@@ -322,7 +326,7 @@ class AllClientsTabs extends React.PureComponent {
                   this.clickProspectsType(3);
                 }}
               >
-                {t('tab:My Prospects')}
+                My Prospects
               </Button>
             </ButtonGroup>
           )}
@@ -361,8 +365,8 @@ class AllClientsTabs extends React.PureComponent {
           modalTitle={`Search Result for "${searchVal}" (${searchCompaniesLength} result) `}
           CancelBtnShow={false}
           SubmitBtnShow={true}
-          SubmitBtnMsg={t('tab:Close')}
-          CancelBtnMsg={t('tab:Close')}
+          SubmitBtnMsg={'Close'}
+          CancelBtnMsg={'Close'}
           CancelBtnVariant={'contained'}
           handleClose={() => {
             this.handleClose();

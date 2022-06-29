@@ -189,7 +189,7 @@ class WeekReport extends React.PureComponent {
       >
         <div>
           <Typography variant="h5" className="item-padding">
-            {t('tab:Common Search Usage')}
+            {t('message:Common Search Usage')}
           </Typography>
 
           <div

@@ -19,7 +19,6 @@ import NumberFormat from 'react-number-format';
 import FormReactSelectContainer from '../../../../components/particial/FormReactSelectContainer';
 import PrimaryButton from '../../../../components/particial/PrimaryButton';
 
-let common_t = null;
 class StartupFeeOption extends React.Component {
   handleMouseDown = (event) => {
     event.preventDefault();
@@ -30,14 +29,12 @@ class StartupFeeOption extends React.Component {
     this.props.onFocus(this.props.option, event);
   };
   handleMouseMove = (event) => {
-    fv;
     if (this.props.isFocused) return;
     this.props.onFocus(this.props.option, event);
   };
 
   render() {
     const { className, option, isSelected, isFocused } = this.props;
-    console.log(this.props);
     return (
       <div
         className={className}
@@ -52,7 +49,7 @@ class StartupFeeOption extends React.Component {
         </div>
         <div>
           <Typography variant="subtitle2">
-            {common_t('field:Invoice Number')}: {option.invoiceNo}
+            Invoice Number: {option.invoiceNo}
           </Typography>
           <Typography variant="body2" gutterBottom>
             Invoice Amount: {option.currency === 'USD' ? '$' : '¥'}
@@ -75,7 +72,7 @@ class StartupFeeSelector extends React.Component {
     };
   }
   componentDidMount(): void {
-    // console.log('StartupFeeSelector:componentDidMount',this.props);
+    console.log(this.props);
     const companyId = this.props.invoice.companyId;
     if (companyId)
       getStartupFeeByCompany(this.props.invoice.companyId).then(
@@ -112,9 +109,7 @@ class StartupFeeSelector extends React.Component {
 
   render() {
     const { options, selected, openWarning } = this.state;
-
-    const { t, invoice, errorMessage, removeErrorMsgHandler } = this.props;
-    common_t = t;
+    const { t, invoice } = this.props;
     return (
       <>
         <div className="row expanded">
@@ -130,7 +125,7 @@ class StartupFeeSelector extends React.Component {
                 />
               }
               disabled={!options}
-              label={t('common:Startup Fee Invoice')}
+              label="Startup Fee Invoice"
               labelPlacement="start"
               style={{ marginLeft: 0 }}
             />
@@ -140,10 +135,7 @@ class StartupFeeSelector extends React.Component {
         {this.state.paidStartupFee && (
           <div className="row expanded">
             <div className="small-4 columns">
-              <FormReactSelectContainer
-                label={t('field:Invoice Number')}
-                errorMessage={!!errorMessage.get('startupFeeInvoiceNo')}
-              >
+              <FormReactSelectContainer label={t('field:Invoice Number')}>
                 <Select
                   value={selected}
                   onChange={this.handleSelect}
@@ -154,11 +146,6 @@ class StartupFeeSelector extends React.Component {
                   searchPromptText={'Type to search employee'}
                   autoBlur={true}
                   clearable={false}
-                  onFocus={() => {
-                    if (removeErrorMsgHandler) {
-                      removeErrorMsgHandler('startupFeeInvoiceNo');
-                    }
-                  }}
                 />
               </FormReactSelectContainer>
               <input
@@ -193,19 +180,6 @@ class StartupFeeSelector extends React.Component {
                 value={this.state.amount || 0}
               />
             </div>
-            <div className="columns">
-              <div
-                style={{
-                  fontSize: '0.75rem',
-                  fontWeight: 'bold',
-                  color: ' #cc4b37',
-                  transform: `translateY(-0.5rem)`,
-                  lineHeight: 1.8,
-                }}
-              >
-                {t(errorMessage.get('startupFeeInvoiceNo'))}
-              </div>
-            </div>
           </div>
         )}
         <Dialog
@@ -213,7 +187,7 @@ class StartupFeeSelector extends React.Component {
           onClose={() => this.setState({ openWarning: false })}
           disableEnforceFocus
         >
-          <DialogTitle>{t('tab:Warning')}</DialogTitle>
+          <DialogTitle>{t('Warning')}</DialogTitle>
           <DialogContent>
             <Typography>
               {t(

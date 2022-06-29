@@ -8,7 +8,6 @@ import Typography from '@material-ui/core/Typography';
 import CompanyTable from '../../../components/Tables/CompanyTable';
 
 import Loading from '../../../components/particial/Loading';
-import { withTranslation } from 'react-i18next';
 let status = {};
 
 function onScrollEnd(scrollLeft, scrollTop) {
@@ -74,7 +73,7 @@ class Clients extends React.PureComponent {
   };
 
   finalyFilteredCompanyList = (List) => {
-    // console.log('filter');
+    console.log('filter');
     let newList = [];
     newList = List.map((item) => {
       return {
@@ -176,7 +175,7 @@ class Clients extends React.PureComponent {
     if (companyListFromStore.size === 0 && requestType === false) {
       return (
         <div className="flex-child-auto container-padding">
-          <Typography variant="h5">{t('tab:There is no record')} </Typography>
+          <Typography variant="h5">There is no record</Typography>
         </div>
       );
     }

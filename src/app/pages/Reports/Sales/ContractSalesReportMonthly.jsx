@@ -27,7 +27,7 @@ import { withStyles } from '@material-ui/core/styles';
 import SaleTypeSelect from './SaleTypeSelect';
 import FilterBtn from './FilterBtn';
 import { MouthlyInitData, countryObj } from './initData';
-import { withTranslation } from 'react-i18next';
+
 let newMouthlyInitData = [];
 const styles_inside = {
   title: {
@@ -58,7 +58,7 @@ let mouthObj = {
   '05': 'May',
   '06': 'June',
   '07': 'July',
-  '08': 'August',
+  '08': 'Aguest',
   '09': 'September',
   10: 'October',
   11: 'November',
@@ -93,17 +93,10 @@ class ContractMonthly extends Component {
     this.setState({
       Load: false,
       dataList: Immutable.List(),
-      country: country || this.state.country,
     });
     newMouthlyInitData = JSON.parse(JSON.stringify(MouthlyInitData));
-    let {
-      initData1,
-      initData2,
-      initData3,
-      initData4,
-      initData5,
-      initData6,
-    } = newMouthlyInitData;
+    let { initData1, initData2, initData3, initData4, initData5, initData6 } =
+      newMouthlyInitData;
     return getSalesContractByMonth({
       country,
       companies,
@@ -197,16 +190,8 @@ class ContractMonthly extends Component {
 
   // bar 配置
   getOption = () => {
-    const {
-      data1,
-      data2,
-      data3,
-      data4,
-      data5,
-      data6,
-      countryObj,
-      country,
-    } = this.state;
+    const { data1, data2, data3, data4, data5, data6, countryObj, country } =
+      this.state;
     return {
       tooltip: {
         padding: 15,
@@ -219,11 +204,8 @@ class ContractMonthly extends Component {
 
         // 格式化toolTip的样式
         formatter: function (params) {
-          console.log(this.state);
           // console.log(params);
-          let showHtm = `<p>${this.props.t(
-            `tab:${mouthObj[params[0].axisValue]}`
-          )}</p>`;
+          let showHtm = `<p>${mouthObj[params[0].axisValue]}</p>`;
           let year = '';
           let marker = '';
           let markerColor = '';
@@ -264,12 +246,8 @@ class ContractMonthly extends Component {
             marker = `<span style="display:inline-block;margin-right:5px; width:20px;height:10px;background-color:${markerColor};border:${markerBorder}"></span>`;
             showHtm += `<p style="height:${Pheight}">
                           <span style="display:inline-block;width:45px">${year}</span>
-                          ${marker}         
-                          ${this.props.t(
-                            `tab:${billTypeObj[
-                              params[i].data.billType
-                            ].toLowerCase()}`
-                          )}:
+                          ${marker}
+                          ${billTypeObj[params[i].data.billType]}:
                           ${
                             countryObj[country] +
                             params[i].data.value.toLocaleString('en-US')
@@ -302,9 +280,9 @@ class ContractMonthly extends Component {
         y: 'bottom', //可设定图例在上、下、居中
         // padding: [200, 0, 0, 0], //可设定图例[距上方距离，距右方距离，距下方距离，距左方距离]
         selected: {
-          2020: true, //图例为‘2020’的一项默认置灰
+          2020: false, //图例为‘2020’的一项默认置灰
           2021: true,
-          2022: true,
+          2022: false,
         },
         // formatter: function (params) {
         //   console.log(params);
@@ -339,7 +317,7 @@ class ContractMonthly extends Component {
           },
           axisLine: {
             lineStyle: {
-              color: '#505050',
+              color: '#aab1b8',
             },
           },
         },
@@ -353,7 +331,7 @@ class ContractMonthly extends Component {
           axisLine: {
             show: false,
             lineStyle: {
-              color: '#505050',
+              color: '#aab1b8',
             },
           },
         },
@@ -376,7 +354,7 @@ class ContractMonthly extends Component {
               //   position: "insideTop", //在上方显示
               //   textStyle: {]
               //     //数值样式
-              //     color: "#505050",
+              //     color: "#aab1b8",
               //    fontSize: 9
               //   },
               // },
@@ -402,7 +380,7 @@ class ContractMonthly extends Component {
                 position: 'top', //在上方显示
                 textStyle: {
                   //数值样式
-                  color: '#505050',
+                  color: '#aab1b8',
                   fontSize: 12,
                 },
                 formatter: function (params) {
@@ -454,7 +432,7 @@ class ContractMonthly extends Component {
                 position: 'top', //在上方显示
                 textStyle: {
                   //数值样式
-                  color: '#505050',
+                  color: '#aab1b8',
                   fontSize: 12,
                 },
                 formatter: function (params) {
@@ -483,8 +461,8 @@ class ContractMonthly extends Component {
           stack: '2022',
           itemStyle: {
             normal: {
-              color: '#a894f6',
-              borderColor: '#a894f6',
+              color: '#fed949',
+              borderColor: '#fed949',
             },
           },
           emphasis: {
@@ -500,13 +478,13 @@ class ContractMonthly extends Component {
           itemStyle: {
             normal: {
               color: 'white',
-              borderColor: '#a894f6',
+              borderColor: '#fed949',
               label: {
                 show: true, //开启显示
                 position: 'top', //在上方显示
                 textStyle: {
                   //数值样式
-                  color: '#505050',
+                  color: '#aab1b8',
                   fontSize: 12,
                 },
                 formatter: function (params) {
@@ -537,7 +515,6 @@ class ContractMonthly extends Component {
     }
     this.setState({
       loadFormList: false,
-      colSortDirs: { null: 'null' },
     });
     let stackApplicationIdArr = this.findStackChart(detail);
     let applicationIdArr = detail.data.applicationId.split(',');
@@ -745,7 +722,11 @@ class ContractMonthly extends Component {
           <div style={styles_inside.title}>
             <Typography variant="h4">
               {'General Staffing Hires Report'}
-              <Typography>{this.props.t('tab:HiresReportTip1')}</Typography>
+              <Typography>
+                {
+                  'We use candidates’ 【On Board】date as reference to build up this report, and this report shows how much GM we generate in each month/quarter/year'
+                }
+              </Typography>
             </Typography>
 
             {/* 漏斗按钮 */}
@@ -835,6 +816,4 @@ const mapStateToProps = (state) => {
   return {};
 };
 
-export default withTranslation('tab')(
-  connect(mapStateToProps)(withStyles(styles)(ContractMonthly))
-);
+export default connect(mapStateToProps)(withStyles(styles)(ContractMonthly));

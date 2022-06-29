@@ -1,11 +1,9 @@
 {
-  "name": "altomni-apn",
-  "version": "0.4.2",
-  "private": true,
-  "description": "",
+  "name": "apn-v3-frontend",
+  "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "analyze": "source-map-explorer build/static/js/26.*",
+    "analyze": "source-map-explorer build/static/js/50.*",
     "start": "react-app-rewired start",
     "build": "react-app-rewired build",
     "test": "react-app-rewired  test --passWithNoTests",
@@ -13,21 +11,12 @@
     "prepare": "husky install",
     "lint-staged": "lint-staged"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/altomni/altomni-apn.git"
-  },
+  "repository": "https://github.com/altomni/APN-V3-Frontend",
   "author": "altomni",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/altomni/altomni-ui/issues"
-  },
   "dependencies": {
-    "@ag-grid-community/core": "^27.0.1",
-    "@ag-grid-community/react": "^27.0.1",
-    "@ag-grid-enterprise/viewport-row-model": "^27.0.0",
     "@babel/helper-define-map": "^7.13.12",
-    "@material-ui/core": "4.12.3",
+    "@material-ui/core": "^4.11.4",
     "@material-ui/icons": "^4.11.2",
     "@material-ui/lab": "^4.0.0-alpha.58",
     "@tinymce/tinymce-react": "^3.12.2",
@@ -62,6 +51,8 @@
     "i18next-xhr-backend": "^3.2.2",
     "immutable": "^4.0.0-rc.12",
     "jest-enzyme": "^7.1.2",
+    "jspdf": "^2.5.1",
+    "jspdf-autotable": "^3.5.24",
     "less": "^3.11.1",
     "less-loader": "^5.0.0",
     "lint-staged": "^10.5.4",
@@ -80,6 +71,7 @@
     "react-chartjs-2": "^2.9.0",
     "react-custom-scrollbars": "^4.2.1",
     "react-datepicker": "1.8.0",
+    "react-datepicker-4": "npm:react-datepicker@^4.6.0",
     "react-dates": "^21.8.0",
     "react-dom": "^17.0.2",
     "react-draggable": "^4.4.3",
@@ -110,8 +102,7 @@
     "spark-md5": "^3.0.1",
     "validator": "^13.6.0",
     "walk": "^2.3.14",
-    "xlsx": "^0.16.9",
-    "yarn": "1.22.10"
+    "xlsx": "^0.16.9"
   },
   "browserslist": [
     ">0.2%",
@@ -124,5 +115,10 @@
       "prettier --single-quote --write",
       "git add"
     ]
+  },
+  "devDependencies": {
+    "@wojtekmaj/enzyme-adapter-react-17": "^0.6.3",
+    "enzyme": "^3.11.0",
+    "jest-enzyme": "^7.1.2"
   }
 }

@@ -11,7 +11,6 @@ import { getApplicationsByTalentId } from '../../../../actions/talentActions';
 
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
-import { withTranslation } from 'react-i18next';
 
 const styles = (theme) => ({
   rightIcon: {
@@ -149,7 +148,7 @@ class CandidateQualification extends React.Component {
             variant="h6"
             style={{ marginBottom: 20, marginTop: '30px' }}
           >
-            {this.props.t('tab:Experience Information')}
+            {'Experience Information'}
           </Typography>
           {candidateDetail &&
             candidateDetail.experiences &&
@@ -198,7 +197,7 @@ class CandidateQualification extends React.Component {
         <Divider style={{ marginTop: 30, marginBottom: 30 }} />
         <div className={classes.box}>
           <Typography variant="h6" style={{ marginBottom: 20 }}>
-            {this.props.t('tab:Skills')}
+            {'Skills'}
           </Typography>
           {candidateDetail &&
             candidateDetail.skills &&
@@ -213,7 +212,7 @@ class CandidateQualification extends React.Component {
         <Divider style={{ marginTop: 30, marginBottom: 30 }} />
         <div className={classes.box}>
           <Typography variant="h6" style={{ marginBottom: 20 }}>
-            {this.props.t('tab:Education Information')}
+            {'Education Information'}
           </Typography>
           {candidateDetail &&
             candidateDetail.educations &&
@@ -280,6 +279,6 @@ function mapStoreStateToProps(state, { candidateId }) {
   };
 }
 
-export default withTranslation('tab')(
-  connect(mapStoreStateToProps)(withStyles(styles)(CandidateQualification))
+export default connect(mapStoreStateToProps)(
+  withStyles(styles)(CandidateQualification)
 );

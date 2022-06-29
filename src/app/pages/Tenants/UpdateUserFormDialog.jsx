@@ -443,8 +443,10 @@ class UpdateUserFormDialog extends React.PureComponent {
               <div className="small-4 columns">
                 <FormInput
                   label={t('APN Pro Monthly Credits')}
-                  toolTip={t('tab:TotalTip1')}
-                  placeholder={t('tab:Enter a number')}
+                  toolTip={
+                    'Total number of monthly credits for your entire organization.'
+                  }
+                  placeholder={`Enter a number`}
                   onBlur={(event) => {
                     if (event.target.value) {
                       this.setState({
@@ -548,7 +550,7 @@ class UpdateUserFormDialog extends React.PureComponent {
                   paddingLeft: '5px',
                 }}
               >
-                {t('tab:Tenant’s total availabe monthly credits')}
+                Tenant’s total availabe monthly credits:
                 {this.state.activationType === 'NEXT_MONTH'
                   ? nextMonthAvailableCredit +
                     (this.props.userInfo.get('effectCredit') !== null &&
@@ -577,7 +579,9 @@ class UpdateUserFormDialog extends React.PureComponent {
                 <FormInput
                   label={'APN Pro Bulk Credits '}
                   name="bulkCredit"
-                  toolTip={t('tab:TotalTip2')}
+                  toolTip={
+                    'Total number of bulk credits for your entire organization.'
+                  }
                   defaultValue={
                     // tenantInfo ? tenantInfo.credit : this.state.credit
                     bulkCredit
@@ -601,8 +605,7 @@ class UpdateUserFormDialog extends React.PureComponent {
                     fontFamily: 'Roboto',
                   }}
                 >
-                  {t('tab:Tenant’s total availabe bulk credits')}
-                  {canusedBulkCredit}
+                  Tenant’s total availabe bulk credits:{canusedBulkCredit}
                 </span>
               </div>
               <div className="small-12 columns">

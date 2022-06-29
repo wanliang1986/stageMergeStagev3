@@ -196,9 +196,7 @@ class CountDetailDialog extends React.Component {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">
-          {t(`tab:${chosenStatus.toLowerCase()}`)}
-        </DialogTitle>
+        <DialogTitle id="alert-dialog-title">{chosenStatus}</DialogTitle>
         <DialogContent style={{ width: '100%', height: '300px' }}>
           <DashboardTable
             data={this.state.data}

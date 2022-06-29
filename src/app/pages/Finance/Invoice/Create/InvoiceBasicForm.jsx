@@ -1,11 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
-import clsx from 'clsx';
-import {
-  searchAllInvoiceListElasticSearch,
-  getClientCredits,
-} from '../../../../../apn-sdk/invoice';
+import { searchAllInvoiceListElasticSearch } from '../../../../../apn-sdk/invoice';
 import { getAllDivisionListByTenantId } from '../../../../../apn-sdk/division';
 import memoizeOne from 'memoize-one';
 import { getActiveClientList } from '../../../../selectors/clientSelector';
@@ -30,7 +26,6 @@ import FormReactSelectContainer from '../../../../components/particial/FormReact
 import FormTextArea from '../../../../components/particial/FormTextArea';
 import SplitedInvoice from './SplitedInvoice';
 import StartupFeeSelector from './StartupFeeSelector';
-import InvoiceAmountDisplay from './InvoiceAmountDisplay';
 
 const styles = {
   fullWidth: {
@@ -39,10 +34,32 @@ const styles = {
       width: '100%',
     },
   },
+
+  row: {
+    display: 'flex',
+    justifyContent: 'space-between',
+  },
+  summaryDiv: {
+    backgroundColor: 'rgba(200,200,200,.2)',
+    borderBottom: '1px solid #ccc',
+    borderTop: '1px solid #ccc',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    padding: '10px 6px',
+  },
+  summary: {
+    right: '5px',
+    width: '32%',
+    height: '90%',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+  },
 };
 const invoiceTypeList = [
   { value: 'STARTUP_FEE', label: 'Startup Fee Invoice' },
-  { value: 'FTE', label: 'FTE Invoice' },
+  { value: 'FTE', label: 'FTE' },
 ];
 const originalState = {
   invoiceType: 'FTE',
@@ -53,36 +70,6 @@ const currencyLabels = currencyOptions.reduce((res, v) => {
   return res;
 }, {});
 
-const EmployeeOption = React.forwardRef(
-  ({ children, className, option, onSelect, onFocus, isFocused }) => {
-    // console.log('EmployeeOption', children, option);
-    return (
-      <div
-        className={className}
-        onMouseDown={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          onSelect(option, event);
-        }}
-        onMouseEnter={(event) => {
-          onFocus(option, event);
-        }}
-        onMouseMove={(event) => {
-          if (!isFocused) {
-            onFocus(option, event);
-          }
-        }}
-        title={option.title}
-      >
-        <b>{children}</b> <br />
-        <span style={{ fontSize: '0.85em' }}>
-          {`#${option.jobId}-${option.jobTitle}`}
-        </span>
-      </div>
-    );
-  }
-);
-
 class InvoiceBasicForm extends Component {
   constructor(props) {
     super(props);
@@ -91,12 +78,13 @@ class InvoiceBasicForm extends Component {
       divisionId: null,
       employee: null,
 
-      useCredit: false,
-      clientCredits: 0,
+      applyCredit: false,
 
       paidStartupFee: false,
       startupFeeInvoiceNo: null,
       startupFeeList: [],
+      // startupFeeInvoiceNo: '20200121040075',
+      // startupFeeAmount: 4000,
 
       split: false,
       invoiceData: this._getInvoiceDataFromStart({}),
@@ -106,7 +94,7 @@ class InvoiceBasicForm extends Component {
 
   componentDidMount() {
     getAllDivisionListByTenantId().then((res) => {
-      // console.log('[division list]', res.response);
+      console.log('[division list]', res.response);
       const divisionList = res.response.map((ele) => {
         return {
           label: ele.name,
@@ -123,14 +111,6 @@ class InvoiceBasicForm extends Component {
     }
   };
 
-  fetchClientCredits = (companyId) => {
-    if (companyId) {
-      getClientCredits(companyId).then(({ response }) => {
-        this.setState({ clientCredits: response.balance });
-      });
-    }
-  };
-
   getEmployeeNameList = (input) => {
     if (!input) {
       return Promise.resolve({ options: [] });
@@ -140,17 +120,18 @@ class InvoiceBasicForm extends Component {
       bool: {
         must: [
           {
-            match: {
-              talentName: {
-                query: input,
-                fuzziness: 'AUTO',
-                operator: 'or',
-              },
+            regexp: {
+              talentName: `${input}.*`,
             },
           },
           {
             match: {
               positionType: JOB_TYPES.FullTime,
+            },
+          },
+          {
+            match: {
+              status: 'ACTIVE',
             },
           },
         ],
@@ -159,7 +140,7 @@ class InvoiceBasicForm extends Component {
 
     return searchAllInvoiceListElasticSearch(0, 20, queryEmployee).then(
       (json) => {
-        // console.log('search start', json.response.hits.hits);
+        console.log('search start', json.response.hits.hits);
         this.startList = [].concat(
           json.response.hits.hits.map((ele) => ele['_source'])
         );
@@ -168,8 +149,6 @@ class InvoiceBasicForm extends Component {
           return {
             name: start.talentName,
             id: start.id,
-            jobId: start.jobId,
-            jobTitle: start.jobTitle,
           };
         });
         return { options: employeeNameList };
@@ -194,8 +173,6 @@ class InvoiceBasicForm extends Component {
           },
           () => {
             this.fetchClientContacts(this.state.invoiceData.companyId);
-            this.fetchClientCredits(this.state.invoiceData.companyId);
-            this.props.cleanErrorMessage();
           }
         );
       }
@@ -203,42 +180,40 @@ class InvoiceBasicForm extends Component {
   };
 
   _getInvoiceDataFromStart = (start) => {
-    console.log('_getInvoiceDataFromStart', start);
+    console.log(start);
     const startFteRate = (start && start.startFteRate) || {};
     return {
       startId: start.id || '',
-      startDate: start.startDate || null,
+      startDate: start.startDate && moment(start.startDate),
       talentId: start.talentId || '',
       talentName: start.talentName || '',
       jobId: start.jobId || '',
       jobTitle: start.jobTitle || '',
-      poNo: '',
-      customerReference: '',
-
+      customerName: start.company || '',
       companyId: start.companyId || '',
       clientContactId: start.clientContactId || '',
-      clientName: start.company || '',
-      customerName:
-        (start.startClientInfo && start.startClientInfo.clientName) || '',
-      customerAddress:
-        (start.startClientInfo && start.startClientInfo.clientAddress) || '',
 
       currency: startFteRate.currency || 'USD',
       totalBillablePackage: startFteRate.totalBillableAmount || '',
-      totalBillAmount: startFteRate.totalBillAmount || 0,
-      taxRate: '',
+      feeType: startFteRate.feeType,
+      finalFee: startFteRate.totalBillAmount || 0,
       discount: '',
       applyCredit: '',
-      totalInvoiceAmount: startFteRate.totalBillAmount || 0,
+      totalAmount: startFteRate.totalBillAmount || 0,
       dueAmount: startFteRate.totalBillAmount || 0,
+      pct:
+        startFteRate.feePercentage &&
+        (startFteRate.feePercentage >= 1
+          ? startFteRate.feePercentage
+          : startFteRate.feePercentage * 100),
 
-      invoiceDate: moment().format('yyyy-MM-DD'),
-      dueDate: moment().add(30, 'days').format('yyyy-MM-DD'),
+      invoiceDate: moment(),
+      dueDate: moment().add(30, 'days'),
       note: '',
     };
   };
 
-  splitInvoiceHandler = (e) => {
+  splitInvoceHandler = (e) => {
     const split = e.target.checked;
     this.setState({ split: e.target.checked });
     if (split) {
@@ -246,14 +221,12 @@ class InvoiceBasicForm extends Component {
         split,
         subInvoiceList: [
           {
-            invoiceDate: moment().format('yyyy-MM-DD'),
-            dueDate: null,
-            dueAmount: '',
+            date: moment(),
+            amount: '',
           },
           {
-            invoiceDate: moment().format('yyyy-MM-DD'),
-            dueDate: null,
-            dueAmount: '',
+            date: moment(),
+            amount: '',
           },
         ],
       });
@@ -276,13 +249,6 @@ class InvoiceBasicForm extends Component {
       newInvoiceData[key] = value;
       this.setState({ invoiceData: newInvoiceData });
     };
-  handleRateChange =
-    (key) =>
-    ({ value }) => {
-      const newInvoiceData = Object.assign({}, this.state.invoiceData);
-      newInvoiceData[key] = value / 100;
-      this.setState({ invoiceData: newInvoiceData });
-    };
 
   inputChangeHandler = (event) => {
     const target = event.target;
@@ -291,28 +257,10 @@ class InvoiceBasicForm extends Component {
     const newInvoiceData = Object.assign({}, this.state.invoiceData, {
       [name]: value,
     });
-    this.setState({ invoiceData: newInvoiceData }, () => {
-      this.props.removeErrorMsgHandler(name);
-    });
-  };
-
-  handleDateChange = (key) => (date) => {
-    const updates = {
-      [key]: date ? date.format('yyyy-MM-DD') : null,
-    };
-    const newInvoiceData = Object.assign({}, this.state.invoiceData, updates);
-    this.setState({ invoiceData: newInvoiceData }, () => {
-      this.props.removeErrorMsgHandler(key);
-    });
+    this.setState({ invoiceData: newInvoiceData });
   };
 
   removeErrorMessage = () => () => {};
-
-  toggleApplyCredit = (e) => {
-    const useCredit = e.target.checked;
-    this.setState({ useCredit });
-    this.handleNumberChange('applyCredit')({ value: '' });
-  };
 
   render() {
     const {
@@ -328,9 +276,7 @@ class InvoiceBasicForm extends Component {
     const invoice = this.state.invoiceData;
 
     const { companyMap, companyOptions } = getCompanyOptions(clientList);
-    const clientOptions = companyMap[invoice.clientName] || [];
-
-    //use clientContactName on preview
+    const clientOptions = companyMap[invoice.customerName] || [];
     const clientContact =
       invoice.clientContactId &&
       clientOptions.find((c) => c.id === invoice.clientContactId);
@@ -349,24 +295,12 @@ class InvoiceBasicForm extends Component {
                 valueKey="id"
                 labelKey="name"
                 loadOptions={this.getEmployeeNameList}
-                optionComponent={EmployeeOption}
                 searchPromptText={'Type to search employee'}
                 autoBlur={true}
                 onFocus={this.onFocus(removeErrorMsgHandler)}
                 clearable={false}
               />
             </FormReactSelectContainer>
-            <input
-              name="talentId"
-              type="hidden"
-              value={invoice.talentId || ''}
-            />
-            <input
-              name="talentName"
-              type="hidden"
-              value={invoice.talentName || ''}
-            />
-            <input name="startId" type="hidden" value={invoice.startId || ''} />
           </div>
 
           <div className="small-4 columns">
@@ -394,6 +328,9 @@ class InvoiceBasicForm extends Component {
               <Select
                 name="invoiceType"
                 value={'FTE'}
+                onChange={(invoiceType) =>
+                  invoiceType && this.setState({ invoiceType })
+                }
                 simpleValue
                 options={invoiceTypeList}
                 disabled
@@ -425,37 +362,25 @@ class InvoiceBasicForm extends Component {
             <FormReactSelectContainer label={t('field:Client Name')}>
               <Select
                 options={companyOptions}
-                value={invoice.clientName}
+                value={invoice.customerName}
                 simpleValue
                 clearable={false}
                 disabled
               />
             </FormReactSelectContainer>
-
+            <input
+              type="hidden"
+              name="customerName"
+              value={invoice.customerName || ''}
+            />
             <input
               type="hidden"
               name="companyId"
               value={invoice.companyId || ''}
             />
-            <input
-              type="hidden"
-              name="clientName"
-              value={invoice.clientName || ''}
-            />
-
-            <input
-              type="hidden"
-              name="customerName"
-              value={invoice.customerName || invoice.clientName || ''}
-            />
-            <input
-              type="hidden"
-              name="customerAddress"
-              value={invoice.customerAddress || ''}
-            />
           </div>
           <div className="small-4 columns">
-            <FormReactSelectContainer label={t('tab:Client Contact')}>
+            <FormReactSelectContainer label={t('field:Client Contact')}>
               <Select
                 labelKey={'name'}
                 valueKey={'id'}
@@ -479,8 +404,8 @@ class InvoiceBasicForm extends Component {
           </div>
           <div className="small-4 columns">
             <FormReactSelectContainer
-              label={t('field:Division')}
-              // isRequired
+              label={t('field:division')}
+              isRequired
               errorMessage={errorMessage ? errorMessage.get('division') : null}
             >
               <Select
@@ -510,64 +435,63 @@ class InvoiceBasicForm extends Component {
           <div className="small-4 columns">
             <DatePicker
               customInput={
-                <FormInput
-                  label={t('field:invoiceDate')}
-                  isRequired={!this.state.split}
-                  errorMessage={t(errorMessage.get('invoiceDate'))}
-                />
+                <FormInput label={t('field:invoiceDate')} name="invoiceDate" />
               }
               className={classes.fullWidth}
-              selected={
-                invoice.invoiceDate && !this.state.split
-                  ? moment(invoice.invoiceDate)
-                  : null
-              }
-              onChange={this.handleDateChange('invoiceDate')}
+              selected={invoice.invoiceDate}
+              onChange={(invoiceDate) => {
+                this.setState({ invoice: { ...invoice, invoiceDate } });
+              }}
               placeholderText="mm/dd/yyyy"
-              disabled={this.state.split}
             />
             <input
               name="invoiceDate"
               type="hidden"
-              value={invoice.invoiceDate || ''}
+              value={
+                invoice.invoiceDate
+                  ? invoice.invoiceDate.format('YYYY-MM-DD')
+                  : ''
+              }
             />
           </div>
 
           <div className="small-4 columns">
             <DatePicker
               customInput={
-                <FormInput
-                  label={t('field:dueDate')}
-                  isRequired={!this.state.split}
-                  errorMessage={t(errorMessage.get('dueDate'))}
-                />
+                <FormInput label={t('field:dueDate')} name="dueDate" />
               }
               className={classes.fullWidth}
-              selected={
-                invoice.dueDate && !this.state.split
-                  ? moment(invoice.dueDate)
-                  : null
-              }
-              onChange={this.handleDateChange('dueDate')}
+              selected={invoice.dueDate}
+              onChange={(dueDate) => {
+                this.setState({ invoice: { ...invoice, dueDate } });
+              }}
               placeholderText="mm/dd/yyyy"
-              disabled={this.state.split}
-              minDate={invoice.invoiceDate ? moment(invoice.invoiceDate) : null}
             />
-            <input name="dueDate" type="hidden" value={invoice.dueDate || ''} />
+            <input
+              name="dueDate"
+              type="hidden"
+              value={
+                invoice.dueDate ? invoice.dueDate.format('YYYY-MM-DD') : ''
+              }
+            />
           </div>
 
           <div className="small-4 columns">
             <DatePicker
-              customInput={<FormInput label={t('field:startDate')} />}
+              customInput={
+                <FormInput label={t('field:startDate')} name="startDate" />
+              }
               className={classes.fullWidth}
-              selected={invoice.startDate ? moment(invoice.startDate) : null}
+              selected={invoice.startDate}
               placeholderText="mm/dd/yyyy"
               disabled
             />
             <input
               name="startDate"
               type="hidden"
-              value={invoice.startDate || ''}
+              value={
+                invoice.startDate ? invoice.startDate.format('YYYY-MM-DD') : ''
+              }
             />
           </div>
         </div>
@@ -584,6 +508,7 @@ class InvoiceBasicForm extends Component {
                 thousandSeparator
                 prefix={currencyLabels[invoice.currency] || ''}
                 value={invoice.totalBillablePackage}
+                // onValueChange={this.handleNumberChange('totalBillablePackage')}
               />
             </FormReactSelectContainer>
             <input
@@ -599,40 +524,60 @@ class InvoiceBasicForm extends Component {
           </div>
 
           <div className="small-4 columns">
+            {invoice.feeType === 'PERCENTAGE' && (
+              <FormInput
+                name="fee"
+                label={t('field:fee')}
+                value={invoice.pct}
+                readOnly
+              />
+            )}
+          </div>
+          <div className="small-4 columns">
             <FormReactSelectContainer
-              label={t('tab:Total Bill Amount')}
+              label={t('field:finalFee')}
               isRequired
-              errorMessage={errorMessage.get('totalBillAmount')}
+              errorMessage={errorMessage.get('finalFee')}
             >
               <NumberFormat
                 disabled
-                decimalScale={2}
+                decimalScale={0}
                 thousandSeparator
                 prefix={currencyLabels[invoice.currency] || ''}
-                value={invoice.totalBillAmount || ''}
+                value={invoice.finalFee}
+                // onValueChange={this.handleNumberChange('finalFee')}
               />
             </FormReactSelectContainer>
             <input
               type="hidden"
-              name="totalBillAmount"
-              value={invoice.totalBillAmount || ''}
+              name="finalFee"
+              value={invoice.finalFee || ''}
+            />
+            <input
+              type="hidden"
+              name="dueAmount"
+              value={invoice.dueAmount || ''}
+            />
+            <input
+              type="hidden"
+              name="totalAmount"
+              value={invoice.totalAmount || ''}
             />
           </div>
+        </div>
+
+        <div className="row expanded">
           <div className="small-4 columns">
             <FormReactSelectContainer
-              label={t('tab:Discount')}
+              label={t('field:discount')}
               errorMessage={errorMessage.get('discount')}
             >
               <NumberFormat
-                decimalScale={2}
+                decimalScale={0}
                 thousandSeparator
                 prefix={currencyLabels[invoice.currency] || ''}
                 value={invoice.discount}
                 onValueChange={this.handleNumberChange('discount')}
-                allowNegative={false}
-                className={clsx({
-                  'is-invalid-input': !!errorMessage.get('discount'),
-                })}
               />
             </FormReactSelectContainer>
             <input
@@ -641,90 +586,24 @@ class InvoiceBasicForm extends Component {
               value={invoice.discount || ''}
             />
           </div>
-        </div>
-
-        <div className="row expanded">
           <div className="small-4 columns">
             <FormReactSelectContainer
-              label={t('tab:Tax')}
-              errorMessage={errorMessage.get('tax')}
+              label={t('field:Apply Credit')}
+              errorMessage={errorMessage.get('applyCredit')}
             >
               <NumberFormat
-                decimalScale={2}
+                decimalScale={0}
                 thousandSeparator
-                suffix={'%'}
-                value={invoice.taxRate ? Number(invoice.taxRate) * 100 : ''}
-                onValueChange={this.handleRateChange('taxRate')}
-                allowNegative={false}
+                prefix={currencyLabels[invoice.currency] || ''}
+                value={invoice.applyCredit}
+                onValueChange={this.handleNumberChange('applyCredit')}
               />
             </FormReactSelectContainer>
-            <input type="hidden" name="taxRate" value={invoice.taxRate || ''} />
-          </div>
-
-          <div className="small-8 ">
-            <div className=" columns">
-              <FormControlLabel
-                control={
-                  <Switch
-                    onChange={this.toggleApplyCredit}
-                    value="useCredit"
-                    color="primary"
-                    name="useCredit"
-                    size={'small'}
-                    checked={this.state.useCredit}
-                  />
-                }
-                label={
-                  <Typography
-                    style={{
-                      fontSize: '0.75rem',
-                      color: '#212121',
-                    }}
-                  >
-                    {t('tab:Apply Credit')}
-                    {this.state.clientCredits ? (
-                      <>
-                        {' '}
-                        (
-                        <span style={{ color: '#2b97de' }}>
-                          {currencyLabels[invoice.currency] || ''}
-                          {this.state.clientCredits}
-                        </span>{' '}
-                        {t('tab:credit available')})
-                      </>
-                    ) : (
-                      ''
-                    )}
-                  </Typography>
-                }
-                labelPlacement="start"
-                style={{ marginLeft: 0, height: 21 }}
-                disabled={!this.state.clientCredits}
-                htmlFor={'applyCreditInput'}
-              />
-            </div>
-
-            <div className="small-6 columns">
-              <FormReactSelectContainer
-                errorMessage={errorMessage.get('applyCredit')}
-              >
-                <NumberFormat
-                  id={'applyCreditInput'}
-                  decimalScale={2}
-                  thousandSeparator
-                  prefix={currencyLabels[invoice.currency] || ''}
-                  value={invoice.applyCredit}
-                  onValueChange={this.handleNumberChange('applyCredit')}
-                  disabled={!this.state.useCredit}
-                  allowNegative={false}
-                />
-              </FormReactSelectContainer>
-              <input
-                type="hidden"
-                name="applyCredit"
-                value={invoice.applyCredit || ''}
-              />
-            </div>
+            <input
+              type="hidden"
+              name="applyCredit"
+              value={invoice.applyCredit || ''}
+            />
           </div>
         </div>
 
@@ -745,7 +624,6 @@ class InvoiceBasicForm extends Component {
             });
           }}
           errorMessage={errorMessage}
-          removeErrorMsgHandler={removeErrorMsgHandler}
         />
 
         <div className="row expanded">
@@ -754,28 +632,105 @@ class InvoiceBasicForm extends Component {
               name="note"
               label={t('field:note')}
               rows="3"
-              value={invoice.note || ''}
+              value={invoice.note}
               onChange={this.inputChangeHandler}
-              errorMessage={t(errorMessage.get('note'))}
             />
           </div>
+          <input name="talentId" type="hidden" value={invoice.talentId || ''} />
+          <input
+            name="talentName"
+            type="hidden"
+            value={invoice.talentName || ''}
+          />
+          <input name="startId" type="hidden" value={invoice.startId || ''} />
         </div>
 
-        <InvoiceAmountDisplay invoice={invoice} t={t} />
+        <div
+          className="row expanded"
+          style={{ marginTop: 30, marginBottom: 16 }}
+        >
+          <div className="small-12 columns align-right">
+            <div className={classes.summaryDiv}>
+              <div className={classes.summary}>
+                <Typography
+                  variant="caption"
+                  className={classes.row}
+                  gutterBottom
+                >
+                  Subtotal
+                  <span>
+                    {currencyLabels[invoice.currency] || ''}
+                    {(Number(invoice.finalFee) || 0).toLocaleString()}
+                  </span>
+                </Typography>
+                <Typography
+                  variant="caption"
+                  className={classes.row}
+                  gutterBottom
+                >
+                  Discount
+                  <span>
+                    {currencyLabels[invoice.currency] || ''}
+                    {invoice.discount && '-'}
+                    {(Number(invoice.discount) || 0).toLocaleString()}
+                  </span>
+                </Typography>
+                {invoice.paidStartupFee && (
+                  <Typography
+                    variant="caption"
+                    className={classes.row}
+                    gutterBottom
+                  >
+                    {'Startup Fee'}
+                    <span>
+                      {currencyLabels[invoice.currency] || ''}-
+                      {(Number(invoice.startupFeeAmount) || 0).toLocaleString()}
+                    </span>
+                  </Typography>
+                )}
+                {Boolean(invoice.applyCredit) && (
+                  <Typography
+                    variant="caption"
+                    className={classes.row}
+                    gutterBottom
+                  >
+                    {'Credit'}
+                    <span>
+                      {currencyLabels[invoice.currency] || ''}-
+                      {(Number(invoice.applyCredit) || 0).toLocaleString()}
+                    </span>
+                  </Typography>
+                )}
+                <Typography variant="subtitle1" className={classes.row}>
+                  <b>Total</b>
+                  <b>
+                    {currencyLabels[invoice.currency] || ''}
+                    {(
+                      (Number(invoice.finalFee) || 0) -
+                      (Number(invoice.discount) || 0) -
+                      (Number(invoice.startupFeeAmount) || 0) -
+                      (Number(invoice.applyCredit) || 0)
+                    ).toLocaleString()}
+                  </b>
+                </Typography>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div className="row expanded">
           <div className="columns">
             <FormControlLabel
               control={
                 <Switch
-                  onChange={this.splitInvoiceHandler}
+                  onChange={this.splitInvoceHandler}
                   value="splited"
                   color="primary"
                   name="split"
                   checked={this.state.split}
                 />
               }
-              label={t('tab:Split Invoice')}
+              label="Split Invoice"
               labelPlacement="start"
               style={{ marginLeft: 0 }}
             />
@@ -784,24 +739,21 @@ class InvoiceBasicForm extends Component {
 
         {this.state.split ? (
           <div>
-            <div className="columns">
-              <span
-                style={{
-                  fontSize: '0.75rem',
-                  fontWeight: 'bold',
-                  color: ' #cc4b37',
-                }}
-              >
-                {errorMessage.get('subAmountSum')}
-              </span>
-            </div>
+            <span
+              style={{
+                fontSize: '0.75rem',
+                fontWeight: 'bold',
+                color: ' #cc4b37',
+              }}
+            >
+              {errorMessage.get('subAmountSum')}
+            </span>
 
             {[1, 2].map((ele, i) => (
               <SplitedInvoice
                 key={i}
                 t={t}
                 removeErrorMsgHandler={removeErrorMsgHandler}
-                errorMessage={errorMessage}
                 index={i}
                 currency={invoice.currency}
               />
@@ -812,7 +764,6 @@ class InvoiceBasicForm extends Component {
     );
   }
 }
-
 InvoiceBasicForm.defaultProps = {
   errorMessage: Immutable.Map(),
 };

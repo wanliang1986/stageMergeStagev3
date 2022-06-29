@@ -7,6 +7,8 @@ const getStarts = (state) => state.relationModel.starts;
 const getJobs = (state) => state.model.jobs;
 const getTalents = (state) => state.model.talents;
 const getApplications = (state) => state.relationModel.applications;
+const getApplicationCommissions = (state) =>
+  state.relationModel.applicationCommissions;
 const getStartIds = (state) => state.controller.searchStarts.all.ids;
 const getApplicationId = (_, applicationId) => parseInt(applicationId, 10);
 
@@ -26,21 +28,8 @@ export const getActiveStartListByTalent = createSelector(
   (talentId, starts) => {
     return starts.toList().filter((s) => {
       console.log(talentId, s.get('talentId'), s.get('status'));
-      return s.get('talentId') === talentId && s.get('status') === 'ACTIVE';
-    });
-  }
-);
-
-export const getStartListByTalent = createSelector(
-  [getTalentId, getStarts],
-  (talentId, starts) => {
-    return starts.toList().filter((s) => {
-      console.log(talentId, s.get('talentId'), s.get('status'));
-      return (
-        s.get('talentId') === talentId &&
-        (s.get('status') === 'ACTIVE' ||
-          s.get('status') === 'CONTRACT_TERMINATED')
-      );
+      // return s.get('talentId') === talentId && s.get('status') === 'ACTIVE';
+      return s.get('talentId') === talentId;
     });
   }
 );
@@ -81,16 +70,21 @@ export const getStartByApplicationId = makeGetStartByApplicationId();
 
 export const makeGetPreStartByApplicationId = () => {
   return createSelector(
-    [getApplicationId, getApplications, getJobs, getTalents],
-    (applicationId, applications, jobs, talents) => {
+    [
+      getApplicationId,
+      getApplications,
+      getJobs,
+      getTalents,
+      getApplicationCommissions,
+    ],
+    (applicationId, applications, jobs, talents, applicationCommissions) => {
       const application = applications.get(String(applicationId));
       if (application.get('status') !== 'Offer_Accepted') {
         return null;
       }
       const job = jobs.get(String(application.get('jobId')));
       const candidate = talents.get(String(application.get('talentId')));
-      const startCommissions = application
-        .get('applicationCommissions')
+      const startCommissions = applicationCommissions
         .filter((ac) => ac.get('applicationId') === applicationId)
         .toList();
       // console.log('application', application.toJS());
@@ -98,7 +92,7 @@ export const makeGetPreStartByApplicationId = () => {
       const offerLetter = application.get('applicationOfferLetter')
         ? application.get('applicationOfferLetter').toJS()
         : {};
-      const positionType = job && job.get('jobType');
+      const positionType = job.get('jobType');
       const startContractRate =
         positionType !== JOB_TYPES.FullTime && offerLetter
           ? {
@@ -141,11 +135,11 @@ export const makeGetPreStartByApplicationId = () => {
         talentId: application.get('talentId'),
         talentName: candidate.get('fullName'),
         jobId: application.get('jobId'),
-        jobCode: job && job.get('code'),
-        jobTitle: job && job.get('title'),
-        company: job && job.getIn(['company', 'name']),
-        companyId: job && job.getIn(['company', 'id']),
-        clientContactId: job && job.getIn(['clientContactName', 'id']),
+        jobCode: job.get('code'),
+        jobTitle: job.get('title'),
+        company: job.getIn(['company', 'name']),
+        companyId: job.getIn(['company', 'id']),
+        clientContactId: job.getIn(['clientContactName', 'id']),
         startDate:
           application.getIn(['applicationOfferLetter', 'startDate']) ||
           application.get('eventDate') ||
@@ -153,11 +147,11 @@ export const makeGetPreStartByApplicationId = () => {
         warrantyEndDate:
           application.getIn(['applicationOfferLetter', 'warrantyEndDate']) ||
           null,
-        startAddress: job && job.getIn(['locations', 0]),
+        startAddress: job.getIn(['locations', 0]),
         startContractRates: [startContractRate],
         startFteRate,
         startClientInfo: {},
-        positionType: job && job.get('jobType'),
+        positionType: job.get('jobType'),
         startCommissions,
       });
     }

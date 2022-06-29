@@ -66,7 +66,7 @@ class Login extends React.PureComponent {
 
   render() {
     const { classes, t, loggedin, location } = this.props;
-    const { from } = location.state || { from: { pathname: '/dashboard' } };
+    const { from } = location.state || { from: { pathname: '/' } };
     const { errorMessage, usernameError, passwordError, pending } = this.state;
 
     if (loggedin) {

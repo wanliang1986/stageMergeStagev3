@@ -7,11 +7,7 @@ import { sendEmail } from '../../actions/emailAction';
 import { ADD_MESSAGE } from '../../constants/actionTypes';
 import Mustache from 'mustache';
 import { tenantTemplateList } from '../../actions/templateAction';
-import {
-  formatUserName,
-  getAgreedPayRateLabel,
-  getLocationLabel,
-} from '../../../utils/index';
+import { formatUserName, getAgreedPayRateLabel } from '../../../utils/index';
 import templateSelector from '../../selectors/templateSelector';
 
 import Typography from '@material-ui/core/Typography';
@@ -129,9 +125,18 @@ class SendEmailToTalent extends React.PureComponent {
     const talentSchool = talent.getIn(['educations', 0, 'collegeName']) || ' ';
     const talentCompany = talent.getIn(['experiences', 0, 'company']) || ' ';
     const talentTitle = talent.getIn(['experiences', 0, 'title']) || ' ';
-    const location = talent.get('currentLocation');
-    const talentCity = location && location.get('city');
-    const talentProvince = location && location.get('province');
+    const location =
+      talent.get('currentLocation') || talent.getIn(['preferredLocations', 0]);
+    const talentCity = location
+      ? location.get('city') ||
+        location.get('location') ||
+        location.get('addressLine')
+      : ' ';
+    const talentProvince = location
+      ? location.get('province') ||
+        location.get('location') ||
+        location.get('addressLine')
+      : ' ';
     const view = {
       COMPANYNAME: job.get('companyName') || job.getIn(['company', 'name']),
       JOBTITLE: job.get('title'),
@@ -145,9 +150,8 @@ class SendEmailToTalent extends React.PureComponent {
       CANDIDATETITLE: talentTitle,
       CANDIDATEEMAIL: (talentEmail && talentEmail.get('contact')) || ' ',
       CANDIDATEPHONE: (talentPhone && talentPhone.get('contact')) || ' ',
-      CANDIDATECITY: talentCity || ' ',
-      CANDIDATESTATE: talentProvince || ' ',
-      CANDIDATELOCATION: getLocationLabel(location) || ' ',
+      CANDIDATECITY: talentCity,
+      CANDIDATESTATE: talentProvince,
       USERFIRSTNAME: user.get('firstName') || ' ',
       USERLASTNAME: user.get('lastName') || ' ',
       JOBOWNER: formatUserName(owner),
@@ -157,9 +161,10 @@ class SendEmailToTalent extends React.PureComponent {
       AGREEDPAYRATE: getAgreedPayRateLabel(application['agreedPayRate']),
       MONTHDURATION:
         job.get('endDate') && job.get('startDate')
-          ? moment(job.get('endDate').split('T')[0])
-              .add(1, 'days')
-              .diff(moment(job.get('startDate').split('T')[0]), 'months')
+          ? moment(job.get('endDate')).diff(
+              moment(job.get('startDate')),
+              'months'
+            )
           : null,
     };
     const body = Mustache.render(selectedTemplate.get('template') || '', view);
@@ -196,7 +201,7 @@ class SendEmailToTalent extends React.PureComponent {
       <React.Fragment>
         <DialogTitle disableTypography id="draggable-dialog-title">
           <Typography variant="h5">
-            {t('common:Send Email to Candidate')} <b>{toName}</b>
+            {t('common:Send Email to Candidate ')} <b>{toName}</b>
           </Typography>
         </DialogTitle>
         <DialogContent>

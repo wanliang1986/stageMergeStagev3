@@ -35,7 +35,7 @@ function mapStateToProps(state) {
 
   return {
     authorities,
-    reloadKey: state.controller.reload
+    reloadKey: state.controller.reload,
   };
 }
 export default connect(mapStateToProps)(Reports);

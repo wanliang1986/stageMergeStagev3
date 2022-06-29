@@ -14,7 +14,7 @@ const oppositeDirection = {
   left: 'right',
   right: 'left',
   top: 'down',
-  bottom: 'up'
+  bottom: 'up',
 };
 
 export function isHorizontal(props) {
@@ -27,12 +27,12 @@ export function getAnchor(props) {
     : props.anchor;
 }
 
-export const styles = theme => ({
+export const styles = (theme) => ({
   /* Styles applied to the root element. */
   root: {},
   /* Styles applied to the root element if `variant="permanent or persistent"`. */
   docked: {
-    flex: '0 0 auto'
+    flex: '0 0 auto',
   },
   /* Styles applied to the `Paper` component. */
   paper: {
@@ -49,17 +49,17 @@ export const styles = theme => ({
     // We disable the focus ring for mouse, touch and keyboard users.
     // At some point, it would be better to keep it for keyboard users.
     // :focus-ring CSS pseudo-class will help.
-    outline: 'none'
+    outline: 'none',
   },
   /* Styles applied to the `Paper` component if `anchor="left"`. */
   paperAnchorLeft: {
     left: 0,
-    right: 'auto'
+    right: 'auto',
   },
   /* Styles applied to the `Paper` component if `anchor="right"`. */
   paperAnchorRight: {
     left: 'auto',
-    right: 0
+    right: 0,
   },
   /* Styles applied to the `Paper` component if `anchor="top"`. */
   paperAnchorTop: {
@@ -68,7 +68,7 @@ export const styles = theme => ({
     bottom: 'auto',
     right: 0,
     height: 'auto',
-    maxHeight: '100%'
+    maxHeight: '100%',
   },
   /* Styles applied to the `Paper` component if `anchor="bottom"`. */
   paperAnchorBottom: {
@@ -77,26 +77,26 @@ export const styles = theme => ({
     bottom: 0,
     right: 0,
     height: 'auto',
-    maxHeight: '100%'
+    maxHeight: '100%',
   },
   /* Styles applied to the `Paper` component if `anchor="left"` & `variant` is not "temporary". */
   paperAnchorDockedLeft: {
-    borderRight: `1px solid ${theme.palette.divider}`
+    borderRight: `1px solid ${theme.palette.divider}`,
   },
   /* Styles applied to the `Paper` component if `anchor="top"` & `variant` is not "temporary". */
   paperAnchorDockedTop: {
-    borderBottom: `1px solid ${theme.palette.divider}`
+    borderBottom: `1px solid ${theme.palette.divider}`,
   },
   /* Styles applied to the `Paper` component if `anchor="right"` & `variant` is not "temporary". */
   paperAnchorDockedRight: {
-    borderLeft: `1px solid ${theme.palette.divider}`
+    borderLeft: `1px solid ${theme.palette.divider}`,
   },
   /* Styles applied to the `Paper` component if `anchor="bottom"` & `variant` is not "temporary". */
   paperAnchorDockedBottom: {
-    borderTop: `1px solid ${theme.palette.divider}`
+    borderTop: `1px solid ${theme.palette.divider}`,
   },
   /* Styles applied to the `Modal` component. */
-  modal: {}
+  modal: {},
 });
 
 class Drawer extends React.Component {
@@ -138,7 +138,7 @@ class Drawer extends React.Component {
           classes[`paperAnchor${capitalize(anchor)}`],
           {
             [classes[`paperAnchorDocked${capitalize(anchor)}`]]:
-              variant !== 'temporary'
+              variant !== 'temporary',
           }
         )}
         {...PaperProps}
@@ -188,7 +188,7 @@ class Drawer extends React.Component {
       {
         ...BackdropProps,
         ...BackdropPropsProp,
-        transitionDuration
+        transitionDuration,
       },
       ModalProps
     );
@@ -197,7 +197,7 @@ class Drawer extends React.Component {
         BackdropProps={{
           ...BackdropProps,
           ...BackdropPropsProp,
-          transitionDuration
+          transitionDuration,
         }}
         BackdropComponent={Backdrop}
         className={clsx(classes.root, classes.modal, className)}
@@ -266,12 +266,12 @@ Drawer.propTypes = {
    */
   transitionDuration: PropTypes.oneOfType([
     PropTypes.number,
-    PropTypes.shape({ enter: PropTypes.number, exit: PropTypes.number })
+    PropTypes.shape({ enter: PropTypes.number, exit: PropTypes.number }),
   ]),
   /**
    * The variant to use.
    */
-  variant: PropTypes.oneOf(['permanent', 'persistent', 'temporary'])
+  variant: PropTypes.oneOf(['permanent', 'persistent', 'temporary']),
 };
 
 Drawer.defaultProps = {
@@ -280,13 +280,13 @@ Drawer.defaultProps = {
   open: false,
   transitionDuration: {
     enter: duration.enteringScreen,
-    exit: duration.leavingScreen
+    exit: duration.leavingScreen,
   },
-  variant: 'temporary' // Mobile first.
+  variant: 'temporary', // Mobile first.
 };
 
 export default withStyles(styles, {
   name: 'MuiDrawer',
   flip: false,
-  withTheme: true
+  withTheme: true,
 })(Drawer);

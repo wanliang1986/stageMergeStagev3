@@ -15,7 +15,6 @@ import Checkbox from '@material-ui/core/Checkbox';
 import clsx from 'clsx';
 // import { getFilterData } from '../../store/actions/searchAudience';
 import { CandidateGetGeneral } from '../actions/commonPoolAction';
-import { withTranslation } from 'react-i18next';
 const styles = {
   root: {
     width: 250,
@@ -91,7 +90,6 @@ class Degrees extends React.Component {
 
   componentDidMount() {
     const { commonPoolSelectListTo, defultOptions } = this.props;
-    console.log('defultOptions', defultOptions);
     let newCommonPoolArr = [];
     if (commonPoolSelectListTo && commonPoolSelectListTo.length !== 0) {
       let str = commonPoolSelectListTo.join('');
@@ -105,7 +103,7 @@ class Degrees extends React.Component {
   }
 
   onchangeHandler = (value) => {
-    const { dispatch, defultStatus, orderStatus } = this.props;
+    const { dispatch, defultStatus } = this.props;
     this.setState({ prevFilters: value });
     let newValue = value.map((ele) => ele.value);
     console.log('newValue', newValue);
@@ -117,28 +115,9 @@ class Degrees extends React.Component {
       type: ActionTypes.COMMON_POOL_DEFULT_STATUS,
       payload: defultStatus,
     });
-    dispatch({
-      type: ActionTypes.SELECT_TO_STATUS,
-      payload: newValue,
-    });
     dispatch(
       CandidateGetGeneral('', '', 'select', this.props.defultStatus, newValue)
     );
-    if (
-      orderStatus && orderStatus.and
-        ? orderStatus.and.length === 0
-        : orderStatus.length === 0
-    ) {
-      dispatch({
-        type: ActionTypes.UN_SELECT_STATUS,
-        payload: false,
-      });
-    } else {
-      dispatch({
-        type: ActionTypes.UN_SELECT_STATUS,
-        payload: true,
-      });
-    }
   };
 
   render() {
@@ -180,11 +159,7 @@ class Degrees extends React.Component {
           )}
           renderInput={(params) => (
             <TextField
-              placeholder={
-                prevFilters.length
-                  ? ''
-                  : this.props.t(`tab:${placeholderValue}`)
-              }
+              placeholder={prevFilters.length ? '' : placeholderValue}
               {...params}
               InputProps={{
                 ...params.InputProps,
@@ -209,10 +184,7 @@ const mapStateToProps = (state) => {
   return {
     filters: state.controller.searchAudience.get('filters').get('degrees'),
     commonPoolSelectListTo,
-    orderStatus: state.controller.newCandidateJob.toJS().orderStatus,
   };
 };
 
-export default withTranslation('tab')(
-  connect(mapStateToProps)(withStyles(styles)(Degrees))
-);
+export default connect(mapStateToProps)(withStyles(styles)(Degrees));

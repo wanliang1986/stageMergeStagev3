@@ -5,14 +5,8 @@ import { miniUser, jobBasic } from './schemas';
 import { showErrorMessage } from './index';
 import Immutable from 'immutable';
 import { getNewAMList } from '../../utils/index';
-import { GET_SKIP_SUBMIT_TO_AM_COMPANIES } from '../constants/actionTypes';
 
 const companies = new schema.Entity('companies', {});
-const skimSubmitToAMCompanies = new schema.Entity(
-  'skimSubmitToAMCompanies',
-  {},
-  { idAttribute: (value) => value.companyId }
-);
 // const noContractClients = new schema.Entity('noContractClients',{})
 const client = new schema.Entity('clients', {
   accountManager: miniUser,
@@ -49,50 +43,38 @@ export const upsertClientContact =
       });
   };
 
-//add common pool candidates to company contact
-export const addCommonPooltoCompany = (clientContact) => (dispatch) => {
-  return apnSDK.addCommonPooltoCompany(clientContact).then(({ response }) => {
-    // dispatch({
-    //   type:ActionTypes.ADD_CLIENT_CONTACT,
-    //   client: response,
-    // });
-    return response;
-  });
-};
-
-// timesheet approver
-export const upsertapprover = (clientContact) => (dispatch, getState) => {
-  return apnSDK.upsertapprover(clientContact);
-};
 //company new feature
 export const getCompanyList = (type) => (dispatch, getState) => {
   dispatch({
     type: ActionTypes.REMOVE_COMPANIES,
   });
 
-  return apnSDK
-    .getCompanyList(type)
-    .then(({ response }) => {
-      const normalizedData = normalize(response.clients, [companies]);
-      // const normalizedNoContarctData = normalize(response.noContractCompany,[noContractClients])
-      // console.log(normalizedNoContarctData)
-      // console.log('normalized', normalizedData);
-      dispatch({
-        type: ActionTypes.RECEIVE_COMPANIES,
-        normalizedData,
-      });
-      dispatch({
-        type: ActionTypes.NO_CONTRACT_CLIENT,
-        normalizedNoContarctData: response.noContractCompany,
-      });
-      return response;
-    })
-    .catch((err) => {
-      dispatch({
-        type: ActionTypes.FAILURE_COMPANIES,
-      });
-      throw err;
-    });
+  return (
+    apnSDK
+      // .getCompanyList(type)
+      .getAllClientCompanyList(type)
+      .then(({ response }) => {
+        const normalizedData = normalize(response, [companies]);
+        // const normalizedNoContarctData = normalize(response.noContractCompany,[noContractClients])
+        // console.log(normalizedNoContarctData)
+        // console.log('normalized', normalizedData);
+        dispatch({
+          type: ActionTypes.RECEIVE_COMPANIES,
+          normalizedData,
+        });
+        // dispatch({
+        //   type: ActionTypes.NO_CONTRACT_CLIENT,
+        //   normalizedNoContarctData: response.noContractCompany,
+        // });
+        return response;
+      })
+      .catch((err) => {
+        dispatch({
+          type: ActionTypes.FAILURE_COMPANIES,
+        });
+        throw err;
+      })
+  );
 };
 
 export const createCompany = (company) => (dispatch, getState) => {
@@ -110,9 +92,9 @@ export const createCompany = (company) => (dispatch, getState) => {
     .catch((err) => dispatch(showErrorMessage(err)));
 };
 
-export const putClientInfo = (params, id) => (dispatch, getState) => {
+export const putClientInfo = (params) => (dispatch, getState) => {
   return apnSDK
-    .putClientInfo(params, id)
+    .putClientInfo(params)
     .then(({ response }) => {
       // console.log('edit company', response);
       const normalizedData = normalize(response, companies);
@@ -126,15 +108,27 @@ export const putClientInfo = (params, id) => (dispatch, getState) => {
 };
 
 export const getCompany = (companyId, type) => (dispatch, getState) => {
-  return apnSDK.getCompanyById(companyId, type).then(({ response }) => {
-    let company = getNewAMList(response.salesLead);
-    response.accountManager = company;
-    const normalizedData = normalize(response, companies);
-    dispatch({
-      type: ActionTypes.RECEIVE_COMPANY,
-      normalizedData,
+  if (type === '0') {
+    return apnSDK.getClientDetail(companyId, type).then(({ response }) => {
+      let company = getNewAMList(response.salesLeadDetails);
+      response.accountManager = company;
+      const normalizedData = normalize(response, companies);
+      dispatch({
+        type: ActionTypes.RECEIVE_COMPANY,
+        normalizedData,
+      });
     });
-  });
+  } else {
+    return apnSDK.getProspectDetail(companyId, type).then(({ response }) => {
+      let company = getNewAMList(response.salesLeadDetails);
+      response.accountManager = company;
+      const normalizedData = normalize(response, companies);
+      dispatch({
+        type: ActionTypes.RECEIVE_COMPANY,
+        normalizedData,
+      });
+    });
+  }
 };
 
 export const getOpenJobsByCompany = (companyId) => (dispatch, getState) => {
@@ -279,7 +273,7 @@ export const deleteProgramTeam = (teamId) => (dispatch, getState) => {
 //client search
 export const companySearch = (str) => (dispatch, getState) => {
   return apnSDK
-    .companySearch(str)
+    .companySearchV3(str)
     .catch((err) => dispatch(showErrorMessage(err)));
 };
 
@@ -329,9 +323,9 @@ export const getClientContactByCompanyId =
   };
 
 //创建progressNotes
-export const postProgressNotes = (id, params) => (dispatch, getState) => {
+export const postProgressNotes = (params) => (dispatch, getState) => {
   return apnSDK
-    .postProgressNotes(id, params)
+    .postProgressNotes(params)
     .catch((err) => dispatch(showErrorMessage(err)));
 };
 
@@ -349,14 +343,6 @@ export const getCLientContactAddress = (companyId) => (dispatch, getState) => {
     .catch((err) => dispatch(showErrorMessage(err)));
 };
 
-// 获取当前公司的当前用户是否有approver的编辑权限
-export const gethasApproverPermissionList =
-  (companyId) => (dispatch, getState) => {
-    return apnSDK
-      .gethasApproverPermissionId(companyId)
-      .catch((err) => dispatch(showErrorMessage(err)));
-  };
-
 //根据公司获取联系人列表
 export const getClientContactList =
   (companyEntityId) => (dispatch, getState) => {
@@ -365,7 +351,7 @@ export const getClientContactList =
     });
 
     return apnSDK
-      .getClientContactList(companyEntityId)
+      .getCompanyContact(companyEntityId)
       .then(({ response }) => {
         // console.log('client list BYCOMPANY', response);
         const normalizedData = normalize(response, [client]);
@@ -556,12 +542,15 @@ export const InternalReportDown = (params) => (dispatch, getState) => {
     .catch((err) => dispatch(showErrorMessage(err)));
 };
 
-export const getSkipSubmitToAMCompanies = () => (dispatch) => {
-  return apnSDK.getSkipSubmitToAMCompanies().then(({ response }) => {
-    const normalizedData = normalize(response, [skimSubmitToAMCompanies]);
-    dispatch({
-      type: ActionTypes.GET_SKIP_SUBMIT_TO_AM_COMPANIES,
-      normalizedData,
-    });
-  });
+export const getNoContracts = () => (dispatch, getState) => {
+  return apnSDK
+    .getNoContracts()
+    .then(({ response }) => {
+      dispatch({
+        type: ActionTypes.NO_CONTRACT_CLIENT,
+        normalizedNoContarctData: response,
+      });
+      return response;
+    })
+    .catch((err) => dispatch(showErrorMessage(err)));
 };

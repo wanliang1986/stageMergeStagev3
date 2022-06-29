@@ -15,9 +15,10 @@ import {
   application,
   talentOwnership,
   newCandidateDetail,
+  newStart,
 } from './schemas';
 import { showErrorMessage } from './index';
-
+import { getJob } from './jobActions';
 import { getFileUuid, getUploadFileType } from '../../apn-sdk/files';
 
 import loadsh from 'lodash';
@@ -41,13 +42,9 @@ export const getTalent = (talentId) => (dispatch, getState) => {
     .getTalent(talentId)
     .then(({ response }) => {
       console.log('get talent : ', response);
-      dispatch({
-        type: ActionTypes.BASIC_INFORMATION_DETAILS,
-        basicInformationDetail: response,
-      });
-      if (response.workAuthorization) {
+      if (response.tenantLabels && response.tenantLabels.workAuthorization) {
         apnSDK
-          .getCandidateWorkName(response.workAuthorization[0])
+          .getCandidateWorkName(response.tenantLabels.workAuthorization[0])
           .then((res) => {
             response.label = res.response && res.response.data;
             const candidateDetail = loadsh.cloneDeep(response);
@@ -101,17 +98,7 @@ export const getTalent = (talentId) => (dispatch, getState) => {
 };
 
 export const createCandidate = (talentData) => (dispatch, getState) => {
-  console.log('createCandidate', talentData);
-
-  //remove utf8mb4 from resume text
-  if (talentData.resumes) {
-    talentData.resumes = talentData.resumes.map((resume) => {
-      resume.text =
-        resume.text &&
-        resume.text.replaceAll(/[^\u0000-\uD7FF\uE000-\uFFFF]/g, '');
-      return resume;
-    });
-  }
+  console.log(talentData);
 
   return apnSDK.createCandidate(talentData).then(({ response }) => {
     console.log(response);
@@ -216,31 +203,24 @@ export const getParserOutputByUuid = (uuid) => (dispatch, getState) => {
   });
 };
 
-export const parseResume = (resumeFile, priority) => (dispatch) => {
+export const parseResume = (resumeFile) => (dispatch) => {
   let type = getUploadFileType(resumeFile);
   if (type) {
     return apnSDK
-      .parseResume(resumeFile, priority)
+      .parseResume(resumeFile)
       .catch((err) => dispatch(showErrorMessage(err)));
   } else {
     return Promise.reject('The file format is incorrect');
   }
 };
 
-export const bulkParseResume =
-  (resumeFile, priority) => (dispatch, getState) => {
-    return apnSDK.bulkParseResume(resumeFile, priority);
-  };
-
-export const getParseData = (uuid) => (dispatch, getState) => {
-  return apnSDK.getParseData(uuid);
+export const bulkParseResume = (resumeFile) => (dispatch, getState) => {
+  return apnSDK.bulkParseResume(resumeFile);
 };
 
 // talent resume
 export const addResume = (resume) => (dispatch, getState) => {
   console.log('adding resume', resume);
-  resume.text =
-    resume.text && resume.text.replaceAll(/[^\u0000-\uD7FF\uE000-\uFFFF]/g, '');
   return apnSDK
     .addResume(resume)
     .then(({ response }) => {
@@ -273,44 +253,28 @@ export const removeResume = (talentResumeId) => (dispatch, getState) => {
 };
 
 export const getApplicationsByTalentId = (talentId) => (dispatch) => {
-  return apnSDK.getApplicationsByTalentId(talentId).then(({ response }) => {
+  return apnSDK.getAllApplicationsByTalentId(talentId).then(({ response }) => {
     const normalizedData = normalize(response, [application]);
+
     console.log('get talent applications: ', response);
-    let detailStatus = null;
-    let detailArr = [];
-    // 判断候选人详情Account management 是否显示
-    response && response.length > 0
-      ? response.filter((item) => {
-          if (item.job.jobType !== 'FULL_TIME') {
-            if (
-              item.eventType === 'START' ||
-              item.eventType === 'START_TERMINATED' ||
-              item.eventType === 'START_EXTENSION' ||
-              item.eventType === 'START_FAIL_WARRANTY'
-            ) {
-              detailArr.push(item);
-            }
-          }
-        })
-      : null;
-    if (detailArr.length > 0) {
-      detailStatus = true;
-    } else {
-      detailStatus = false;
-    }
-    console.log('detailStatus', detailStatus);
-    let arr = [];
+    let arr = []; //写流程，不清楚他的作用，所以没删
+    let StartArr = []; //走完流程的数据
     response &&
       response.map((item) => {
-        arr.push(item.job);
+        dispatch(getJob(item.jobId));
+        if (JSON.stringify(item.onboard) !== '{}' && !item.eliminate) {
+          StartArr.push(item);
+          // 现在没有专门获取start数据的api,从所有流程的api里面过滤
+          const normalizedStartData = normalize(StartArr, [newStart]);
+          dispatch({
+            type: ActionTypes.RECEIVE_START,
+            normalizedData: normalizedStartData,
+          });
+        }
       });
     dispatch({
       type: ActionTypes.NEW_CANDIDATE_RELATIONS,
-      payload: response.map((application) => application.job),
-    });
-    dispatch({
-      type: ActionTypes.CANDIDATES_ID_STATUS,
-      payload: detailStatus,
+      payload: arr,
     });
     dispatch({
       type: ActionTypes.RECEIVE_APPLICATION_LIST,
@@ -466,16 +430,9 @@ export const createTalentWithParseResult =
     //   parseRecordId,
     //   hotListId
     // );
-    let hotList = getState().relationModel.hotLists.get(hotListId);
-    if (hotList) {
-      hotList = hotList.remove('talentIds');
-    }
-    const parseRecord = getState().model.parseRecords.get(
-      String(parseRecordId)
-    );
-    const note = parseRecord.get('note');
-
-    // console.log(hotList,JSON.parse(note));
+    const hotList =
+      hotListId &&
+      getState().relationModel.hotLists.get(hotListId).remove('talentIds');
 
     if (resume.talentId) {
       if (hotListId) {
@@ -485,8 +442,7 @@ export const createTalentWithParseResult =
 
       const note = JSON.stringify({
         other: `Talent is already exists. TalentId: ${resume.talentId}`,
-        hotList: hotList || (note && JSON.parse(note).hotList),
-        talentId: resume.talentId,
+        hotList,
       });
       dispatch(upsertParseRecord({ note }, parseRecordId));
       return Promise.reject({
@@ -495,19 +451,10 @@ export const createTalentWithParseResult =
     }
     const talent = getValidTalentFromParseResult(resume);
 
-    if (resume.status === 'ERROR') {
-      const note = JSON.stringify({
-        other: 'ERROR: Failed to parse resume.',
-        hotList: hotList || (note && JSON.parse(note).hotList),
-      });
-      dispatch(upsertParseRecord({ note }, parseRecordId));
-      return Promise.reject({ message: 'ERROR: Failed to parse resume.' });
-    }
-
     if (!talent.fullName) {
       const note = JSON.stringify({
         other: 'Talent name is required.',
-        hotList: hotList || (note && JSON.parse(note).hotList),
+        hotList,
       });
       dispatch(upsertParseRecord({ note }, parseRecordId));
       return Promise.reject({ message: 'Talent name is required.' });
@@ -515,14 +462,14 @@ export const createTalentWithParseResult =
     if (!talent.contacts || talent.contacts.length === 0) {
       const note = JSON.stringify({
         other: 'Talent contact is required.',
-        hotList: hotList || (note && JSON.parse(note).hotList),
+        hotList,
       });
       dispatch(upsertParseRecord({ note }, parseRecordId));
       return Promise.reject({ message: 'Talent contact is required.' });
     }
-
+    let newContactObj = { contacts: talent.contacts };
     const { response: duplications } = await apnSDK
-      .searchTalentByContacts(talent.contacts)
+      .searchTalentByContacts(newContactObj)
       .catch((err) => {
         const note = JSON.stringify({
           other:
@@ -530,7 +477,7 @@ export const createTalentWithParseResult =
             (err.fieldErrors
               ? err.fieldErrors[err.fieldErrors.length - 1].message
               : err.message || err),
-          hotList: hotList || (note && JSON.parse(note).hotList),
+          hotList,
         });
         dispatch(upsertParseRecord({ note }, parseRecordId));
         return Promise.reject(`Failed to check talent's existence`);
@@ -546,8 +493,7 @@ export const createTalentWithParseResult =
       } else {
         const note = JSON.stringify({
           other: `Talent is already exists. TalentId: ${talentId}`,
-          hotList: hotList || (note && JSON.parse(note).hotList),
-          talentId,
+          hotList,
         });
         dispatch(upsertParseRecord({ note }, parseRecordId));
         return Promise.reject(
@@ -572,7 +518,7 @@ export const createTalentWithParseResult =
               (err.fieldErrors
                 ? err.fieldErrors[err.fieldErrors.length - 1].message
                 : err.message || err),
-            hotList: hotList || (note && JSON.parse(note).hotList),
+            hotList,
           });
           dispatch(upsertParseRecord({ note }, parseRecordId));
           return Promise.reject(`Failed to create talent`);

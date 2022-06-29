@@ -233,12 +233,7 @@ class AddActivityReactiveForm extends Component {
       <Fragment>
         {/* 标题 */}
         <DialogTitle>
-          Pre Status:
-          {t(
-            `tab:${getApplicationStatusLabel(
-              application.get('status')
-            ).toLowerCase()}`
-          )}
+          Pre Status: {getApplicationStatusLabel(application.get('status'))}
         </DialogTitle>
 
         {/* 表单内容 */}

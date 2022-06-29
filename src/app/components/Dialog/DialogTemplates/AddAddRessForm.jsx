@@ -15,13 +15,12 @@ class AddAddRessForm extends Component {
     return (
       <div>
         <Typography variant="caption" display="block" gutterBottom>
-          {t(
-            'tab:Please note that the new address will be added under this company’s profile!'
-          )}
+          Please note that the new address will be added under this company’s
+          profile!
         </Typography>
         <div className="row expanded">
           <div className="small-12 columns">
-            <FormReactSelectContainer label={t('tab:Additional Address')}>
+            <FormReactSelectContainer label={t('field:Additional Address')}>
               <FormInput
                 name="Additional Address"
                 value={this.state.address}
@@ -34,7 +33,7 @@ class AddAddRessForm extends Component {
           </div>
           <div className="small-12 columns">
             <label style={{ fontSize: '12px' }}>
-              {t('tab:Additional Address - City/State/Country')}
+              Additional Address - City/State/Country
             </label>
             <Location
               getLocation={(location) => {

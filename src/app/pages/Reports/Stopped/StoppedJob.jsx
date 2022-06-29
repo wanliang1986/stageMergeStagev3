@@ -283,10 +283,10 @@ class StoppedJob extends React.PureComponent {
       >
         <div>
           <Typography variant="h6" style={{ margin: '10px' }}>
-            {t('tab:Inactive Job Status Monitor')}
+            Inactive Job Status Monitor
           </Typography>
           <Typography variant="subtitle1" style={{ margin: '10px' }}>
-            {t('tab:No activities during the past three months')}
+            No activities during the past three months.
           </Typography>
         </div>
 
@@ -297,7 +297,7 @@ class StoppedJob extends React.PureComponent {
         >
           <div>
             <div style={{ minWidth: 228, height: 53 }}>
-              <FormReactSelectContainer label={t('field:Division')}>
+              <FormReactSelectContainer label={'Division'}>
                 {/* t('field:Office') */}
                 <Select
                   value={selectedDivision}

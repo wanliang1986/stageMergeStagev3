@@ -18,8 +18,6 @@ import lodash from 'lodash';
 
 import { columns, candidateIsRequiredAdvanced } from '../../../../utils/search';
 
-import { withTranslation } from 'react-i18next';
-
 const styles = makeStyles({
   action: {
     border: '1px solid',
@@ -158,8 +156,8 @@ const styles = makeStyles({
     },
   },
 });
-function AdvancedDialog({ show, close, t }) {
-  console.log(t);
+
+export default function AdvancedDialog({ show, close }) {
   const classes = styles();
 
   const { newCandidateJob } = useSelector((state) => state.controller);
@@ -279,7 +277,7 @@ function AdvancedDialog({ show, close, t }) {
       className={classes.dialogs}
     >
       <DialogTitle className="title" id="responsive-dialog-title">
-        {t('tab:Advanced Search')}
+        {'Advanced Search'}
       </DialogTitle>
       <DialogContent>
         <div className="list">
@@ -321,7 +319,7 @@ function AdvancedDialog({ show, close, t }) {
             onClick={handleClose}
             color="primary"
           >
-            {t('tab:Close')}
+            Close
           </Button>
           <Button
             className="btn"
@@ -330,7 +328,7 @@ function AdvancedDialog({ show, close, t }) {
             variant="contained"
             color="primary"
           >
-            {t('tab:Search')}
+            Search
           </Button>
         </div>
         <Button
@@ -346,5 +344,3 @@ function AdvancedDialog({ show, close, t }) {
     </Dialog>
   );
 }
-
-export default withTranslation('tab')(AdvancedDialog);

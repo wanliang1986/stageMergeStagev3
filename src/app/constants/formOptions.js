@@ -401,24 +401,6 @@ export const jobStatus = [
   { value: 'IGNORED', label: 'IGNORED', disabled: true },
 ];
 
-export const ipgJobStatusObj = {
-  // ipg job status :open
-  OPEN: 'OPEN',
-  REOPENED: 'OPEN',
-
-  // ipg job status :close
-  FILLED: 'CLOSE',
-  CLOSED: 'CLOSE',
-  CANCELLED: 'CLOSE',
-  ONHOLD: 'CLOSE',
-};
-
-//ipg Posting
-export const ipgPostingStatus = [
-  { value: true, label: 'Posted' },
-  { value: false, label: 'Unposted' },
-];
-
 ////////new clients
 /////componies 状态搜索
 export const componiesStatus = [
@@ -484,7 +466,7 @@ export const expLevel = [
 export const currency = [
   { value: 'USD', label: '$', label2: 'USD - $', label3: 'USA-USD（US$）' },
   { value: 'CNY', label: '￥', label2: 'CNY -￥', label3: 'CHN-CNY（¥）' },
-  { value: 'CAD', label: 'C$', label2: 'CAD - $', label3: 'CAN-CAD（C$）' },
+  { value: 'CAD', label: '$', label2: 'CAD - $', label3: 'CAN-CAD（C$）' },
   { value: 'EUR', label: '€', label2: 'EUR - €', label3: 'EU-EUR（€）' },
   { value: 'GBP', label: '£', label2: 'GBP - £', label3: 'UK-GBP（£）' },
 ];
@@ -521,28 +503,10 @@ export const activityStatus = [
 
   // { value: 'Offer_Rejected', label: 'Offer Declined' }, //11
   { value: 'Offer_Accepted', label: 'Offer Accepted' },
-  { value: 'Started', label: 'On boarded' },
 ];
 
 export const activityStatus1 = [
   { value: 'Applied', label: 'Submitted to AM' },
-  { value: 'Submitted', label: 'Submitted to Client' }, //5
-
-  // { value: 'Client_Rejected', label: 'Rejected by Client' }, //6
-  // { value: 'Shortlisted_By_Client', label: 'Shortlisted by Client' }, //7
-  { value: 'Interview', label: 'Interview' }, //8
-
-  // { value: 'Client_Rejected', label: 'Rejected by Client' }, //9
-  { value: 'Offered', label: 'Offered by Client' }, //10
-
-  // { value: 'Offer_Rejected', label: 'Offer Declined' }, //11
-  { value: 'Offer_Accepted', label: 'Offer Accepted' },
-  { value: 'Started', label: 'On boarded' },
-  // { value: 'START_TERMINATED', label: 'Terminated' },
-  // { value: 'START_EXTENSION', label: 'Extension' },
-];
-export const activityStatus2 = [
-  // { value: 'Applied', label: 'Submitted to AM' },
   { value: 'Submitted', label: 'Submitted to Client' }, //5
 
   // { value: 'Client_Rejected', label: 'Rejected by Client' }, //6
@@ -621,6 +585,18 @@ export const applicationStatus2 = [
   { value: 'updateUserRoles', label: 'Update User Roles' },
   { value: 'updateCommissions', label: 'Update Commissions' },
 ];
+
+export const applicationStatusV3 = [
+  { value: 'SUBMIT_TO_JOB', label: '推荐至职位' },
+  { value: 'SUBMIT_TO_CLIENT', label: '推荐至客户' },
+  { value: 'INTERVIEW', label: '面试' },
+  { value: 'OFFER', label: 'Offer' },
+  { value: 'OFFER_ACCEPT', label: '业绩分配' },
+  { value: 'COMMISSION', label: '业绩分配' },
+  { value: 'ON_BOARD', label: '入职' },
+  { value: 'ELIMINATED', label: '淘汰' },
+];
+
 export const applicationStatus3 = [
   //preStatus
   // { value: 'Watching', label: 'Watching' },
@@ -692,7 +668,7 @@ export const applicationStatus4 = [
 let applicationStatusMap;
 export const getApplicationStatusLabel = (status) => {
   if (!applicationStatusMap) {
-    applicationStatusMap = applicationStatus2.reduce((res, status) => {
+    applicationStatusMap = applicationStatusV3.reduce((res, status) => {
       res[status.value] = status.label;
       return res;
     }, {});
@@ -812,11 +788,11 @@ export const CONTACT_TYPES = Object.freeze({
 });
 
 export const payRateUnitTypes = [
-  { value: 'HOURLY', label: 'Hourly' },
-  { value: 'DAILY', label: 'Daily' },
-  { value: 'WEEKLY', label: 'Weekly' },
-  { value: 'MONTHLY', label: 'Monthly' },
-  { value: 'YEARLY', label: 'Yearly' },
+  { value: 'HOURLY', label: 'Hour', label2: '小时' },
+  { value: 'DAILY', label: 'Day', label2: '天' },
+  { value: 'WEEKLY', label: 'Week', label2: '周' },
+  { value: 'MONTHLY', label: 'Month', label2: '月' },
+  { value: 'YEARLY', label: 'Year', label2: '年' },
 ];
 
 export const contractStatus = [
@@ -853,10 +829,6 @@ export const templateTypes2 = [
   {
     value: 'Invoice_Email',
     label: 'Invoice Email',
-  },
-  {
-    value: 'On_Boarding',
-    label: 'On Boarding',
   },
   // {
   //   value: 'Email_Blast',
@@ -1089,26 +1061,32 @@ export const userTypeForCommission = [
   {
     value: 'AM',
     label: 'Account Manager',
+    label2: '客户经理',
   },
   {
     value: 'AC',
     label: 'Account Coordinator',
+    label2: '账户协调员',
   },
   {
     value: 'DM',
     label: 'Delivery Manager',
+    label2: '交付经理',
   },
   {
     value: 'RECRUITER',
     label: 'Recruiter',
+    label2: '招聘专员',
   },
   {
     value: 'SOURCER',
     label: 'Sourcer',
+    label2: '招聘专员助理',
   },
   {
     value: 'OWNER',
     label: 'Owner',
+    label2: '所有者',
     disabled: true,
   },
   // {
@@ -1310,70 +1288,56 @@ export const jobStatus1 = [
   // { value: 'IGNORED', label: 'IGNORED' }
 ];
 
-//assignment
-export const overTime = [
-  { value: 'AUTO', label: 'Auto-Calculate by Working State' },
-  { value: 'MANUALLY', label: 'Manually Distribute' },
+// newApplication面试进展
+export const ApplicationInterview = [
+  { value: 1, label: '第1轮' },
+  { value: 2, label: '第2轮' },
+  { value: 3, label: '第3轮' },
+  { value: 4, label: '第4轮' },
+  { value: 5, label: '第5轮' },
+  { value: 6, label: '第6轮' },
+  { value: 7, label: '第7轮' },
+  { value: 8, label: '第8轮' },
+  { value: 9, label: '第9轮' },
+  { value: 10, label: '第10轮' },
+  { value: 11, label: '第11轮' },
+  { value: 12, label: '第12轮' },
 ];
 
-export const groupInvoiceType = [
-  { value: 'EMPLOYEE', label: 'Employee' },
-  { value: 'COMPANY', label: 'Company' },
-  { value: 'CUSTOM', label: 'Custom' },
-  { value: 'PO', label: 'P.O.#' },
-  { value: 'CUSTOM_REF', label: 'Customer Ref. #' },
-  { value: 'BILL_CONTACT', label: 'Billing Contact' },
-  { value: 'JOB', label: 'Job' },
+export const ApplicationInterviewType = [
+  { value: 'PHONE', label: '电话面试' },
+  { value: 'VIDEO', label: '视频面试' },
+  { value: 'ONSITE', label: '现场面试' },
+  { value: 'OTHER', label: '其他' },
 ];
 
-export const groupInvoiceContent = [
-  { value: 'TIMESHEET', label: 'Generate Invoices from Timesheets Only' },
-  {
-    value: 'TIMESHEET_EXPENSE',
-    label: 'Include Related Expenses with Timesheet Invoices',
-  },
+export const ApplicationOfferSalary = [
+  { value: 'BASE_SALARY', label: '可计费基本薪资' },
+  { value: 'RETENTION_BONUS', label: '入职奖金' },
+  { value: 'SIGN_ON_BONUS', label: '保留奖金' },
+  { value: 'ANNUAL_BONUS', label: '年度奖金' },
+  { value: 'RELOCATION_PACKAGE', label: '搬迁套餐' },
+  { value: 'EXTRA_FEE', label: '额外费用' },
 ];
 
-export const timeUnit = [
-  { value: 'HOURLY', label: 'Hourly' },
-  { value: 'DAILY', label: 'Daily' },
-  { value: 'WEEKLY', label: 'Weekly' },
-  { value: 'MONTHLY', label: 'Monthly' },
-  { value: 'YEARLY', label: 'Yearly' },
+export const SalaryStructure = [
+  { value: 'BASE_SALARY', label: '基本薪资' },
+  { value: 'RETENTION_BONUS', label: '留存奖金' },
+  { value: 'STOCK', label: '股权' },
 ];
 
-export const expenseInvoice = [
-  { value: 'EXPENSE_DETAIL', label: 'Display Expense Details' },
-  { value: 'CATEGORY_TOTALS', label: 'Display Only Category Totals' },
+export const ApplicationOfferFree = [
+  { value: 'PERCENTAGE', label: '%' },
+  { value: 'FLAT_AMOUNT', label: '固定金额' },
 ];
 
-export const discountType = [
-  { value: 'NO_DISCOUNT', label_1: 'No Discount', label_2: 0 },
-  { value: 'ADOBE', label_1: 'Adobe@PRO', label_2: 2.25 },
-  { value: 'PINTEREST', label_1: 'Pinterest@PRO', label_2: 3.0 },
-  { value: 'NEW_GOOGLE', label_1: 'New Google MSP Fee', label_2: 1.65 },
-  { value: 'EQUINIX', label_1: 'Equinix@PRO', label_2: 3.0 },
+export const ApplicationRejected = [
+  { value: 'REJECTED_BY_CANDIDATE', label: '候选人拒绝' },
+  { value: 'REJECTED_BY_CLIENT', label: '客户淘汰' },
+  { value: 'INTERNAL_REJECT', label: '内部淘汰' },
 ];
 
-export const timeSheetType = [
-  { value: 'WEEK', label: 'By Day' },
-  { value: 'WEEK_HOUR', label: 'By Hours' },
-  { value: 'WEEK_AM_PM', label: 'Time In/Time Out ' },
-];
-
-export const frequency = [{ value: 'WEEKLY', label: 'Weekly' }];
-
-export const weekEnding = [
-  { value: 'SUNDAY', label: 'Sunday' },
-  { value: 'MONDAY', label: 'Monday' },
-  { value: 'TUESDAY', label: 'Tuesday' },
-  { value: 'WEDNESDAY', label: 'Wednesday' },
-  { value: 'THURSDAY', label: 'Thursday' },
-  { value: 'FRIDAY', label: 'Friday' },
-  { value: 'SATURDAY', label: 'Saturday' },
-];
-
-export const employmentCategory = [
-  { value: 'CONTRACTOR', label: 'Contractor ' },
-  { value: 'CORP_TO_CORP', label: 'Corp to Corp/1099' },
+export const chargeType = [
+  { value: 'REFERRAL_BONUS', label: '人才推荐费' },
+  // { value: 'DEPOSIT', label: '定金' },
 ];

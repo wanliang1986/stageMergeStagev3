@@ -39,8 +39,10 @@ import BackIcon from '@material-ui/icons/ArrowBack';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import { ADD_SEND_EMAIL_REQUEST } from '../../../constants/actionTypes';
-import { SEND_EMAIL_TYPES } from '../../../constants/formOptions';
-import { showErrorMessage } from '../../../actions';
+import {
+  CONTACT_TYPES,
+  SEND_EMAIL_TYPES,
+} from '../../../constants/formOptions';
 
 const columns = [
   {
@@ -99,7 +101,6 @@ const styles = {
     zIndex: 100,
   },
 };
-const HOTLIST_TALENT_COUNT_LIMIT = 3000;
 let status = { selected: {}, filterOpen: true };
 
 function onScrollEnd(scrollLeft, scrollTop) {
@@ -115,7 +116,6 @@ class HotlistTalents extends React.PureComponent {
     }, 850);
 
     this.state = {
-      preTalentList: props.talentList,
       selected:
         (status.selected && status.selected[props.hotListId]) ||
         Immutable.Set(),
@@ -135,8 +135,7 @@ class HotlistTalents extends React.PureComponent {
       pending: false,
       dragEntering: false,
       downloading: false,
-
-      candidateSelected: null,
+      hotlistTalents: null,
     };
     this.count = 0;
   }
@@ -149,18 +148,22 @@ class HotlistTalents extends React.PureComponent {
 
   fetchTalents = () => {
     const { dispatch, hotListId } = this.props;
-    dispatch(getHotListTalents2(hotListId));
+    // dispatch(getHotList(hotListId));
+    dispatch(getHotListTalents2(hotListId)).then((res) => {
+      console.log('~~~~~~~~~~~~~~~~~');
+      console.log(res);
+    });
   };
 
   static getDerivedStateFromProps(props, state) {
-    if (!props.talentList.equals(state.preTalentList)) {
+    const newIndexList = getIndexList(
+      props.talentList,
+      state.filters,
+      state.colSortDirs
+    );
+    if (!newIndexList.equals(state.indexList)) {
       return {
-        indexList: getIndexList(
-          props.talentList,
-          state.filters,
-          state.colSortDirs
-        ),
-        preTalentList: props.talentList,
+        indexList: newIndexList,
       };
     }
     return null;
@@ -193,24 +196,17 @@ class HotlistTalents extends React.PureComponent {
     const filteredIds = indexList.map((index) =>
       talentList.getIn([index, 'id'])
     );
-    const filteredSelected = selected.intersect(Immutable.Set(filteredIds));
+    const filteredSelected = selected.intersect(filteredIds);
 
-    const newSelected =
-      filteredSelected.size > 0 ? Immutable.Set() : Immutable.Set(filteredIds);
-    this.setState({ selected: newSelected });
+    if (filteredSelected.size === filteredIds.size) {
+      this.setState({ selected: selected.subtract(filteredSelected) });
+    } else {
+      this.setState({ selected: selected.union(filteredIds) });
+    }
   };
 
   handleOpen = () => {
-    let { selected, indexList } = this.state;
-    let { talentList } = this.props;
-    const filteredIds = indexList.map((index) =>
-      talentList.getIn([index, 'id'])
-    );
-    const filteredSelected = selected.intersect(Immutable.Set(filteredIds));
-    const candidateSelected = talentList.find((value, index, array) => {
-      return value.get('id') === filteredSelected.first();
-    });
-    this.setState({ dialogOpen: true, candidateSelected });
+    this.setState({ dialogOpen: true });
   };
 
   handleClose = () => {
@@ -259,6 +255,7 @@ class HotlistTalents extends React.PureComponent {
 
   onSortChange = (columnKey, sortDir) => {
     let filteredIndex;
+
     filteredIndex = sortDir
       ? sortList(
           this.state.indexList,
@@ -279,14 +276,6 @@ class HotlistTalents extends React.PureComponent {
   handleFileChange = (e) => {
     const input = e.target;
     const newFiles = Array.from(input.files);
-    if (
-      newFiles.length + this.props.talentList.size >
-      HOTLIST_TALENT_COUNT_LIMIT
-    ) {
-      return this.props.dispatch(
-        showErrorMessage('It will exceed hot list talent count limit 3000')
-      );
-    }
     this.setState({ files: newFiles, pending: true }, () => {
       input.value = '';
     });
@@ -313,27 +302,10 @@ class HotlistTalents extends React.PureComponent {
         }
       }
       Promise.all(newFiles).then((res) => {
-        const files = res.flat(Infinity);
-        if (
-          files.length + this.props.talentList.size >
-          HOTLIST_TALENT_COUNT_LIMIT
-        ) {
-          return this.props.dispatch(
-            showErrorMessage('It will exceed hot list talent count limit 3000')
-          );
-        }
-        this.setState({ files, pending: true });
+        this.setState({ files: res.flat(Infinity), pending: true });
       });
     } else {
       const newFiles = Array.from(files);
-      if (
-        newFiles.length + this.props.talentList.size >
-        HOTLIST_TALENT_COUNT_LIMIT
-      ) {
-        return this.props.dispatch(
-          showErrorMessage('It will exceed hot list talent count limit 3000')
-        );
-      }
       this.setState({ files: newFiles, pending: true });
       // console.log(newFiles);
       // newFiles.forEach(console.log);
@@ -458,10 +430,6 @@ class HotlistTalents extends React.PureComponent {
     });
   };
 
-  goBackToList = () => {
-    this.props.history.replace(`?tab=hotlist`, this.props.location.state || {});
-  };
-
   render() {
     const { hotListId, hotList, talentList, t, classes, isAdmin, ...props } =
       this.props;
@@ -474,27 +442,33 @@ class HotlistTalents extends React.PureComponent {
       dialogOpen,
       colSortDirs,
       handleDeleteHotlistTalent,
-      candidateSelected,
 
       files,
       pending,
       dragEntering,
       downloading,
     } = this.state;
+    console.log('~~~~~~~~~~~~`!!!');
+    console.log(talentList.toJS());
+    console.log(indexList.toJS());
+
     const filteredTalentList = indexList.map((index) => talentList.get(index));
     const filteredSelected = selected.intersect(
-      Immutable.Set(filteredTalentList.map((candidate) => candidate.get('id')))
+      filteredTalentList.map((candidate) => candidate.get('id'))
     );
-    const canAdd = talentList.size < 3000;
-
+    let candidateSelected =
+      filteredTalentList &&
+      filteredTalentList.find((value, index, array) => {
+        return value.get('id') === filteredSelected.first();
+      });
     return (
       <Paper
         className="flex-child-auto flex-container flex-dir-column"
         style={{ position: 'relative', zIndex: 2 }}
-        onDrop={canAdd ? this.handleDrop : null}
-        onDragEnter={canAdd ? this.onDragEnter : null}
-        onDragOver={canAdd ? this.onDragOver : null}
-        onDragLeave={canAdd ? this.onDragLeave : null}
+        onDrop={this.handleDrop}
+        onDragEnter={this.onDragEnter}
+        onDragOver={this.onDragOver}
+        onDragLeave={this.onDragLeave}
         key={hotListId}
       >
         <div>
@@ -502,7 +476,14 @@ class HotlistTalents extends React.PureComponent {
             className="flex-container align-middle"
             style={{ padding: '4px 10px', flexWrap: 'wrap' }}
           >
-            <IconButton onClick={this.goBackToList}>
+            <IconButton
+              onClick={() =>
+                this.props.history.replace(
+                  `?tab=hotlist`,
+                  this.props.location.state || {}
+                )
+              }
+            >
               <BackIcon />
             </IconButton>
 
@@ -552,19 +533,19 @@ class HotlistTalents extends React.PureComponent {
                           filters: newFilters,
                           indexList: getIndexList(
                             this.props.talentList,
-                            newFilters,
+                            filters,
                             this.state.colSortDirs
                           ),
                         });
                       }}
                     />
                   }
-                  label={t('field:Mandarin Speaking')}
+                  label={t('Mandarin Speaking')}
                   labelPlacement="start"
                 />
               </div>
 
-              <PrimaryButton component="label" disabled={pending || !canAdd}>
+              <PrimaryButton component="label" disabled={pending}>
                 <AddIcon style={{ marginLeft: '-10px' }} />
                 UPLOAD RESUMES
                 <input
@@ -581,7 +562,6 @@ class HotlistTalents extends React.PureComponent {
                 <PrimaryButton
                   processing={downloading}
                   onClick={this.handleDownload}
-                  disabled={filteredSelected.size === 0}
                 >
                   EXPORT
                 </PrimaryButton>
@@ -676,7 +656,7 @@ class HotlistTalents extends React.PureComponent {
           PaperComponent={DraggablePaperComponent}
         >
           <ApplyJob
-            talentId={candidateSelected && candidateSelected.get('id')}
+            talentId={filteredSelected.first()}
             handleRequestClose={this.handleClose}
             candidate={candidateSelected}
           />

@@ -22,7 +22,6 @@ import {
 } from '../../../actions/myPipelineActions';
 import * as ActionTypes from '../../../constants/actionTypes';
 import { showErrorMessage, showSuccessMessage } from '../../../actions';
-import { withTranslation } from 'react-i18next';
 
 const options = [
   'Create a merge commit',
@@ -32,8 +31,8 @@ const options = [
 
 const styles = {
   saveTemplatebox: {
-    minWidth: '230px',
-    minHeight: '150px',
+    width: '230px',
+    height: '150px',
     padding: '15px',
   },
 };
@@ -188,19 +187,23 @@ class PipelineButtonGroup extends Component {
       <>
         {/* {String(noTemplateOpen)} */}
         <ButtonGroup
-          variant="outlined"
+          variant="contained"
           color="primary"
           ref="buttonGroup"
           aria-label="split button"
         >
           <Button
+            variant="outlined"
+            style={{ borderColor: 'none' }}
             aria-controls={saveOpen ? 'split-button-menu' : undefined}
             aria-expanded={saveOpen ? 'true' : undefined}
             onClick={this.handleClick}
           >
-            {this.props.t('tab:Save Current as Template')}
+            Save Current as Template
           </Button>
           <Button
+            variant="outlined"
+            color="primary"
             size="small"
             aria-controls={open ? 'split-button-menu' : undefined}
             aria-expanded={open ? 'true' : undefined}
@@ -286,7 +289,7 @@ class PipelineButtonGroup extends Component {
                     textAlign: 'center',
                   }}
                 >
-                  {this.props.t('tab:No template')}
+                  No template
                 </Paper>
               </ClickAwayListener>
             </Grow>
@@ -315,10 +318,9 @@ class PipelineButtonGroup extends Component {
                       variant="subtitle1"
                       style={{ textAlign: 'left' }}
                     >
-                      {this.props.t('field:Template Name')}
+                      Template Name
                     </Typography>
                     <TextField
-                      fullWidth
                       size="small"
                       value={templateValue}
                       id="outlined-size-normal"
@@ -333,12 +335,11 @@ class PipelineButtonGroup extends Component {
                         style={{ width: '100%' }}
                         variant="contained"
                         color="primary"
-                        disableElevation
                         onClick={() => {
                           this.saveTemplate();
                         }}
                       >
-                        {this.props.t('tab:Save')}
+                        Save
                       </Button>
                     </div>
                   </div>
@@ -362,6 +363,6 @@ const mapStoreStateToProps = (state) => {
   };
 };
 
-export default withTranslation('tab')(
-  connect(mapStoreStateToProps)(withStyles(styles)(PipelineButtonGroup))
+export default connect(mapStoreStateToProps)(
+  withStyles(styles)(PipelineButtonGroup)
 );

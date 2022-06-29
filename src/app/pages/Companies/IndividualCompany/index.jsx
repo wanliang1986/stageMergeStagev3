@@ -24,8 +24,8 @@ import Overview from './overView/Overview';
 import ProgressNotes from './ProgressNotes';
 import CompanyNote from './CompanyNote';
 import AmReport from './AmReport';
+import SwipeableViews from '../../../components/particial/SwipeableViews';
 import InternalPerformanceReport from './InternalPerformanceReport';
-import SkipSubmitToAMUsers from './SkipSubmitToAMUsers';
 import Loading from '../../../components/particial/Loading';
 
 const status = {};
@@ -34,11 +34,14 @@ class CompanyTabs extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      selectedTab: status[this.props.companyId] || 'overview',
+      selectedTab: 0,
     };
   }
 
   componentDidMount() {
+    this.setState({
+      selectedTab: 0,
+    });
     this.fetchData();
   }
 
@@ -58,7 +61,7 @@ class CompanyTabs extends React.PureComponent {
   };
 
   tabsClickHandler = (e, selectedTab) => {
-    status[this.props.companyId] = selectedTab;
+    status.selectedTab = selectedTab;
     this.setState({ selectedTab });
   };
 
@@ -69,7 +72,6 @@ class CompanyTabs extends React.PureComponent {
       companyType,
       isCompanyAdmin,
       hasAuthorities,
-      canSkipSubmitToAM,
       ...props
     } = this.props;
     const { selectedTab } = this.state;
@@ -82,8 +84,58 @@ class CompanyTabs extends React.PureComponent {
     }
     // console.log('[company]', company.toJS());
 
-    let isProspect = company.get('type') === 'POTENTIAL_CLIENT';
-
+    let isProspect = companyType === '1';
+    //todo: fix program team
+    const swipeableViews = [
+      selectedTab === 0 ? (
+        <Overview t={t} {...props} company={company} key="1" />
+      ) : (
+        <br key={'1'} />
+      ),
+      selectedTab === 1 ? (
+        <Contacts t={t} {...props} company={company} key={'2'} />
+      ) : (
+        <br key={'2'} />
+      ),
+      selectedTab === 2 ? (
+        isProspect ? (
+          <ProgressNotes t={t} {...props} company={company} key={'3'} />
+        ) : (
+          <OpenJobs t={t} {...props} key={'3'} />
+        )
+      ) : (
+        <br key={'3'} />
+      ),
+      selectedTab === 3 ? (
+        !isProspect ? (
+          <Contracts t={t} {...props} company={company} key={'4'} />
+        ) : (
+          <CompanyNote t={t} {...props} company={company} key={'4'} />
+        )
+      ) : (
+        <br key={'4'} />
+      ),
+      selectedTab === 4 && !isProspect ? (
+        <ProgramTeam t={t} {...props} key={'5'} />
+      ) : (
+        <br key={'5'} />
+      ),
+      selectedTab === 5 && !isProspect ? (
+        <CompanyNote t={t} {...props} company={company} key={'6'} />
+      ) : (
+        <br key={'6'} />
+      ),
+      selectedTab === 6 && !isProspect ? (
+        <AmReport t={t} {...props} company={company} />
+      ) : (
+        <br />
+      ),
+      selectedTab === 7 && !isProspect ? (
+        <InternalPerformanceReport t={t} {...props} company={company} />
+      ) : (
+        <br />
+      ),
+    ];
     return (
       <Paper className="flex-child-auto flex-container flex-dir-column">
         <CompanyBasic
@@ -102,71 +154,29 @@ class CompanyTabs extends React.PureComponent {
           indicatorColor="primary"
           textColor="primary"
         >
-          <Tab value={'overview'} label={t('Overview')} />
-          <Tab value={'contacts'} label={t('contacts')} />
+          <Tab label={t('Overview')} />
+          <Tab label={t('contacts')} />
           {isProspect ? (
-            <Tab value={'progressNote'} label={t('BD Progress Notes')} />
+            <Tab label={t('BD Progress Notes')} />
           ) : (
-            <Tab value={'jobs'} label={t('Jobs')} disabled={isProspect} />
+            <Tab label={t('Jobs')} disabled={isProspect} />
           )}
+          {!isProspect && <Tab label={t('Service Contracts')} />}
           {!isProspect && (
-            <Tab value={'serviceContracts'} label={t('Service Contracts')} />
+            <Tab label={t('programTeam')} disabled={isProspect} />
           )}
-          {!isProspect && (
-            <Tab
-              value={'programTeam'}
-              label={t('programTeam')}
-              disabled={isProspect}
-            />
-          )}
-          <Tab value={'note'} label={t('Note')} />
+          <Tab label={t('Note')} />
+          {!isProspect && hasAuthorities && <Tab label={t('AM Report')} />}
           {!isProspect && hasAuthorities && (
-            <Tab value={'amReport'} label={t('AM Report')} />
-          )}
-          {!isProspect && hasAuthorities && (
-            <Tab
-              value={'internalPerformanceReport'}
-              label={t('Internal Performance Report')}
-            />
-          )}
-          {!isProspect && hasAuthorities && canSkipSubmitToAM && (
-            <Tab
-              value={'skipSubmitToAMUsers'}
-              label={t('Skip Submit to AM Users')}
-            />
+            <Tab label={t('Internal Performance Report')} />
           )}
         </Tabs>
-        <div
-          className={'flex-container flex-child-auto flex-dir-column'}
-          style={{ overflow: 'hidden' }}
-        >
-          {selectedTab === 'overview' && (
-            <Overview t={t} {...props} company={company} />
-          )}
-          {selectedTab === 'contacts' && (
-            <Contacts t={t} {...props} company={company} />
-          )}
-          {selectedTab === 'progressNote' && (
-            <ProgressNotes t={t} {...props} company={company} />
-          )}
-          {selectedTab === 'jobs' && <OpenJobs t={t} {...props} />}
-          {selectedTab === 'serviceContracts' && (
-            <Contracts t={t} {...props} company={company} />
-          )}
-          {selectedTab === 'programTeam' && <ProgramTeam t={t} {...props} />}
-          {selectedTab === 'note' && (
-            <CompanyNote t={t} {...props} company={company} />
-          )}
-          {selectedTab === 'amReport' && (
-            <AmReport t={t} {...props} company={company} />
-          )}
-          {selectedTab === 'internalPerformanceReport' && (
-            <InternalPerformanceReport t={t} {...props} company={company} />
-          )}
-          {selectedTab === 'skipSubmitToAMUsers' && (
-            <SkipSubmitToAMUsers t={t} {...props} company={company} />
-          )}
-        </div>
+
+        <SwipeableViews
+          index={selectedTab}
+          // onChangeIndex={this.handleChangeIndex}
+          children={swipeableViews}
+        />
       </Paper>
     );
   }
@@ -212,15 +222,12 @@ const mapStateToProps = (state, { match }) => {
     isAM ||
     isSuperuser;
 
-  const canSkipSubmitToAM =
-    !!state.model.skimSubmitToAMCompanies.get(companyId);
   return {
     company: state.model.companies.get(companyId),
     companyId,
     isCompanyAdmin,
     hasAuthorities,
     companyType,
-    canSkipSubmitToAM,
   };
 };
 

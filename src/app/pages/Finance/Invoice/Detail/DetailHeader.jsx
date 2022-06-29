@@ -43,7 +43,7 @@ const styles = (theme) => ({
 const statusMap = {
   PAID: 'Paid',
   UNPAID: 'Unpaid',
-  OVERDUE: 'Overdue',
+  OVERDUE: 'Expired',
   STARTUP_FEE_PAID_USED: 'Paid - Used',
   STARTUP_FEE_PAID_UNUSED: 'Paid - Unused',
   STARTUP_FEE_UNPAID_UNUSED: 'Unpaid - Unused',
@@ -117,7 +117,6 @@ class DetailHeader extends Component {
     this.setState({ openVoid: true });
   };
   closeVoid = () => {
-    this.invoiceFile = null;
     this.setState({ openVoid: false });
   };
 
@@ -155,34 +154,38 @@ class DetailHeader extends Component {
           gutterBottom
           style={{ fontSize: '1.15rem' }}
         >
-          {`${t('tab:Invoice')}`} {invoice.get('subInvoiceNo')}
+          {`Invoice`} {invoice.get('subInvoiceNo')}
         </Typography>
         <div className="flex-container">
           <Typography variant="h6" className={classes.headerColumn}>
-            <Typography variant="body2" style={{ color: '#717171' }}>{`${t(
-              'tab:Status'
-            )}`}</Typography>
+            <Typography
+              variant="body2"
+              style={{ color: '#717171' }}
+            >{`Status`}</Typography>
             {statusMap[invoice.get('status')]}
           </Typography>
           <Typography variant="h6" className={classes.headerColumn}>
-            <Typography variant="body2" style={{ color: '#717171' }}>{`${t(
-              'tab:Client'
-            )}`}</Typography>
+            <Typography
+              variant="body2"
+              style={{ color: '#717171' }}
+            >{`Client`}</Typography>
             {invoice.get('customerName')}
           </Typography>
 
           <Typography variant="h6" className={classes.headerColumn}>
-            <Typography variant="body2" style={{ color: '#717171' }}>{`${t(
-              'tab:Amount'
-            )}`}</Typography>
+            <Typography
+              variant="body2"
+              style={{ color: '#717171' }}
+            >{`Amount`}</Typography>
             {currencyLabels[invoice.get('currency')]}
             {invoice.get('dueAmount').toLocaleString()}
           </Typography>
 
           <Typography variant="h6" className={classes.headerColumn}>
-            <Typography variant="body2" style={{ color: '#717171' }}>{`${t(
-              'tab:Due Date'
-            )}`}</Typography>
+            <Typography
+              variant="body2"
+              style={{ color: '#717171' }}
+            >{`Due Date`}</Typography>
             {dateFormat(invoice.get('dueDate'))}
           </Typography>
         </div>
@@ -194,21 +197,15 @@ class DetailHeader extends Component {
           <IconButton onClick={this.openEmail}>
             <Email />
           </IconButton>
-          {invoice.get('status') !== 'VOID' && (
-            <IconButton
-              onClick={this.openVoid}
-              disabled={invoice.get('status') === 'STARTUP_FEE_PAID_USED'}
-            >
-              <VoidIcon />
-            </IconButton>
-          )}
+          <IconButton onClick={this.openVoid}>
+            <VoidIcon />
+          </IconButton>
         </div>
 
         <Dialog open={this.state.openVoid} fullWidth maxWidth="xs">
           <VoidForm
             onClose={this.closeVoid}
             invoiceId={invoice.get('id')}
-            invoiceNo={invoice.get('invoiceNo')}
             t={t}
             dispatch={dispatch}
           />

@@ -9,12 +9,11 @@ const ViewResumeInAddActivity = (props) => {
   return (
     <Paper
       style={{
-        // maxHeight: 'calc(100% - 64px)',
+        maxHeight: 'calc(100% - 64px)',
         position: 'relative',
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
-        height: '100%',
       }}
     >
       <div className="flex-child-auto" style={{ height: 600 }}>

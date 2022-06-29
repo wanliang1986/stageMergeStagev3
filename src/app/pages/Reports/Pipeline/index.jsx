@@ -347,7 +347,7 @@ class PipelineDetails extends React.PureComponent {
       >
         <div>
           <Typography variant="h5" className="item-padding">
-            {t('tab:Pipeline Analytics Details')}
+            {t('message:Pipeline Analytics Details')}
           </Typography>
 
           <div

@@ -304,7 +304,7 @@ class ChartWithTable extends React.Component {
               {t()}
             </Typography>
             <PotentialButton component="a" onClick={this.downloadCanvas}>
-              {t('tab:Download as image')}
+              Download as image
             </PotentialButton>
           </div>
           <Divider />

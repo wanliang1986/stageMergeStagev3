@@ -1,13 +1,13 @@
 const url = 'https://api-staging.hitalentech.com/lnkd/api/linkedin/syncProfile';
-export default identifier => {
+export default (identifier) => {
   const options = {
     method: 'POST',
     headers: {
-      'content-type': 'application/json'
+      'content-type': 'application/json',
     },
-    body: JSON.stringify({ identifier })
+    body: JSON.stringify({ identifier }),
   };
-  return fetch(url, options).then(response => {
+  return fetch(url, options).then((response) => {
     if (response.ok) {
       return response.json();
     } else {

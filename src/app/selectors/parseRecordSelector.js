@@ -2,7 +2,6 @@ import { createSelector } from 'reselect';
 import { deleteParseRecord } from './../../apn-sdk';
 
 const getParseRecords = (state) => state.model.parseRecords;
-const getParseRecordIds = (_, parseRecordIds) => parseRecordIds;
 
 const getParseRecordList = createSelector([getParseRecords], (parseRecords) => {
   return parseRecords
@@ -16,10 +15,14 @@ const getParseRecordList = createSelector([getParseRecords], (parseRecords) => {
     })
     .map((record) => {
       const note = record.get('note');
+      // const result = JSON.parse(record.get('parseResult')||'{}');
+      //
+      // if (result.resumes && result.resumes[0]) {
+      //   record = record.set('parseResult', JSON.stringify(result.resumes[0]));
+      // }
       return record
         .set('note', (note && JSON.parse(note).other) || '')
         .set('single', note && JSON.parse(note).single)
-        .set('talentId', note && JSON.parse(note).talentId)
         .set('hotList', note && JSON.parse(note).hotList);
     })
     .sortBy(
@@ -38,20 +41,5 @@ const getParseRecordList = createSelector([getParseRecords], (parseRecords) => {
     )
     .toList();
 });
-export const getParseRecordByIds = createSelector(
-  [getParseRecords, getParseRecordIds],
-  (parseRecords, ids) => {
-    console.log(ids);
-    return ids.map((id) => {
-      const record = parseRecords.get(String(id));
-      const note = record.get('note');
-      return record
-        .set('note', (note && JSON.parse(note).other) || '')
-        .set('single', note && JSON.parse(note).single)
-        .set('talentId', note && JSON.parse(note).talentId)
-        .set('hotList', note && JSON.parse(note).hotList);
-    });
-  }
-);
 
 export default getParseRecordList;

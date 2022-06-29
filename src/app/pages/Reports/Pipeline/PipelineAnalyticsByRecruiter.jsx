@@ -36,7 +36,6 @@ import Loading from '../../../components/particial/Loading';
 import CustomToggleButton from '../../../components/particial/CustomToggleButton';
 import PipelineColumsGroup from '../../../components/Tables/ColumnGroups/Pipeline';
 import CustomAutoComplete from '../../../components/particial/CustomAutoComplete/WithCheckBox';
-import ForbiddenPage from '../../../components/ForbiddenPage';
 
 import {
   styles,
@@ -299,7 +298,7 @@ class Reports extends React.PureComponent {
           }
         );
         footerData = {
-          userName: this.props.t('tab:Grand Total'),
+          userName: 'Grand Total',
           appliedCount: footerData.appliedActivityId.size,
           appliedActivityId: footerData.appliedActivityId.join(','),
           submittedCount: footerData.submittedActivityId.size,
@@ -563,6 +562,7 @@ class Reports extends React.PureComponent {
       colSortDirs,
       dataList,
       range,
+      allOpenJobs,
       selectedTeam,
       teamOptions,
       selectedDivision,
@@ -581,9 +581,6 @@ class Reports extends React.PureComponent {
     if (!this.filteredList.equals(filteredList)) {
       this.filteredList = filteredList;
     }
-    if (userRole === 'normal') {
-      return <ForbiddenPage />;
-    }
 
     return (
       <Paper
@@ -595,12 +592,11 @@ class Reports extends React.PureComponent {
         <div>
           <div className={classes.actionsContainer}>
             <Typography variant="h5">
-              {t('tab:Pipeline Analytics by User')}
+              {t('message:Pipeline Analytics by User')}
               {/* update by bill in 2021/7/14 */}
               <Typography style={{ color: '#808a94' }}>
-                {t(
-                  'tab:This report demonstrates employee’s candidate-submission workload and candidates’ pipeline update.'
-                )}
+                This report demonstrates employee’s candidate-submission
+                workload and candidates’ pipeline update.
               </Typography>
             </Typography>
           </div>
@@ -610,7 +606,7 @@ class Reports extends React.PureComponent {
             className={clsx('horizontal-layout align-bottom', classes.actions)}
           >
             <div>
-              <FormReactSelectContainer label={t('tab:Date Range')}>
+              <FormReactSelectContainer label={'Date Range'}>
                 {/* t('field:Status Modified Date') */}
                 <DateRangePicker
                   value={range}
@@ -626,11 +622,11 @@ class Reports extends React.PureComponent {
                 />
               </FormReactSelectContainer>
             </div>
-            {userRole === 'admin' && (
+            {userRole === 'admin' && !allOpenJobs && (
               <>
                 <div>
                   <div style={{ minWidth: 228, height: 53 }}>
-                    <FormReactSelectContainer label={t('tab:Division')}>
+                    <FormReactSelectContainer label={'Division'}>
                       {/* t('field:Office') */}
                       <Select
                         value={selectedDivision}
@@ -643,49 +639,50 @@ class Reports extends React.PureComponent {
                     </FormReactSelectContainer>
                   </div>
                 </div>
+
+                <div>
+                  <div style={{ minWidth: 168, height: 53 }}>
+                    <FormReactSelectContainer label={t('field:Team')}>
+                      <Select
+                        value={selectedTeam}
+                        options={teamOptions}
+                        onChange={this.handleTeamChange}
+                        // simpleValue
+                        autoBlur
+                        clearable={false}
+                      />
+                    </FormReactSelectContainer>
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{ minWidth: 168, height: 53 }}>
+                    <FormReactSelectContainer label={t('field:User')}>
+                      <Select
+                        valueKey="id"
+                        labelKey="fullName"
+                        value={selectedUser}
+                        options={
+                          (selectedTeam && selectedTeam.value) ||
+                          (selectedDivision && selectedDivision.value)
+                            ? filteredUserOptions
+                            : userOptions
+                        }
+                        onChange={this.handleUserChange}
+                        autoBlur={true}
+                        simpleValue
+                        clearable={false}
+                      />
+                    </FormReactSelectContainer>
+                  </div>
+                </div>
               </>
             )}
-            <div>
-              <div style={{ minWidth: 168, height: 53 }}>
-                <FormReactSelectContainer label={t('field:Team')}>
-                  <Select
-                    value={selectedTeam}
-                    options={teamOptions}
-                    onChange={this.handleTeamChange}
-                    // simpleValue
-                    autoBlur
-                    clearable={false}
-                  />
-                </FormReactSelectContainer>
-              </div>
-            </div>
-            <div>
-              <div style={{ minWidth: 168, height: 53 }}>
-                <FormReactSelectContainer label={t('field:User')}>
-                  <Select
-                    valueKey="id"
-                    labelKey="fullName"
-                    value={selectedUser}
-                    options={
-                      (selectedTeam && selectedTeam.value) ||
-                      (selectedDivision && selectedDivision.value)
-                        ? filteredUserOptions
-                        : userOptions
-                    }
-                    onChange={this.handleUserChange}
-                    autoBlur={true}
-                    simpleValue
-                    clearable={false}
-                  />
-                </FormReactSelectContainer>
-              </div>
-            </div>
-
             <div>
               {/* 新增 单选role select */}
               <div>
                 <div style={{ minWidth: 150, height: 53 }}>
-                  <FormReactSelectContainer label={t('field:Role')}>
+                  <FormReactSelectContainer label={'Role'}>
                     {/* t('field:Office') */}
                     <Select
                       value={selectedRole}

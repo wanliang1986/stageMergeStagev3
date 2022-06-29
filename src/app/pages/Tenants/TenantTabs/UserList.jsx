@@ -508,7 +508,7 @@ class UserList extends React.PureComponent {
             >
               <FilterIcon />
             </IconButton>
-            <Tooltip title={props.t('tab:Assign Jobs')}>
+            <Tooltip title="Assign Jobs">
               <div>
                 <IconButton
                   disabled={assignJobUserList.size === 0}
@@ -520,11 +520,11 @@ class UserList extends React.PureComponent {
             </Tooltip>
 
             <Typography variant="subtitle1" className={'item-padding'}>
-              {this.props.t('tab:Active User')}:{' '}
+              Active User:{' '}
               {userList.filter((user) => user.get('activated')).size}
             </Typography>
             <Typography variant="subtitle1" className={'item-padding'}>
-              {this.props.t('tab:Total User')}: {userList.size}
+              Total User: {userList.size}
             </Typography>
           </div>
           <Divider />
@@ -590,9 +590,9 @@ class UserList extends React.PureComponent {
           onOK={handleChangeUserProps}
           onCancel={this.handleCancelChangeUserProps}
           title={props.t('common:Confirm Change')}
-          content={props.t('message:Do you wish to save this change?')}
-          okLabel={props.t('action:confirm')}
-          cancelLabel={props.t('action:cancel')}
+          content={'Do you wish to save this change?'}
+          okLabel="Yes"
+          cancelLabel="No"
         />
 
         <Dialog

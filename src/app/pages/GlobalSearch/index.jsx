@@ -4,10 +4,11 @@ import { connect } from 'react-redux';
 
 import CommonSearch from './Search';
 
-
 const Search = ({ match, reloadKey }) => (
-    <React.Fragment key={reloadKey}>
-        <Route exact path={match.url} component={CommonSearch} />
-    </React.Fragment>
+  <React.Fragment key={reloadKey}>
+    <Route exact path={match.url} component={CommonSearch} />
+  </React.Fragment>
 );
-export default connect((state) => ({ reloadKey: state.controller.reload }))(Search);
+export default connect((state) => ({ reloadKey: state.controller.reload }))(
+  Search
+);

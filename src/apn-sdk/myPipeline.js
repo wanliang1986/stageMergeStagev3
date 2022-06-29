@@ -47,7 +47,7 @@ export const getPipelineList = (data) => {
     },
     body: JSON.stringify(data),
   };
-  return authRequest.sendV2(`/my-pipeline`, config);
+  return authRequest.talentSendV3(`/pipeline/search`, config);
 };
 
 export const getDict = () => {
@@ -55,5 +55,5 @@ export const getDict = () => {
     method: 'GET',
     headers: {},
   };
-  return authRequest.sendV2(`/column/57`, config);
+  return authRequest.jobSend(`/column/57`, config);
 };

@@ -81,7 +81,7 @@ class StartCommissions extends React.Component {
                 commission.userRole = userRole || commission.userRole;
                 this.setState({ startCommissions: startCommissions.slice() });
               }}
-              disabled={!edit}
+              disabled={!edit || disableEdit}
             />
           </FormReactSelectContainer>
         </div>
@@ -113,71 +113,58 @@ class StartCommissions extends React.Component {
               }}
               autoBlur
               clearable={false}
-              disabled={!edit}
+              disabled={!edit || disableEdit}
             />
           </FormReactSelectContainer>
         </div>
-        {!edit ? (
-          <div className="small-4 columns">
-            <FormInput
-              name="commissions.commissionPct"
-              value={commission.percentage}
-              type="number"
-              min={0}
-              max={100}
-              step={5}
-              errorMessage={errorMessage.get('commissions') && true}
-              disabled
-            />
-          </div>
-        ) : (
-          <>
-            <div className="small-2 columns">
-              <FormInput
-                name="commissions.commissionPct"
-                value={commission.percentage}
-                onChange={(e) => {
-                  commission.percentage = e.target.value;
-                  this.setState({ startCommissions: startCommissions.slice() });
-                }}
-                type="number"
-                min={0}
-                max={100}
-                step={5}
-                errorMessage={errorMessage.get('commissions') && true}
-                disabled={!edit}
-              />
-            </div>
-            <div className="small-2 columns horizontal-layout align-self-top">
-              <IconButton
-                size="small"
-                disabled={startCommissions.length <= 1 + ownerSize}
-                onClick={() => {
-                  this.setState({
-                    startCommissions: startCommissions.filter(
-                      (c) => c !== commission
-                    ),
-                  });
-                }}
-              >
-                <Delete />
-              </IconButton>
-              <IconButton
-                size="small"
-                onClick={() => {
-                  startCommissions.push({
-                    userId: commission.userId,
-                    userRole,
-                    percentage: commission.percentage || 0,
-                  });
-                  this.setState({ startCommissions: startCommissions.slice() });
-                }}
-              >
-                <Add />
-              </IconButton>
-            </div>
-          </>
-        )}
+
+        <div className="small-2 columns">
+          <FormInput
+            name="commissions.commissionPct"
+            value={commission.percentage}
+            onChange={(e) => {
+              commission.percentage = e.target.value;
+              this.setState({ startCommissions: startCommissions.slice() });
+            }}
+            type="number"
+            min={0}
+            max={100}
+            step={5}
+            errorMessage={errorMessage.get('commissions') && true}
+            disabled={!edit}
+          />
+        </div>
+        <div className="small-2 columns horizontal-layout align-self-top">
+          <IconButton
+            size="small"
+            disabled={startCommissions.length <= 1 + ownerSize || disableEdit}
+            onClick={() => {
+              this.setState({
+                startCommissions: startCommissions.filter(
+                  (c) => c !== commission
+                ),
+              });
+            }}
+          >
+            <Delete />
+          </IconButton>
+          <IconButton
+            size="small"
+            onClick={() => {
+              startCommissions.splice(index, 0, {
+                userId:
+                  userList.find(
+                    (u) => !u.disabled && u.id === commission.userId
+                  ) && commission.userId,
+                userRole,
+                percentage: commission.percentage || 0,
+              });
+              this.setState({ startCommissions: startCommissions.slice() });
+            }}
+          >
+            <Add />
+          </IconButton>
+        </div>
       </div>
     );
   };

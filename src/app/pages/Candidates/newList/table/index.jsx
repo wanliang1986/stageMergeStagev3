@@ -158,6 +158,7 @@ class candidateAllTable extends Component {
 
   componentDidMount() {
     this.getColumns();
+    console.log('1111');
   }
   //获取header数据
   getColumns = () => {

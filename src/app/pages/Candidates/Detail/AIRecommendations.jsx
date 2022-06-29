@@ -380,15 +380,11 @@ const getMessage = (message, candidateId, t) => {
           {t('message:No results found')}
         </div>
         <div>
-          {t('action:Please add')}
-          <Link to={`/candidates/edit/${candidateId}`}>
-            {t('action:talent title')}
-          </Link>
-          {t('action:or')}
-          <Link to={`/candidates/edit/${candidateId}`}>
-            {t('action:skills')}
-          </Link>
-          {t('action:in order to get job recommendation')}
+          {`Please add `}
+          <Link to={`/candidates/edit/${candidateId}`}>{' talent title '}</Link>
+          {' or '}
+          <Link to={`/candidates/edit/${candidateId}`}>{' skills '}</Link>
+          {' in order to get job recommendation.'}
         </div>
       </>
     );

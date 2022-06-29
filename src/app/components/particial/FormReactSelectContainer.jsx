@@ -43,7 +43,7 @@ class FormReactSelectContainer extends Component {
           )}
           {icon && <span className={classes.icon}>{icon}</span>}
           {children}
-          {errorMessage && errorMessage !== true && (
+          {errorMessage && (
             <span className="form-error is-visible">{errorMessage}</span>
           )}
         </label>

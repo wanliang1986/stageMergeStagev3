@@ -256,6 +256,7 @@ const CandidateSearch = ({
   };
 
   const handleChangeTree = (value, valueOption) => {
+    console.log(valueOption);
     setValue({
       value,
       option: valueOption,

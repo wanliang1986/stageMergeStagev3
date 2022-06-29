@@ -54,7 +54,7 @@ export const generateTreeDataMap = (
   const checkedList = _checkedList;
 
   treeData.forEach((item) => {
-    const _value = item.value.toString();
+    const _value = item.label.toString();
     if (map[_value]) {
       throw new Error('The value must be unique');
     }
@@ -65,13 +65,13 @@ export const generateTreeDataMap = (
       // if (!isEmptyArray(item.children) && showlevel === level) {
       //     item
       //         .children
-      //         .forEach((_item) => renderIdList.push(_item.value))
+      //         .forEach((_item) => renderIdList.push(_item.label))
       // }
     }
 
     idList.push(_value);
-    const checked = initCheckedList.has(item.value);
-    checked && checkedList.set(item.value, item.value);
+    const checked = initCheckedList.has(item.label);
+    checked && checkedList.set(item.label, item.label);
     map[_value] = {
       ...item,
       level: _level,
@@ -80,13 +80,13 @@ export const generateTreeDataMap = (
         checked: checked,
         halfChecked: false,
       },
-      value: item.value.toString(),
+      value: item.label.toString(),
       title: item.label.toString(),
       parentVal: (parent && parent.value) || null,
     };
     if (!isEmptyArray(item.children)) {
       console.log(item.children);
-      map[_value].children = item.children.map((_item) => _item.value);
+      map[_value].children = item.children.map((_item) => _item.label);
       generateTreeDataMap(
         item,
         item.children,

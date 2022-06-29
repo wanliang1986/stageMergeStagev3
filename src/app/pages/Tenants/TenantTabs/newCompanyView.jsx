@@ -3,8 +3,6 @@ import React, { Component } from 'react';
 import Grid from '@material-ui/core/Grid';
 import moment from 'moment-timezone';
 import { staffSize } from '../../../constants/formOptions';
-import { withTranslation } from 'react-i18next';
-import { externalUrl } from '../../../../utils';
 const styles = {
   title: {
     overflow: 'hidden',
@@ -26,6 +24,7 @@ const styles = {
   },
   msg: {
     minHeight: '20px',
+    lineHeight: '20px',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
@@ -59,25 +58,48 @@ class NewCompanyView extends Component {
       return obj[0].label;
     }
   };
-
   openWindow = (str) => {
-    window.open(externalUrl(str), '_blank');
+    if (!/^(f|ht)tps?:\/\//i.test(str)) {
+      let url = 'http://' + str;
+      let w = window.open('about:_blank');
+      w.location.href = url;
+    } else {
+      let w = window.open('about:_blank');
+      w.location.href = str;
+    }
   };
-
   getCredits = () => {
     const { tenantDetail } = this.props;
     let used = tenantDetail.usedCredit ? tenantDetail.usedCredit : 0;
     let _credit = tenantDetail.credit ? tenantDetail.credit - used : 0;
     return _credit + ' remaining ' + '(' + used + ' used)';
   };
-
   getAddress = (address) => {
-    if (address.city && address.province && address.country) {
-      return address.city + ',' + address.province + ',' + address.country;
-    } else if (address.city && address.province && !address.country) {
-      return address.city + ',' + address.province;
-    } else if (address.city && !address.province && !address.country) {
-      return address.city;
+    if (
+      address.geoInfoEN &&
+      address.geoInfoEN.city &&
+      address.geoInfoEN.province &&
+      address.geoInfoEN.country
+    ) {
+      return (
+        address.geoInfoEN.city +
+        ',' +
+        address.geoInfoEN.province +
+        ',' +
+        address.geoInfoEN.country
+      );
+    } else if (
+      address.geoInfoEN.city &&
+      address.geoInfoEN.province &&
+      !address.geoInfoEN.country
+    ) {
+      return address.geoInfoEN.city + ',' + address.geoInfoEN.province;
+    } else if (
+      address.geoInfoEN.city &&
+      !address.geoInfoEN.province &&
+      !address.geoInfoEN.country
+    ) {
+      return address.geoInfoEN.city;
     } else {
       return '';
     }
@@ -88,21 +110,17 @@ class NewCompanyView extends Component {
       <div className={classes.paper}>
         <Grid container spacing={3}>
           <Grid item xs={3}>
-            <div className={classes.title}>
-              {this.props.t('tab:Tenant Name')}
-            </div>
+            <div className={classes.title}>Tenant Name</div>
             <div className={classes.msg}>{tenantDetail.name}</div>
           </Grid>
           <Grid item xs={3}>
-            <div className={classes.title}>{this.props.t('tab:Industry')}</div>
+            <div className={classes.title}>Industry</div>
             <div className={classes.msg}>{tenantDetail.industry}</div>
           </Grid>
         </Grid>
         <Grid container spacing={3}>
           <Grid item xs={3}>
-            <div className={classes.title}>
-              {this.props.t('tab:Company Website')}{' '}
-            </div>
+            <div className={classes.title}>Company Website </div>
             <div
               className={classes.msg}
               style={{ color: '#3498DB', cursor: 'pointer' }}
@@ -116,15 +134,13 @@ class NewCompanyView extends Component {
         </Grid>
         <Grid container spacing={3}>
           <Grid item xs={3}>
-            <div className={classes.title}>{this.props.t('tab:Address')}</div>
+            <div className={classes.title}>Address</div>
             <div className={classes.msg}>
               {tenantDetail.address && tenantDetail.address.address}
             </div>
           </Grid>
           <Grid item xs={3}>
-            <div className={classes.title}>
-              {this.props.t('tab:City/State/Country')}
-            </div>
+            <div className={classes.title}>City/State/Country</div>
             <div className={classes.msg}>
               {tenantDetail.address && this.getAddress(tenantDetail.address)}
             </div>
@@ -132,25 +148,23 @@ class NewCompanyView extends Component {
         </Grid>
         <Grid container spacing={3}>
           <Grid item xs={3}>
-            <div className={classes.title}>{this.props.t('tab:Email')}</div>
+            <div className={classes.title}>Email</div>
             <div className={classes.msg}>{tenantDetail.tenantEmail}</div>
           </Grid>
           <Grid item xs={3}>
-            <div className={classes.title}>{this.props.t('tab:Phone')}</div>
+            <div className={classes.title}>Phone</div>
             <div className={classes.msg}>{tenantDetail.tenantPhone}</div>
           </Grid>
         </Grid>
         <Grid container spacing={3}>
           <Grid item xs={3}>
-            <div className={classes.title}>{this.props.t('tab:Founded')}</div>
+            <div className={classes.title}>Founded</div>
             <div className={classes.msg}>
               {moment(tenantDetail.foundedDate).format('MM/DD/YYYY')}
             </div>
           </Grid>
           <Grid item xs={3}>
-            <div className={classes.title}>
-              {this.props.t('tab:Staff Size')}
-            </div>
+            <div className={classes.title}>Staff Size</div>
             <div className={classes.msg}>
               {this.getStaffSize(tenantDetail.staffSizeType)}
             </div>
@@ -158,9 +172,7 @@ class NewCompanyView extends Component {
         </Grid>
         <Grid container spacing={3}>
           <Grid item xs={12}>
-            <div className={classes.title}>
-              {this.props.t('tab:Description')}{' '}
-            </div>
+            <div className={classes.title}>Description</div>
             <div className={classes.msg1}>{tenantDetail.description}</div>
           </Grid>
         </Grid>
@@ -169,4 +181,4 @@ class NewCompanyView extends Component {
   }
 }
 
-export default withTranslation('tab')(withStyles(styles)(NewCompanyView));
+export default withStyles(styles)(NewCompanyView);

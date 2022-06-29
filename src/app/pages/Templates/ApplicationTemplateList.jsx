@@ -232,9 +232,7 @@ class TemplateList extends React.PureComponent {
           onOK={handleDeleteTemplate}
           onCancel={this.handleCancelDelete}
           title={props.t('common:Delete Template')}
-          content={props.t(
-            'common:Are you sure you wish to delete this template?'
-          )}
+          content={'Are you sure you wish to delete this template?'}
           okLabel={props.t('action:delete')}
           cancelLabel={props.t('action:cancel')}
         />

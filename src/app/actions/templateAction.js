@@ -12,32 +12,30 @@ export const tenantTemplateList = () => (dispatch, getState) => {
 
     dispatch({
       type: ActionTypes.GET_TENANT_TEMPLATE_LIST,
-      normalizedData
+      normalizedData,
     });
   });
 };
 
-export const upsertTemplate = (template, templateId) => (
-  dispatch,
-  getState
-) => {
-  return apnSDK
-    .upsertEmailTemplate(template, templateId)
-    .then(({ response }) => {
-      console.log('template', response);
-      dispatch({
-        type: ActionTypes.UPSERT_TEMPLATE,
-        template: response
+export const upsertTemplate =
+  (template, templateId) => (dispatch, getState) => {
+    return apnSDK
+      .upsertEmailTemplate(template, templateId)
+      .then(({ response }) => {
+        console.log('template', response);
+        dispatch({
+          type: ActionTypes.UPSERT_TEMPLATE,
+          template: response,
+        });
       });
-    });
-};
+  };
 
-export const deleteTemplate = templateId => (dispatch, getState) => {
+export const deleteTemplate = (templateId) => (dispatch, getState) => {
   return apnSDK.deleteEmailTemplate(templateId).then(({ response }) => {
     console.log('template', response);
     dispatch({
       type: ActionTypes.DELETE_TEMPLATE,
-      templateId: templateId.toString()
+      templateId: templateId.toString(),
     });
   });
 };

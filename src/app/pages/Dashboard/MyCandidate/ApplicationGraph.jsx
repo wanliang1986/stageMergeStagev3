@@ -125,11 +125,11 @@ export default function ApplicationGraph(props) {
     const bgColors = ['#3398db', '#21b66e', '#fdab29', '#f56d50', '#dd265f'];
     const dataForGraph = {
       labels: [
-        props.t('tab:Applied'),
-        props.t('tab:Submitted'),
-        props.t('tab:Interview'),
-        props.t('tab:Offered'),
-        props.t('tab:Started'),
+        'Submitted to AM',
+        'Submitted to Client',
+        'Interview',
+        'Offered by Client',
+        'On Boarded',
       ],
       datasets: [
         {

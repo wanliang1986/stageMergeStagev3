@@ -89,11 +89,11 @@ class JobBasicForm extends React.PureComponent {
   };
 
   componentDidMount() {
-    //console.timeEnd('job form');
+    console.timeEnd('job form');
   }
 
   componentDidUpdate() {
-    // console.timeEnd('job form');
+    console.timeEnd('job form');
   }
 
   handleCompanyChange = (companyId) => {
@@ -149,7 +149,7 @@ class JobBasicForm extends React.PureComponent {
   };
 
   render() {
-    //console.time('job form');
+    console.time('job form');
     const {
       t,
       classes,
@@ -467,7 +467,7 @@ class JobBasicForm extends React.PureComponent {
               <div className=" columns">
                 <FormInput
                   // key={job.get('lastModifiedDate') + job.get('billRateFrom')}
-                  label={t('field:Bill Rate')}
+                  label={t('field:billRate')}
                   name="billRateFrom"
                   type="number"
                   step={'.01'}

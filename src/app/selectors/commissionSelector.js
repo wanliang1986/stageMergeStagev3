@@ -2,11 +2,12 @@ import { createSelector } from 'reselect';
 import moment from 'moment-timezone';
 import Immutable from 'immutable';
 
-const getHistory = state => JSON.stringify(state.router.location.state) || '{}';
+const getHistory = (state) =>
+  JSON.stringify(state.router.location.state) || '{}';
 const getIds = (state, tab) => state.controller.searchCommissions[tab].ids;
-const getCommissions = state => state.relationModel.commissions;
+const getCommissions = (state) => state.relationModel.commissions;
 const getTab = (_, tab) => tab;
-const getDivisions = state => state.model.divisions;
+const getDivisions = (state) => state.model.divisions;
 
 export const getQuery = createSelector(
   [getHistory, getTab],
@@ -17,18 +18,20 @@ export const getQuery = createSelector(
     historyState = JSON.parse(historyState);
     const query = (historyState && historyState[tab]) || {
       filters: {},
-      sort: {}
+      sort: {},
     };
     return JSON.stringify(query);
   }
 );
 
 const makeGetSort = () =>
-  createSelector(getQuery, query => {
+  createSelector(getQuery, (query) => {
     console.log('get sort', query);
     const { sort } = JSON.parse(query);
     return (
-      Object.keys(sort || {}).map(key => [key, sort[key]])[0] || ['createdDate']
+      Object.keys(sort || {}).map((key) => [key, sort[key]])[0] || [
+        'createdDate',
+      ]
     );
   });
 
@@ -46,7 +49,7 @@ export const makeGetCommissionList = () => {
       );
       return ids
         ? ids
-            .map(id => {
+            .map((id) => {
               let commission = commissions.get(String(id));
 
               return commission
@@ -67,7 +70,7 @@ export const makeGetCommissionList = () => {
                 );
             })
             .sortBy(
-              job => job.get(sort[0]),
+              (job) => job.get(sort[0]),
               (a, b) => {
                 if (
                   sort[0] !== 'id' &&

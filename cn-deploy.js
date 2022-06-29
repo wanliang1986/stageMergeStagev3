@@ -6,7 +6,7 @@ const client = new OSS({
   /* same options */
   accessKeyId: process.env.OSS_client_id,
   accessKeySecret: process.env.OSS_secret_key,
-  bucket: 'dev-hitalentech',
+  bucket: 'dev-hitalentech1',
   region: 'oss-cn-shenzhen',
   secure: true
 });

@@ -147,13 +147,12 @@ class JobInfo extends React.PureComponent {
   _validateForm(form, t) {
     let errorMessage = Immutable.Map();
 
-    if (!form.title.value) {
+    if (!form.title.value.trim()) {
       errorMessage = errorMessage.set(
         'title',
         t('message:Job title is required')
       );
     }
-
     if (form.title.value && form.title.value.length > 100) {
       errorMessage = errorMessage.set(
         'title',

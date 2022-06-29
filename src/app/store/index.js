@@ -19,9 +19,10 @@ if (process.env.NODE_ENV !== 'production') {
 const store = createStore(
   createRootReducer(history),
   {
-    mobile: /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
-      navigator.userAgent.toLowerCase()
-    )
+    mobile:
+      /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
+        navigator.userAgent.toLowerCase()
+      ),
   },
   composeEnhancer(applyMiddleware(thunk, pageViewLogger, router))
 );

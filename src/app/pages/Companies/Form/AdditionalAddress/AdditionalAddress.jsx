@@ -38,30 +38,48 @@ class AdditionalAddress extends Component {
       data = { location: newValue.location, key: newValue.location };
       msg = newValue.location;
     } else {
-      if (newValue.similarity && newValue.cityId) {
-        if (newValue.similarity === 'city') {
-          data = {
-            city: newValue.city,
-            province: newValue.province,
-            country: newValue.country,
-            key: newValue.show,
-          };
-          msg =
-            newValue.city + ', ' + newValue.province + ', ' + newValue.country;
-        } else if (newValue.similarity === 'province') {
-          data = {
-            province: newValue.province,
-            country: newValue.country,
-            key: newValue.show,
-          };
-          msg = newValue.city + ', ' + newValue.province;
-        } else {
-          data = {
-            country: newValue.country,
-            key: newValue.show,
-          };
-          msg = newValue.country;
-        }
+      if (
+        // newValue.similarity &&
+        newValue &&
+        newValue.geoInfoEN &&
+        newValue.geoInfoEN.cityId
+      ) {
+        // if (newValue.similarity === 'city') {
+        data = {
+          city: newValue.geoInfoEN.city,
+          province: newValue.geoInfoEN.province,
+          country: newValue.geoInfoEN.country,
+          key: newValue.geoInfoEN.show,
+        };
+        msg =
+          newValue.geoInfoEN.city +
+          ', ' +
+          newValue.geoInfoEN.province +
+          ', ' +
+          newValue.geoInfoEN.country;
+        // } else if (newValue.similarity === 'province') {
+        //   data = {
+        //     province: newValue.province,
+        //     country: newValue.country,
+        //     key: newValue.show,
+        //   };
+        //   msg = newValue.city + ', ' + newValue.province;
+        // } else {
+        //   data = {
+        //     country: newValue.country,
+        //     key: newValue.show,
+        //   };
+        //   msg = newValue.country;
+        // }
+      } else if (newValue && newValue.cityId) {
+        data = {
+          city: newValue.city,
+          province: newValue.province,
+          country: newValue.country,
+          key: newValue.show,
+        };
+        msg =
+          newValue.city + ', ' + newValue.province + ', ' + newValue.country;
       } else {
         msg = null;
       }
@@ -106,7 +124,7 @@ class AdditionalAddress extends Component {
                     size="small"
                     onClick={this.addAddress}
                   >
-                    {t('tab:Add Address')}
+                    Add Address
                   </MuiLink>
                 </div>
               }

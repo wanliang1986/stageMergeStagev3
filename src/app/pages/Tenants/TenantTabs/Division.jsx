@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import {
   getAllDivisionList,
-  deleteDivision
+  deleteDivision,
 } from '../../../actions/divisionActions';
 import getDivisionList from '../../../selectors/divisionSelector';
 import Immutable from 'immutable';
@@ -25,7 +25,7 @@ const columns = [
     col: 'name',
     type: 'nameButton',
     flexGrow: 1,
-    sortable: true
+    sortable: true,
   },
   {
     colName: 'createdAt',
@@ -33,8 +33,8 @@ const columns = [
     col: 'createdDate',
     type: 'date',
     disableSearch: true,
-    sortable: true
-  }
+    sortable: true,
+  },
 ];
 const status = { filterOpen: true };
 
@@ -64,7 +64,7 @@ class Division extends React.Component {
       ),
       filters: status.filters || Immutable.Map(),
       colSortDirs: status.colSortDirs,
-      filterOpen: status.filterOpen || true
+      filterOpen: status.filterOpen || true,
     };
     this.filteredDivisionList = Immutable.List();
   }
@@ -82,7 +82,7 @@ class Division extends React.Component {
           nextProps.divisionList,
           this.state.filters,
           this.state.colSortDirs
-        )
+        ),
       });
     }
   }
@@ -90,7 +90,7 @@ class Division extends React.Component {
     this.props.dispatch(getAllDivisionList());
   };
 
-  onFilter = input => {
+  onFilter = (input) => {
     let filters = this.state.filters;
 
     let col = input.name;
@@ -110,7 +110,7 @@ class Division extends React.Component {
         this.props.divisionList,
         filters,
         this.state.colSortDirs
-      )
+      ),
     });
   };
 
@@ -129,12 +129,12 @@ class Division extends React.Component {
     this.setState({
       filteredIndex,
       colSortDirs: {
-        [columnKey]: sortDir
-      }
+        [columnKey]: sortDir,
+      },
     });
   };
 
-  handleOpenEdit = selected => {
+  handleOpenEdit = (selected) => {
     this.setState({ selected, upsertOpen: true });
   };
 
@@ -142,17 +142,17 @@ class Division extends React.Component {
     this.setState({ upsertOpen: false });
   };
 
-  handleOpenDelete = selected => {
+  handleOpenDelete = (selected) => {
     const { dispatch, divisionList } = this.props;
     this.setState({
       handleDelete: () =>
         dispatch(
           deleteDivision(this.filteredDivisionList.getIn([selected, 'id']))
-        ).then(this.handleCancelDelete)
+        ).then(this.handleCancelDelete),
     });
   };
 
-  handleCancelDelete = e => {
+  handleCancelDelete = (e) => {
     this.setState({ handleDelete: null });
   };
 
@@ -165,9 +165,9 @@ class Division extends React.Component {
       filters,
       filterOpen,
       colSortDirs,
-      filteredIndex
+      filteredIndex,
     } = this.state;
-    const filteredDivisionList = filteredIndex.map(index =>
+    const filteredDivisionList = filteredIndex.map((index) =>
       divisionList.get(index)
     );
     if (!this.filteredDivisionList.equals(filteredDivisionList)) {
@@ -251,7 +251,7 @@ class Division extends React.Component {
   }
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   const authorities = state.controller.currentUser.get('authorities');
   const isAdmin =
     !!authorities &&
@@ -261,7 +261,7 @@ const mapStateToProps = state => {
 
   return {
     divisionList: getDivisionList(state),
-    isAdmin
+    isAdmin,
   };
 };
 

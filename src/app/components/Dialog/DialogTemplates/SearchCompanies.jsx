@@ -5,7 +5,7 @@ import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import { multipleName } from '../../../../utils/index';
 import { Link } from 'react-router-dom';
-import { withTranslation } from 'react-i18next';
+
 const styles = {
   root: {
     width: '1161px',
@@ -74,19 +74,39 @@ class SearchCompanies extends Component {
     super(props);
     this.state = {};
   }
-  getLevel = (str) => {
+  getLevel = (str, type) => {
     switch (str) {
+      case 'CLIENT':
+        switch (type) {
+          case 'KEY_ACCOUNT':
+            return 'Client - Key Account';
+          case 'SUPER_KEY_ACCOUNT':
+            return 'Client - Super Key Account';
+          case 'COMMERCIAL_ACCOUNT':
+            return 'Client - Commercial Account';
+          case 'SUN_SET':
+            return 'Client - Sunset ';
+        }
       case 'POTENTIAL_CLIENT':
         return 'Prospect';
-      case 'KEY_ACCOUNT':
-        return 'Client - Key Account';
-      case 'SUPER_KEY_ACCOUNT':
-        return 'Client - Super Key Account';
-      case 'COMMERCIAL_ACCOUNT':
-        return 'Client - Commercial Account';
-      case 'SUN_SET':
-        return 'Client - Sunset';
     }
+  };
+
+  getServiceType = (arr) => {
+    let str = arr
+      .map((item, index) => {
+        return item.label;
+      })
+      .join(', ');
+    return str;
+  };
+  getContacts = (arr) => {
+    let str = arr
+      .map((item, index) => {
+        return item.name;
+      })
+      .join(', ');
+    return str;
   };
   render() {
     const { classes, searchCompanies } = this.props;
@@ -125,7 +145,7 @@ class SearchCompanies extends Component {
                           overflow: 'hidden',
                         }}
                       >
-                        {this.props.t(`tab:${this.getLevel(item.type)}`)}
+                        {this.getLevel(item.type, item.companyClientLevelType)}
                       </div>
                       <div className={classes.clear}></div>
                     </div>
@@ -141,7 +161,7 @@ class SearchCompanies extends Component {
                           overflow: 'hidden',
                         }}
                       >
-                        {item.industryType}
+                        {item.industry}
                       </div>
                       <div className={classes.clear}></div>
                     </div>
@@ -158,7 +178,7 @@ class SearchCompanies extends Component {
                           overflow: 'hidden',
                         }}
                       >
-                        {item.serviceType}
+                        {this.getServiceType(item.serviceTypes)}
                       </div>
                       <div className={classes.clear}></div>
                     </div>
@@ -175,7 +195,7 @@ class SearchCompanies extends Component {
                           overflow: 'hidden',
                         }}
                       >
-                        {item.contact}
+                        {this.getContacts(item.clientContacts)}
                       </div>
                       <div className={classes.clear}></div>
                     </div>
@@ -191,7 +211,7 @@ class SearchCompanies extends Component {
                           overflow: 'hidden',
                         }}
                       >
-                        {item.countryCN}
+                        {item.country}
                       </div>
                       <div className={classes.clear}></div>
                     </div>
@@ -206,4 +226,4 @@ class SearchCompanies extends Component {
   }
 }
 
-export default withTranslation('tab')(withStyles(styles)(SearchCompanies));
+export default withStyles(styles)(SearchCompanies);

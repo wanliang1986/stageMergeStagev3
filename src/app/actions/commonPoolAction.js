@@ -45,6 +45,7 @@ export const getSearchData =
       type: ActionTypes.NEW_CANDIDATE_RESETSORT,
       payload: true,
     });
+
     let {
       basicSearch,
       advancedFilter,
@@ -99,12 +100,12 @@ export const getSearchData =
     //   payload: 'BASE',
     // });
     // 查询列表接口参数增加 initialSearch ，必填参数 true ：是初始查询 false ： 不是初始查询
-    // let initialSearch = null;
-    // if (requestData.and.length === 0) {
-    //   initialSearch = true;
-    // } else {
-    //   initialSearch = false;
-    // }
+    let initialSearch = null;
+    if (requestData.and.length === 0) {
+      initialSearch = true;
+    } else {
+      initialSearch = false;
+    }
     let str = filterSort(sort);
     // commonPoolSelectListTo是commonpool中第二个select中的数组
     if ((commonPoolSelectListTo ?? '') !== '') {
@@ -161,8 +162,7 @@ export const getSearchData =
         ],
       });
     }
-    let commonPoolType =
-      selectStatus === 'select' ? commonPoolSelectList : null;
+    let commonPoolType = selectStatus === 'select' ? newValue : null;
     return apnSDK
       .jobCommonPoolSearch({
         filter: requestData,
@@ -173,7 +173,7 @@ export const getSearchData =
         commonPoolType,
         defultStatus,
         commonPoolSelectList,
-        // initialSearch,
+        initialSearch,
       })
       .then((res) => {
         if (res) {

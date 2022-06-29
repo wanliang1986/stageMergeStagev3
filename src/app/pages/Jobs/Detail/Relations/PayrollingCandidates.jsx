@@ -414,9 +414,7 @@ class JobCandidates extends React.PureComponent {
                       this.filterData('');
                     }}
                   >
-                    {`${props.t('tab:All Candidates')} (${
-                      filteredJobActivityList.size
-                    })`}
+                    {`All Candidates (${filteredJobActivityList.size})`}
                   </div>
 
                   <span className={classes.yarrow}>
@@ -435,7 +433,7 @@ class JobCandidates extends React.PureComponent {
                           this.filterData('Applied');
                         }}
                       >
-                        {`${props.t('tab:submitted to am')} (${submitAmNum})`}
+                        {`Submitted to AM (${submitAmNum})`}
                       </div>
 
                       <span className={classes.yarrow}>
@@ -453,9 +451,7 @@ class JobCandidates extends React.PureComponent {
                           this.filterData('Submitted');
                         }}
                       >
-                        {`${props.t(
-                          'tab:submitted to client'
-                        )} (${submitClientNum})`}
+                        {`Submitted to Client (${submitClientNum})`}
                       </div>
 
                       <span className={classes.yarrow}>
@@ -473,7 +469,7 @@ class JobCandidates extends React.PureComponent {
                           this.filterData('Interview');
                         }}
                       >
-                        {`${props.t('tab:interview')} (${interviewNum})`}
+                        {`Interview (${interviewNum})`}
                       </div>
 
                       <span className={classes.yarrow}>
@@ -493,7 +489,7 @@ class JobCandidates extends React.PureComponent {
                       this.filterData('Offered');
                     }}
                   >
-                    {`${props.t('tab:offer')} (${offerNum})`}
+                    {`Offer (${offerNum})`}
                   </div>
 
                   <span className={classes.yarrow}>
@@ -511,7 +507,7 @@ class JobCandidates extends React.PureComponent {
                       this.filterData('Started');
                     }}
                   >
-                    {`${props.t('tab:onboard')} (${onboardNum})`}
+                    {`Onboard (${onboardNum})`}
                   </div>
 
                   {jobType === 'PAY_ROLL' ? null : (
@@ -531,7 +527,7 @@ class JobCandidates extends React.PureComponent {
                           this.filterData('Offer_Rejected');
                         }}
                       >
-                        {`${props.t('tab:eliminated')} (${eliminatedNum})`}
+                        {`Eliminated (${eliminatedNum})`}
                       </div>
                     </>
                   )}

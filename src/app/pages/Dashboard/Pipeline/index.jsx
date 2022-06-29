@@ -12,11 +12,11 @@ class Pipeline extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      type: 'current' // 'current' | 'history'
+      type: 'current', // 'current' | 'history'
     };
   }
 
-  handleTypeChange = e => {
+  handleTypeChange = (e) => {
     this.setState({ type: e.target.value });
   };
 

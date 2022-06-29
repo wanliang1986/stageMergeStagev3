@@ -35,7 +35,7 @@ class CandidateDetailRight extends React.Component {
               fontSize: '14px',
             }}
           >
-            {t('tab:AI Recommendations')}
+            AI Recommendations
           </div>
         </Tabs>
 

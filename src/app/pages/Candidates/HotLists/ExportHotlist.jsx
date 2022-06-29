@@ -6,7 +6,7 @@ import { getHotListTalentsByHotListId2 } from '../../../../apn-sdk';
 
 import PrimaryButton from '../../../components/particial/PrimaryButton';
 import { CONTACT_TYPES } from '../../../constants/formOptions';
-import { withTranslation } from 'react-i18next';
+
 class ExportHotlist extends React.Component {
   constructor(props) {
     super(props);
@@ -112,11 +112,11 @@ class ExportHotlist extends React.Component {
     return (
       <>
         <PrimaryButton processing={processing} onClick={this.handleExport}>
-          {this.props.t('action:Export')}
+          Export
         </PrimaryButton>
       </>
     );
   }
 }
 
-export default withTranslation('action')(ExportHotlist);
+export default ExportHotlist;

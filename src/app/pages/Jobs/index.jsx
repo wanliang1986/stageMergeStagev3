@@ -11,20 +11,12 @@ import JobDetail from './Detail';
 import Immutable from 'immutable';
 import Loading from '../../components/particial/Loading';
 import ForbiddenPage from './../../components/ForbiddenPage';
-import { distSelect, distSelectZh } from '../../../apn-sdk/newSearch';
+
 import * as ActionTypes from '../../constants/actionTypes';
 
-function Jobs({
-  dispatch,
-  match,
-  reloadKey,
-  authorities,
-  isLimitUser,
-  briefUsers,
-}) {
-  // console.log('21sas', briefUsers);
+function Jobs({ dispatch, match, reloadKey, authorities, isLimitUser }) {
+  // console.log(authorities);
   useEffect(() => {
-    getDate();
     dispatch(getClientBriefList(0)).then(({ response }) => {
       const companyOptions = getCompanyOptions(response);
       dispatch({
@@ -39,26 +31,6 @@ function Jobs({
       }
     });
   }, []);
-
-  useEffect(() => {
-    dispatch(getNewOptions(['allUserOptions', briefUsers]));
-  }, [JSON.stringify(briefUsers)]);
-
-  const getDate = () => {
-    Promise.all([
-      distSelect(38),
-      distSelect(65),
-      distSelect(1),
-      distSelectZh(1),
-    ]).then((res) => {
-      dispatch(getNewOptions(['languagesOptions', res[0].response]));
-      dispatch(getNewOptions(['degreeOptions', res[1].response]));
-      dispatch(getNewOptions(['functionOptions', res[2].response]));
-      // dispatch(getNewOptions(['allUserOptions', briefUsers]));
-      dispatch(getNewOptions(['functionOptionsZh', res[3].response]));
-    });
-  };
-
   if (!authorities) {
     return <Loading />;
   }
@@ -84,7 +56,6 @@ function mapStateToProps(state) {
   return {
     authorities,
     reloadKey: state.controller.reload,
-    briefUsers: state.controller.newCandidateJob.toJS().dialogAllUser,
     isLimitUser:
       !authorities ||
       authorities.includes(Immutable.Map({ name: 'ROLE_LIMIT_USER' })),

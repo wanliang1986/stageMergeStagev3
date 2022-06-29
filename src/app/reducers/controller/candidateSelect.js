@@ -9,8 +9,6 @@ const defaultState = fromJS({
   industryList: [],
   companyOptions: [],
   allUserOptions: [],
-  jobFounctionListZh: [],
-  industryListZh: [],
 });
 
 export default function (state = defaultState, action = {}) {
