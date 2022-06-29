@@ -1,0 +1,59 @@
+@import 'constants/color';
+@import 'partials/fix-data-table';
+@import 'partials/foundation-settings';
+@import 'partials/react-pdf';
+@import 'partials/react-dates';
+@import 'partials/animation';
+@import 'partials/form';
+@import 'partials/layout';
+@import 'partials/ag-grid';
+body {
+  overflow: hidden;
+  font-family: /* Roman */ Source Sans Pro, Roboto, Helvetica, Arial, sans-serif,
+    /* CJK */ Noto Sans SC, Hiragino Kaku Gothic Pro, Meiryo,
+    Hiragino Sans GB W3, /* Arabic */ Noto Naskh Arabic, Droid Arabic Naskh,
+    Geeza Pro, Simplified Arabic, /* Thai */ Noto Sans Thai, Thonburi, Dokchampa,
+    Droid Sans Thai, /* Sans Fallbacks */ -apple-system, '.SFNSDisplay-Regular',
+    BlinkMacSystemFont, /* CJK Fallbacks */ Heiti SC, Microsoft Yahei, Segoe UI,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+li,
+dt {
+  font-family: /* Roman */ Source Sans Pro, Roboto, Helvetica, Arial, sans-serif,
+    /* CJK */ Noto Sans SC, Hiragino Kaku Gothic Pro, Meiryo,
+    Hiragino Sans GB W3, /* Arabic */ Noto Naskh Arabic, Droid Arabic Naskh,
+    Geeza Pro, Simplified Arabic, /* Thai */ Noto Sans Thai, Thonburi, Dokchampa,
+    Droid Sans Thai, /* Sans Fallbacks */ -apple-system, '.SFNSDisplay-Regular',
+    BlinkMacSystemFont, /* CJK Fallbacks */ Heiti SC, Microsoft Yahei, Segoe UI,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.scroll-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.overflow_ellipsis_1 {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.__react_component_tooltip {
+  word-break: break-all;
+}
+
+.highlight {
+  background-color: rgba(255, 255, 0, 0.5);
+}
+
+.highlight2 {
+  background-color: rgba(255, 0, 0, 0.5);
+}
+
+.global-tooltip.__react_component_tooltip {
+  z-index: 2000;
+  max-width: 450px;
+}

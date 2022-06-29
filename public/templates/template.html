@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Title</title>
+    <style>
+        body {
+            background-color: #f5f6f7;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            min-width: 290px;
+            margin-top: 23px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .title {
+            height: 60px;
+            background-color: #3e3e3e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .content {
+            padding: 20px 40px;
+            background-color: #ffffff;
+            font-family: Roboto;
+            font-size: 16px;
+            font-weight: normal;
+            font-stretch: normal;
+            font-style: normal;
+            line-height: 1.38;
+            letter-spacing: normal;
+            color: #505050;
+        }
+
+        .footer {
+            font-size: 12px;
+            font-weight: normal;
+            font-stretch: normal;
+            font-style: normal;
+            line-height: 1.33;
+            letter-spacing: normal;
+            color: #939393;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="title">
+        <svg height="40" viewBox="0 0 70 60.8" width="" xmlns="http://www.w3.org/2000/svg">
+            <polygon fill="#1AA1D3" points="35.6,2 11.2,44.3 27.3,44.1 35.3,30.4 43.9,44.3 60.2,44.3 "></polygon>
+            <polygon fill="#1068A4" points="60.2,44.3 52.2,58.9 69.1,58.9 "></polygon>
+            <polygon fill="#1D90CA" points="52.2,58.9 60.2,44.3 43.9,44.3 "></polygon>
+            <polygon fill="#0F6DA6" points="27.3,44.3 35.3,30.4 19.3,30.4 "></polygon>
+            <polygon fill="#1D90CA" points="19.3,30.4 3,58.9 35.6,58.9 "></polygon>
+        </svg>
+    </div>
+    <div class="content">
+        <p>
+            Hi {{USER_NAME}},
+        </p>
+        <p>
+            {{CANDIDATE_NAME}} has just accepted offer from {{COMPANY_NAME}} ({{JOB_TITLE}}). Please go to [Activities]
+            under
+            {{CANDIDATE_NAME}}’s profile page to update your pipeline status.
+            <!--   可能会用到链接   <a href="https://apn.hitalentec.com/candidates/detail/{{{CANDIDATE_ID}}}" >{{CANDIDATE_NAME}}</a>     -->
+        </p>
+
+        <p style="font-size: 14px">
+            Thank you, <br/>
+            APN Development Team
+
+        </p>
+        <hr style="border-color: #e3e0e0;background-color: #e3e0e0">
+        <p class="footer">
+            ©2021 Hitalent. All rights reserved.
+        </p>
+    </div>
+</div>
+</body>
+</html>

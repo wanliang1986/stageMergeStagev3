@@ -1,0 +1,200 @@
+/**
+ * Custom React Select style
+ */
+$select-input-bg: $white;
+$select-input-bg-disabled: $disabled-background;
+$select-input-border-color: #cacaca;
+$select-input-border-radius: 0;
+$select-input-border-focus: #8a8a8a;
+$select-input-height: 39px;
+$select-input-placeholder: #cacaca;
+$select-text-color: $text;
+
+@import '~react-select/scss/default';
+
+// Add gap for individual react select
+//.customized-react-select .Select-control {
+//  margin: 0 0 .75em;
+//}
+
+.foundation {
+  // Add new style
+  .is-invalid-select {
+    .Select:not(.is-focused) .Select-control,
+    .Select:not(.is-open) .Select-control {
+      background-color: #f9ecea;
+      border: 1px solid #cc4b37;
+    }
+
+    .Select:not(.is-focused) .Select-placeholder,
+    .Select:not(.is-open) .Select-placeholder {
+      color: #cc4b37;
+    }
+  }
+
+  .input-group-button {
+    .Select {
+      min-width: 100px;
+    }
+
+    .Select-control {
+      height: 40px;
+    }
+  }
+
+  // Overwrite old style
+  .Select-control {
+    font-size: 1.25em;
+    margin: 0 0 0.75em;
+    height: 2rem;
+  }
+  .Select-clear {
+    font-size: 16px;
+  }
+
+  .Select.is-focused > .Select-control {
+    outline: none;
+    border-color: $select-input-border-focus;
+    box-shadow: 0 0 5px #cacaca;
+    transition: box-shadow 0.5s, border-color 0.25s ease-in-out;
+  }
+
+  .Select.is-disabled > .Select-control {
+    cursor: not-allowed;
+
+    .Select-value .Select-value-label {
+      color: $disabled-text;
+    }
+  }
+
+  .Select-control,
+  .Select-control:hover {
+    //box-shadow: inset 0 1px 2px rgba(10, 10, 10, 0.1);
+    transition: box-shadow 0.5s, border-color 0.25s ease-in-out;
+  }
+
+  .Select-menu-outer {
+    display: table;
+    border: 1px solid $select-input-border-focus;
+    border-top-color: mix($select-input-bg, $select-input-border-color, 50%);
+    font-size: 1.25em;
+  }
+  .Select-option {
+    padding: 5px 6px;
+    line-height: 1.4;
+
+    &.is-disabled {
+      color: #cccccc;
+    }
+  }
+
+  .Select-placeholder,
+  .Select--single > .Select-control .Select-value {
+    line-height: 30px;
+    padding-left: 6px;
+    right: 15px;
+  }
+  .Select-placeholder {
+    color: $disabled-text;
+    opacity: 0.5;
+  }
+  .Select-input {
+    height: 30px;
+    padding-left: 6px;
+    input {
+      line-height: 18px;
+      padding: 6px 0;
+    }
+  }
+  .Select--multi {
+    .Select-input {
+      padding: 0;
+    }
+    .Select-value {
+      line-height: 1.2;
+      margin-top: 4px;
+    }
+    .Select-value-icon {
+      padding: 1px 5px;
+    }
+  }
+}
+
+/**
+ * Custom Foundation textarea style
+ */
+.foundation {
+  label {
+    font-size: 0.75em;
+    input[type],
+    textarea {
+      font-size: 1.25em;
+      padding: 0.4em;
+      height: 2rem;
+      margin-bottom: 0.75em;
+      color: $text;
+    }
+  }
+
+  &.full-height {
+    height: 100%;
+
+    label {
+      height: 100%;
+    }
+
+    textarea {
+      // padding (0.5rem + 0.5rem) + margin-bottom (1rem) + errorMessage (1.25rem)
+      height: calc(100% - 1.2rem);
+    }
+  }
+
+  .input-group-label[class],
+  .input-group-button[class] {
+    width: auto;
+  }
+
+  .input-group > input:not(:last-child) {
+    border-right: 0;
+  }
+
+  input[type]:disabled,
+  textarea:disabled {
+    color: $disabled-text;
+    -webkit-text-fill-color: $disabled-text;
+    //opacity: 1;
+  }
+}
+
+.capitalize-dropdown {
+  .Select-option,
+  .Select-value-label {
+    text-transform: capitalize;
+  }
+}
+
+.Select-menu-outer div {
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: $gray;
+    border-radius: 4px;
+  }
+  &::-webkit-scrollbar-track {
+    background: $wild-sand;
+    border-radius: 2px;
+  }
+}
+
+.Select-menu-outer {
+  max-height: 140px;
+}
+
+.Select-menu {
+  max-height: 138px;
+}
+select {
+  height: 27px;
+  border-radius: 2px;
+}

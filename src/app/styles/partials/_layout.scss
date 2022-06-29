@@ -1,0 +1,40 @@
+.container-padding {
+  padding: 16px;
+}
+
+.item-padding {
+  padding: 0 10px;
+}
+
+.overflow-scroll {
+  overflow: scroll;
+}
+
+.horizontal-layout {
+  display: flex;
+  & > * {
+    display: inline-flex;
+    &:not(:last-child) {
+      margin-right: 16px;
+    }
+  }
+}
+
+.vertical-layout > *:not(:last-child) {
+  margin-bottom: 16px;
+}
+
+:not(textarea)::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+:not(textarea)::-webkit-scrollbar-thumb {
+  background: $gray;
+  border-radius: 4px;
+}
+
+:not(textarea)::-webkit-scrollbar-track {
+  background: $wild-sand;
+  border-radius: 2px;
+}

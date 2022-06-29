@@ -1,0 +1,62 @@
+.flash {
+  animation: flash linear 1s infinite;
+}
+
+.my-spin {
+  animation: mySpin 2s infinite linear;
+  animation-name: mySpin;
+  animation-duration: 2s;
+  animation-timing-function: linear;
+  animation-delay: initial;
+  animation-iteration-count: infinite;
+  animation-direction: initial;
+  animation-fill-mode: initial;
+  animation-play-state: initial;
+}
+.my-spin2 {
+  animation: mySpin2 2s infinite linear;
+  animation-name: mySpin2;
+  animation-duration: 2s;
+  animation-timing-function: linear;
+  animation-delay: initial;
+  animation-iteration-count: infinite;
+  animation-direction: initial;
+  animation-fill-mode: initial;
+  animation-play-state: initial;
+}
+
+@keyframes flash {
+  0% {
+    transform: scale(1);
+    //color: #ffc83c;
+  }
+  50% {
+    transform: scale(1.04);
+    //color: #ff9b41;
+  }
+  100% {
+    transform: scale(1);
+    //color: #ffc83c;
+  }
+}
+
+@keyframes mySpin {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(-359deg);
+    transform: rotate(-359deg);
+  }
+}
+@keyframes mySpin2 {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}

@@ -1,0 +1,211 @@
+version: 2.1
+orbs:
+  aws-s3: circleci/aws-s3@2.0.0
+jobs:
+  # The build job
+  build:
+    docker:
+      # specify the version you desire here
+      - image: cimg/node:14.16.1
+
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      # - image: circleci/mongo:3.4.4
+
+    working_directory: ~/altomni-apn
+
+    steps:
+      - checkout
+      # Log the current branch
+      - run:
+          name: Show current branch
+          command: echo ${CIRCLE_BRANCH}
+      # Restore local dependencies from cache
+      - restore_cache:
+          keys:
+            - dependencies-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "yarn.lock" }}
+            # fallback to using the latest cache if no exact match is found
+            - dependencies-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}
+            - dependencies-{{ .Environment.CACHE_VERSION }}
+      # Install project dependencies
+      - run: yarn install
+      # Cache local dependencies if they don't exist
+      - save_cache:
+          paths:
+            - node_modules
+          key: dependencies-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "yarn.lock" }}
+      # run tests!
+      - run: yarn test
+      # Build project
+      - run: api_host_var_name="API_HOST_${CIRCLE_BRANCH}"; echo $api_host_var_name; [ -n "${!api_host_var_name}" ] && export REACT_APP_API_HOST=${!api_host_var_name} || echo "using default API_HOST"; CI=false  yarn build
+      # Cache the build folder for the deploy job
+      - save_cache:
+          key: build-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
+          paths:
+            - build
+
+  # The deploy job
+  deploy-stage:
+    docker:
+      - image: cimg/python:3.6
+
+    working_directory: ~/altomni-apn
+
+    steps:
+      - checkout
+      # Log the current branch
+      - run:
+          name: Show current branch
+          command: echo ${CIRCLE_BRANCH}
+      # Restore cache from the build job which contains the
+      # build folder that needs to be deployed
+      - restore_cache:
+          key: build-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
+
+      # Deploy to S3
+      - aws-s3/sync:
+          from: build/
+          to: s3://apn-staging.hitalentech.com
+          arguments: --region us-west-2 --cache-control "max-age=31536000"
+
+      - aws-s3/sync:
+          from: build/locales/
+          to: s3://apn-staging.hitalentech.com
+          arguments: --region us-west-2 --cache-control "max-age=0"
+
+      - aws-s3/copy:
+          from: build/index.html
+          to: s3://apn-staging.hitalentech.com
+          arguments: --region us-west-2 --cache-control "max-age=0"
+      - aws-s3/copy:
+          from: build/asset-manifest.json
+          to: s3://apn-staging.hitalentech.com
+          arguments: --region us-west-2 --cache-control "max-age=0"
+
+  deploy-stage2:
+    docker:
+      - image: cimg/python:3.6
+
+    working_directory: ~/altomni-apn
+
+    steps:
+      - checkout
+      # Log the current branch
+      - run:
+          name: Show current branch
+          command: echo ${CIRCLE_BRANCH}
+      # Restore cache from the build job which contains the
+      # build folder that needs to be deployed
+      - restore_cache:
+          key: build-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
+
+      # Deploy to S3
+      - aws-s3/sync:
+          from: build/
+          to: s3://apn-staging-singapore
+          arguments: --region us-west-2 --cache-control "max-age=31536000"
+
+      - aws-s3/sync:
+          from: build/locales/
+          to: s3://apn-staging-singapore
+          arguments: --region us-west-2 --cache-control "max-age=0"
+
+      - aws-s3/copy:
+          from: build/index.html
+          to: s3://apn-staging-singapore
+          arguments: --region us-west-2 --cache-control "max-age=0"
+      - aws-s3/copy:
+          from: build/asset-manifest.json
+          to: s3://apn-staging-singapore
+          arguments: --region us-west-2 --cache-control "max-age=0"
+
+ 
+  deploy-cn:
+    docker:
+      - image: cimg/node:14.16.1
+
+    working_directory: ~/altomni-apn
+
+    steps:
+      - checkout
+      # Log the current branch
+      - run:
+          name: Show current branch
+          command: echo ${CIRCLE_BRANCH}
+      # Restore cache from the build job which contains the
+      # build folder that needs to be deployed
+      - restore_cache:
+          key: build-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
+
+      # Install ali cli
+      - run:
+          name: Install ali cli
+          command: npm install ali-oss walk dotenv
+      # Deploy to OSS
+      - run: node cn-deploy
+  deploy-cn2:
+    docker:
+      - image: cimg/node:14.16.1
+
+    working_directory: ~/altomni-apn
+
+    steps:
+      - checkout
+      # Log the current branch
+      - run:
+          name: Show current branch
+          command: echo ${CIRCLE_BRANCH}
+      # Restore cache from the build job which contains the
+      # build folder that needs to be deployed
+      - restore_cache:
+          key: build-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
+
+      # Install ali cli
+      - run:
+          name: Install ali cli
+          command: npm install ali-oss walk dotenv
+      # Deploy to OSS
+      - run: node cn2-deploy
+workflows:
+  version: 2
+
+  build_and_deploy:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only:
+                - stage
+                - stage2
+                - cn
+                - cn2
+      - deploy-stage:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - stage
+      - deploy-stage2:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - stage2
+ 
+      - deploy-cn:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - cn
+      - deploy-cn2:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - cn2

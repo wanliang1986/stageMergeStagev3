@@ -1,0 +1,22 @@
+@import '~foundation-sites/scss/foundation.scss';
+
+$grid-column-gutter: (
+  small: 4px,
+  medium: 8px,
+);
+
+$body-font-family: 'Roboto', sans-serif;
+$body-font-size: 1rem;
+$input-background-disabled: $disabled-background;
+$input-shadow: none;
+@include foundation-global-styles;
+@include foundation-flex-classes;
+@include foundation-flex-grid;
+@include foundation-typography;
+@include foundation-visibility-classes;
+@include foundation-float-classes;
+.foundation {
+  font-size: $body-font-size;
+  @include foundation-forms;
+  @include foundation-table;
+}
