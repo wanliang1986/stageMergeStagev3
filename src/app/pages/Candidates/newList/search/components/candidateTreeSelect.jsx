@@ -114,7 +114,7 @@ const CandidateTree = ({
     if (language) {
       res = industryList;
     } else {
-      res = industryListZh;
+      res = industryList;
     }
     res.forEach((ite) => {
       if (ite.children) {

@@ -10,9 +10,9 @@ const useStyles = makeStyles({
     paddingTop: 8,
     boxSizing: 'border-box',
     '&:not(:last-child)': {
-      borderBottom: '1px solid #eaeaea'
-    }
-  }
+      borderBottom: '1px solid #eaeaea',
+    },
+  },
 });
 function MemberCard({ commission }) {
   const classes = useStyles();
@@ -29,7 +29,7 @@ function MemberCard({ commission }) {
   );
 }
 
-const styles = theme => ({
+const styles = (theme) => ({
   tooltip: {
     backgroundColor: theme.palette.common.white,
     color: 'rgba(0, 0, 0, 0.87)',
@@ -39,9 +39,9 @@ const styles = theme => ({
     overflow: 'auto',
     wordBreak: 'break-all',
     margin: '4px 0',
-    padding: '8px 20px'
+    padding: '8px 20px',
   },
-  card: {}
+  card: {},
 });
 
 class TeamMemberTooltip extends React.Component {
@@ -52,9 +52,8 @@ class TeamMemberTooltip extends React.Component {
   render() {
     const { classes, children, commissions } = this.props;
     if (!commissions || commissions.size === 0) {
-      return children;
+      return '';
     }
-    console.log(commissions);
     return (
       <Tooltip
         interactive
@@ -62,7 +61,7 @@ class TeamMemberTooltip extends React.Component {
         // open
         title={
           <>
-            {commissions.map(commission => {
+            {commissions.map((commission) => {
               return (
                 <MemberCard
                   key={commission.get('id')}

@@ -9,10 +9,8 @@ import { connect, useSelector, useDispatch } from 'react-redux';
 import {
   jobStatus,
   jobType as newJobType,
-  ipgPostingStatus,
 } from '../../../../../constants/formOptions';
 import { upDateStopFlag } from '../../../../../actions/newSearchJobs';
-
 import {
   SelectBox,
   SelectBox1,
@@ -394,9 +392,6 @@ const Column = ({
               //   }
               // });
               // item['options'] = functionOptions;
-              //
-            } else if (items['colName'] == 'Job Posting Status') {
-              item['options'] = ipgPostingStatus;
             }
           }
         });

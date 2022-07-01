@@ -713,14 +713,16 @@ class TenantInfo extends Component {
                 <FormInput
                   name="credit"
                   label={t('APN Pro Monthly Credits')}
-                  toolTip={t('tab:TotalTip1')}
+                  toolTip={
+                    'Total number of monthly credits for your entire organization.'
+                  }
                   isRequired
                   disabled={tenantInfo}
                   defaultValue={
                     // tenantInfo ? tenantInfo.credit : this.state.credit
                     credit
                   }
-                  placeholder={t('tab:Enter a number')}
+                  placeholder={`Enter a number`}
                   onBlur={(event) => {
                     if (event.target.value) {
                       this.confirm();
@@ -743,9 +745,11 @@ class TenantInfo extends Component {
                 <FormInput
                   name="bulkcredit"
                   label={t('APN Pro Bulk Credits ')}
-                  toolTip={t('tab:TotalTip2')}
+                  toolTip={
+                    'Total number of bulk credits for your entire organization.'
+                  }
                   defaultValue={bulkCredit}
-                  placeholder={t('tab:Enter a number')}
+                  placeholder={`Enter a number`}
                   onBlur={(event) => {
                     if (event.target.value) {
                       this.setState({
@@ -770,13 +774,15 @@ class TenantInfo extends Component {
                   <FormInput
                     name="credit"
                     label={t('APN Pro Monthly Credits')}
-                    toolTip={t('tab:TotalTip1')}
+                    toolTip={
+                      'Total number of monthly credits for your entire organization.'
+                    }
                     isRequired
                     defaultValue={
                       // tenantInfo ? tenantInfo.credit : this.state.credit
                       updateMonthlyCredit
                     }
-                    placeholder={t('tab:Enter a number')}
+                    placeholder={`Enter a number`}
                     onBlur={(event) => {
                       if (
                         event.target.value &&
@@ -784,9 +790,9 @@ class TenantInfo extends Component {
                           tenantInfo.updateMonthlyCredit
                       ) {
                         this.confirm();
+                        this.setUpdateMonthlyCredit(event);
                         this.removeErrorMsgHandler('credit');
                       }
-                      this.setUpdateMonthlyCredit(event);
                     }}
                     errorMessage={
                       errorMessage && errorMessage.get('credit')
@@ -811,7 +817,10 @@ class TenantInfo extends Component {
                 <div className="small-3 columns">
                   <FormInput
                     name="bulkcredit"
-                    toolTip={t('tab:TotalTip2')}
+                    label={t('APN Pro Bulk Credits ')}
+                    toolTip={
+                      'Total number of bulk credits for your entire organization.'
+                    }
                     disabled
                     value={bulkCredit}
                   />
@@ -819,7 +828,7 @@ class TenantInfo extends Component {
                 <div className="small-3 columns">
                   <FormInput
                     label={t('Add Bulk Credits')}
-                    placeholder={t('tab:Enter a number')}
+                    placeholder={`Enter a number`}
                     onBlur={(event) => {
                       this.addBulkCredit(event);
                     }}
@@ -932,7 +941,7 @@ class TenantInfo extends Component {
               </FormReactSelectContainer>
             </div>
             <div className="small-6 columns">
-              <FormReactSelectContainer label={t('tab:Staff Size')}>
+              <FormReactSelectContainer label={t('field:Staff Size')}>
                 <Select
                   name="Staff Size"
                   value={this.state.staffSizeType}
@@ -985,7 +994,7 @@ class TenantInfo extends Component {
               }}
               style={{ marginRight: '10px' }}
             >
-              {t('action:cancel')}
+              Cancel
             </Button>
             <PrimaryButton
               type="Button"
@@ -1005,10 +1014,10 @@ class TenantInfo extends Component {
           modalTitle={`APN Pro Monthly Credits`}
           btnShow={true}
           SubmitBtnShow={true}
-          SubmitBtnMsg={t('tab:Confirm')}
+          SubmitBtnMsg={'Confirm'}
           SumbitBtnVariant={'contained'}
           CancelBtnShow={false}
-          CancelBtnMsg={t('tab:Cancel')}
+          CancelBtnMsg={'Cancel'}
           CancelBtnVariant={''}
           primary={() => {
             this.setState({

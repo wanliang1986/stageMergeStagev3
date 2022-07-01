@@ -73,7 +73,6 @@ class AddActivityDefaultForm extends Component {
     const activity = {
       status: status,
       memo: note,
-      agreedPayRate: oldApplication.get('agreedPayRate'),
     };
 
     let errorMessage = this._validateForm(activity, t);
@@ -127,9 +126,7 @@ class AddActivityDefaultForm extends Component {
     return (
       <Fragment>
         {/* 标题 */}
-        <DialogTitle>
-          {t(`tab:${getApplicationStatusLabel(formType).toLowerCase()}`)}
-        </DialogTitle>
+        <DialogTitle>{getApplicationStatusLabel(formType)}</DialogTitle>
 
         {/* 表单内容 */}
         <DialogContent>

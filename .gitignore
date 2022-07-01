@@ -6,8 +6,6 @@
 .idea
 node_modules
 npm-debug.log
-prod-dist
 build
-*-lock.json
 .DS_Store
 .env

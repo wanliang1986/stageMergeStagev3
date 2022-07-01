@@ -8,18 +8,8 @@ export const searchLocation2 = (location) => {
   };
   console.log('searchLocation2', location);
 
-  return authRequest.send(`/geoinfo/search?condition=${location}`, config);
-};
-
-export const searchLocation3 = (location, countryCode) => {
-  const config = {
-    method: 'GET',
-    headers: {},
-  };
-  console.log('searchLocation2', location);
-
-  return authRequest.send(
-    `/geoinfo/search?condition=${location}&&countryCode=${countryCode}`,
+  return authRequest.locationSendV3(
+    `/geoinfo/search?condition=${location}`,
     config
   );
 };

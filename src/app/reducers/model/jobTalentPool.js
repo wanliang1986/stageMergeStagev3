@@ -6,7 +6,7 @@ export default function (state = Immutable.List(), action = {}) {
   switch (action.type) {
     case ActionTypes.RECEIVE_JOB_TALENT_POOL:
       newState = action.talentList;
-      return newState.equals(state) ? state : newState;
+      return newState;
     case ActionTypes.LOGOUT:
       return state.clear();
     default:

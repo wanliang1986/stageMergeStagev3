@@ -25,14 +25,13 @@ class CandidateDetail extends React.PureComponent {
   state = {
     loadingApplications: true,
     loadingOwnerships: true,
-    bigFlag: false,
   };
   fetchData() {
     const { candidateId, dispatch } = this.props;
     dispatch(getTalent(candidateId)).finally(() => {
       this.setState({ loadingOwnerships: false });
     });
-    dispatch(getStartByTalentId(candidateId));
+    // dispatch(getStartByTalentId(candidateId));
     dispatch(getApplicationsByTalentId(candidateId)).finally(() =>
       this.setState({ loadingApplications: false })
     );
@@ -52,30 +51,22 @@ class CandidateDetail extends React.PureComponent {
     this.getSelectOptions();
   }
 
-  changeTableSize = () => {
-    this.setState({
-      bigFlag: !this.state.bigFlag,
-    });
-  };
-
   render() {
     const { candidate, tReady, isLimitUser, ...props } = this.props;
-    const { loadingApplications, loadingOwnerships, bigFlag } = this.state;
+    const { loadingApplications, loadingOwnerships } = this.state;
 
     if (!candidate) {
       return <Loading />;
     }
 
     return (
-      <CandidateLayout bigFlag={bigFlag}>
-        {bigFlag ? null : (
-          <CandidateLeft
-            {...props}
-            candidate={candidate}
-            isLimitUser={isLimitUser}
-            loadingOwnerships={loadingOwnerships}
-          />
-        )}
+      <CandidateLayout>
+        <CandidateLeft
+          {...props}
+          candidate={candidate}
+          isLimitUser={isLimitUser}
+          loadingOwnerships={loadingOwnerships}
+        />
 
         {isLimitUser ? (
           <Paper
@@ -89,8 +80,6 @@ class CandidateDetail extends React.PureComponent {
             {...props}
             candidate={candidate}
             loadingApplications={loadingApplications}
-            changeTableSize={this.changeTableSize}
-            bigFlag={bigFlag}
           />
         )}
       </CandidateLayout>
@@ -103,6 +92,7 @@ function mapStoreStateToProps(state, { match }) {
   const candidate = state.model.talents.get(candidateId);
   const tenantId = state.controller.currentUser.get('tenantId');
   const authorities = state.controller.currentUser.get('authorities');
+  // console.log(candidate && candidate.get('createdBy'), tenantId)
   const canEdit =
     candidate &&
     candidate.get('createdBy') &&

@@ -13,7 +13,6 @@ import {
   selectExtensionIdToOpen,
   startCancelTermination,
   getStart,
-  OpenOnboarding,
 } from '../../../../actions/startActions';
 import { getApplication } from '../../../../actions/applicationActions';
 import { showErrorMessage } from '../../../../actions';
@@ -38,16 +37,12 @@ import SecondaryButton from '../../../../components/particial/SecondaryButton';
 import PotentialButton from '../../../../components/particial/PotentialButton';
 import AlertDialog from '../../../../components/particial/AlertDialog';
 
-import { showOnboarding } from '../../../../../utils/index';
-
-import * as ActionTypes from '../../../../constants/actionTypes';
-
 class CandidateExtension extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      edit: props.start && !props.start.get('id'),
+      edit: !props.start.get('id'),
       processing: false,
 
       openTermination: false,
@@ -68,34 +63,7 @@ class CandidateExtension extends React.Component {
   handleCancel = () => {
     if (this.props.start.get('id') || this.props.start.get('startId')) {
       this.setState({ edit: false, anchorEl: null, processing: false });
-      let hasOnboardingBtn = showOnboarding(this.props.start);
-      this.props.dispatch(
-        selectStartToOpen(this.props.currentStart, hasOnboardingBtn)
-      );
-      if (this.props.start.get('startType') === 'CONTRACT_EXTENSION') {
-        this.props.dispatch({
-          type: ActionTypes.TAB_SELECT,
-          selectedTab: 'extension',
-        });
-      } else if (this.props.start.get('startType') === 'CONVERT_TO_FTE') {
-        this.props.dispatch({
-          type: ActionTypes.TAB_SELECT,
-          selectedTab: 'conversionStart',
-        });
-      } else {
-        this.props.dispatch({
-          type: ActionTypes.TAB_SELECT,
-          selectedTab: 'start',
-        });
-      }
-      this.props.dispatch(
-        OpenOnboarding(
-          this.props.currentStart.get('applicationId'),
-          'openStart',
-          this.props.currentStart,
-          hasOnboardingBtn
-        )
-      );
+      this.props.dispatch(selectStartToOpen(this.props.currentStart));
     } else {
       this.handleCloseStartTab();
     }
@@ -107,24 +75,9 @@ class CandidateExtension extends React.Component {
     if (extensionId) {
       return dispatch(updateStart(newStart, extensionId))
         .then(() => {
-          let hasOnboardingBtn = showOnboarding(
-            this.props.start.merge(Immutable.fromJS(newStart))
-          );
           dispatch(
             selectStartToOpen(
-              this.props.start.merge(Immutable.fromJS(newStart)),
-              hasOnboardingBtn
-            )
-          );
-
-          this.props.dispatch(
-            OpenOnboarding(
-              this.props.start
-                .merge(Immutable.fromJS(newStart))
-                .get('applicationId'),
-              'openStart',
-              this.props.start.merge(Immutable.fromJS(newStart)),
-              hasOnboardingBtn
+              this.props.start.merge(Immutable.fromJS(newStart))
             )
           );
         })
@@ -143,22 +96,7 @@ class CandidateExtension extends React.Component {
         await dispatch(getStart(newStart.startId)).catch((err) =>
           dispatch(showErrorMessage(err))
         );
-        let hasOnboardingBtn = showOnboarding(Immutable.fromJS(newStart));
-        dispatch(
-          selectStartToOpen(Immutable.fromJS(newStart), hasOnboardingBtn)
-        );
-        dispatch({
-          type: ActionTypes.TAB_SELECT,
-          selectedTab: 'extension',
-        });
-        dispatch(
-          OpenOnboarding(
-            Immutable.fromJS(newStart).get('applicationId'),
-            'openStart',
-            Immutable.fromJS(newStart),
-            hasOnboardingBtn
-          )
-        );
+        dispatch(selectStartToOpen(Immutable.fromJS(newStart)));
         dispatch(getApplication(newStart.applicationId));
       })
       .then(this.handleCancel)
@@ -177,11 +115,9 @@ class CandidateExtension extends React.Component {
     if (onCloseStartTab) {
       onCloseStartTab(() => {
         dispatch(selectStartToOpen(null));
-        dispatch(OpenOnboarding(null));
       });
     } else {
       dispatch(selectStartToOpen(null));
-      dispatch(OpenOnboarding(null));
     }
   };
 
@@ -208,16 +144,6 @@ class CandidateExtension extends React.Component {
         dispatch(startCancelTermination(start.get('id')))
           .then((newStart) => {
             dispatch(selectStartToOpen(Immutable.fromJS(newStart)));
-
-            let hasOnboardingBtn = showOnboarding(Immutable.fromJS(newStart));
-            dispatch(
-              OpenOnboarding(
-                start.get('applicationId'),
-                'openStart',
-                start,
-                hasOnboardingBtn
-              )
-            );
             dispatch(getApplication(start.get('applicationId')));
           })
           .catch((err) => {
@@ -264,16 +190,6 @@ class CandidateExtension extends React.Component {
         ])
       );
     dispatch(selectExtensionToOpen(extension));
-
-    let hasOnboardingBtn = showOnboarding(extension);
-    dispatch(
-      OpenOnboarding(
-        start.get('applicationId'),
-        'openStart',
-        start,
-        hasOnboardingBtn
-      )
-    );
     this.setState({ edit: true });
   };
 
@@ -331,23 +247,9 @@ class CandidateExtension extends React.Component {
                 <TextField
                   select
                   value={startId}
-                  onChange={(e) => {
-                    this.props.dispatch(
-                      selectExtensionIdToOpen(e.target.value)
-                    );
-                    console.log(extensionList.toJS());
-                    let _start = extensionList.get(String(e.target.value));
-                    console.log(_start);
-                    let hasOnboardingBtn = showOnboarding(_start);
-                    this.props.dispatch(
-                      OpenOnboarding(
-                        _start.get('applicationId'),
-                        'openStart',
-                        _start,
-                        hasOnboardingBtn
-                      )
-                    );
-                  }}
+                  onChange={(e) =>
+                    this.props.dispatch(selectExtensionIdToOpen(e.target.value))
+                  }
                   InputProps={{
                     disableUnderline: true,
                   }}
@@ -400,7 +302,7 @@ class CandidateExtension extends React.Component {
             </PotentialButton>
           )}
 
-          {startId && (
+          {isAm && startId && (
             <div>
               <IconButton
                 onClick={this.handleClickOptions}
@@ -428,7 +330,6 @@ class CandidateExtension extends React.Component {
                   return (
                     <MenuItem
                       key={action.action}
-                      disabled={!isAm}
                       onClick={() => this.handleAction(action.action)}
                     >
                       {props.t(action.label)}
@@ -533,6 +434,7 @@ const mapStateToProps = (state, { start }) => {
   const isAdmin =
     authorities &&
     authorities.includes(Immutable.Map({ name: 'ROLE_TENANT_ADMIN' }));
+
   return {
     isAdmin,
     isAm: checkAM(start, currentUserId) || isAdmin,
@@ -555,22 +457,12 @@ const checkAM = memoizeOne((start, currentUserId) => {
 });
 
 const getMenuItems = (status, startDate, endDate) => {
-  if (status === 'CONTRACT_TERMINATED') {
-    return [];
-  }
-
   const items = [];
 
   if (
     !moment().isBefore(moment(startDate)) &&
     !moment().isAfter(moment(endDate))
   ) {
-    items.push({
-      action: 'termination',
-      label: 'action:Termination',
-    });
-  }
-  if (status === 'ACTIVE' && moment().isAfter(moment(endDate))) {
     items.push({
       action: 'termination',
       label: 'action:Termination',

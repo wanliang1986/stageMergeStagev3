@@ -316,7 +316,7 @@ class Reports extends React.PureComponent {
       >
         <div>
           <Typography variant="h5" className="item-padding">
-            {t('tab:Pipeline Analytics per Submittal Perspective')}
+            {t('message:Pipeline Analytics per Submittal Perspective')}
           </Typography>
 
           <div

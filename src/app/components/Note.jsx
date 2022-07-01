@@ -96,9 +96,7 @@ class Note extends React.Component {
 }
 
 const mapStateToProps = (state) => {
-  console.log(state);
   const currentUser = state.controller.currentUser;
-  console.log(currentUser.toJS());
   return {
     currentUser: currentUser,
   };

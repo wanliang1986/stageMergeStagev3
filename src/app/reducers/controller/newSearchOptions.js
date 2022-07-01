@@ -8,7 +8,6 @@ const defaultState = fromJS({
   degreeOptions: [],
   languagesOptions: [],
   functionOptions: [],
-  functionOptionsZh: [],
 });
 
 export default function (state = defaultState, action = {}) {

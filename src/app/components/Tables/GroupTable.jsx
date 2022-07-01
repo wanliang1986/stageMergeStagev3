@@ -17,7 +17,7 @@ import HeaderCell from './TableCell/HeaderCell';
 import TextCell from './TableCell/TextCell';
 import DateCell from './TableCell/DateCell';
 import TeamMemberTooltip2 from '../../pages/Tenants/TeamMemberTooltip2';
-import { withTranslation } from 'react-i18next';
+
 import {
   style,
   HEADER_HEIGHT,
@@ -235,9 +235,10 @@ class GroupTable extends React.PureComponent {
                   header={
                     <Cell style={style.headerCell}>
                       <div
-                        style={{ ...style.headerText, marginBottom: '20px' }}
+                        style={style.headerText}
+                        style={{ marginBottom: '20px' }}
                       >
-                        {t('tab:Action')}
+                        Action
                         {filterOpen && <br />}
                       </div>
                     </Cell>
@@ -288,4 +289,4 @@ GroupTable.propTypes = {
   t: PropTypes.func.isRequired,
 };
 
-export default withTranslation('tab')(withStyles(style)(GroupTable));
+export default withStyles(style)(GroupTable);

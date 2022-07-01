@@ -219,7 +219,7 @@ class FullTime extends React.Component {
             <FormReactSelectContainer
               isRequired
               errorMessage={t(errorMessage.get('currency'))}
-              label={t('field:Salary Currency')}
+              label="Salary Currency"
             >
               <Select
                 labelKey={'label2'}
@@ -235,10 +235,7 @@ class FullTime extends React.Component {
           </div>
 
           <div className="small-4 columns">
-            <FormReactSelectContainer
-              isRequired
-              label={t('field:Salary Unit Type')}
-            >
+            <FormReactSelectContainer isRequired label="Salary Unit Type">
               <Select
                 clearable={false}
                 disabled={!edit}
@@ -325,9 +322,7 @@ class FullTime extends React.Component {
                   &nbsp;
                   <Tooltip
                     arrow
-                    title={t(
-                      'field:Separate from Salary. Only record billable bonus.'
-                    )}
+                    title={`Separate from Salary. Only record billable bonus.`}
                   >
                     <Info fontSize="small" color="disabled" />
                   </Tooltip>

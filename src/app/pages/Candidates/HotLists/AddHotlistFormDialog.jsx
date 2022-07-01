@@ -234,6 +234,7 @@ class AddHotlistFormDialog extends React.Component {
       this.props;
     const { indexList, hotListUsers, selectMode, errorMessage } = this.state;
     const filteredUserList = indexList.map((index) => userList.get(index));
+    console.log(hotListUsers.toJS());
 
     return (
       <Dialog

@@ -7,7 +7,6 @@ import {
   createStart,
   updateStart,
   selectStartToOpen,
-  OpenOnboarding,
 } from '../../../../actions/startActions';
 import { getApplication } from '../../../../actions/applicationActions';
 import { showErrorMessage } from '../../../../actions';
@@ -26,14 +25,12 @@ import PrimaryButton from '../../../../components/particial/PrimaryButton';
 import SecondaryButton from '../../../../components/particial/SecondaryButton';
 import Divider from '@material-ui/core/Divider';
 
-import { showOnboarding } from '../../../../../utils/index';
-
 class CandidateConversionStart extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      edit: props.start && !props.start.get('id'),
+      edit: !props.start.get('id'),
       processing: false,
 
       openFailedWarranty: false,
@@ -61,26 +58,15 @@ class CandidateConversionStart extends React.Component {
   };
 
   handleUpsert = (newStart, startId) => {
-    console.log(newStart);
     const { dispatch } = this.props;
     this.setState({ processing: true });
     console.log('submit!!!!!!!!!!!!!!!!!!!!!!!!!!1');
     if (startId) {
       return dispatch(updateStart(newStart, startId))
         .then(() => {
-          let hasOnboardingBtn = showOnboarding(this.props.currentStart);
           dispatch(
             selectStartToOpen(
-              this.props.start.merge(Immutable.fromJS(newStart)),
-              hasOnboardingBtn
-            )
-          );
-          dispatch(
-            OpenOnboarding(
-              this.props.currentStart.get('applicationId'),
-              'openStart',
-              this.props.currentStart,
-              hasOnboardingBtn
+              this.props.start.merge(Immutable.fromJS(newStart))
             )
           );
         })
@@ -93,20 +79,8 @@ class CandidateConversionStart extends React.Component {
     dispatch(createStart(newStart))
       .then((normalizedData) => {
         newStart.id = normalizedData.result;
-        let hasOnboardingBtn = showOnboarding(this.props.currentStart);
         dispatch(
-          selectStartToOpen(
-            this.props.start.merge(Immutable.fromJS(newStart)),
-            hasOnboardingBtn
-          )
-        );
-        dispatch(
-          OpenOnboarding(
-            this.props.currentStart.get('applicationId'),
-            'openStart',
-            this.props.currentStart,
-            hasOnboardingBtn
-          )
+          selectStartToOpen(this.props.start.merge(Immutable.fromJS(newStart)))
         );
         dispatch(getApplication(newStart.applicationId));
       })
@@ -125,11 +99,9 @@ class CandidateConversionStart extends React.Component {
     if (onCloseStartTab) {
       onCloseStartTab(() => {
         dispatch(selectStartToOpen(null));
-        dispatch(OpenOnboarding(null));
       });
     } else {
       dispatch(selectStartToOpen(null));
-      dispatch(OpenOnboarding(null));
     }
   };
 

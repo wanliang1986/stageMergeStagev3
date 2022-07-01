@@ -1,10 +1,9 @@
 import React from 'react';
 import { withTranslation } from 'react-i18next';
 import withStyles from '@material-ui/core/styles/withStyles';
-import Divider from '@material-ui/core/Divider';
 import { currency as currencyOptions } from '../../../../../constants/formOptions';
 
-import logo from './newlogo.png';
+import logo from '../../../../../../logo.png';
 
 const style = (theme) => ({
   invoice: {
@@ -54,7 +53,7 @@ const style = (theme) => ({
     justifyContent: 'space-around',
   },
   firstRow: {
-    // borderBottom: '0.2px solid #e0e0e0',
+    borderBottom: '0.2px solid #e0e0e0',
     position: 'relative',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -66,16 +65,16 @@ const currencyLabels = currencyOptions.reduce((res, v) => {
 }, {});
 
 const LocalPreviewInvoiceTemplate = (props) => {
-  const { classes, invoice, subInvoice, childInvoiceNumber, index, t } = props;
-  const { totalBillAmount, discount, taxAmount, totalInvoiceAmount } =
-    _getDueAmount(invoice);
+  const { classes, invoice, subInvoice, childInvoiceNumber, index } = props;
+
+  console.log('[laal]', childInvoiceNumber);
   return (
     <div>
+      <div style={{ padding: '20px 20px 0 20px' }}>
+        Invoice #{childInvoiceNumber ? `${childInvoiceNumber}-${index}` : ''}
+      </div>
       <section className={classes.invoice} style={{ boxSizing: 'border-box' }}>
-        <div
-          className="row"
-          style={{ alignItems: 'center', marginTop: 30, marginBottom: 30 }}
-        >
+        <div className="row" style={{ alignItems: 'center' }}>
           <div className={classes.leftColumn}>
             <img
               src={logo}
@@ -85,12 +84,9 @@ const LocalPreviewInvoiceTemplate = (props) => {
             />
           </div>
 
-          <div
-            className={classes.rightColumn}
-            style={{ textAlign: 'right', paddingRight: 24 }}
-          >
+          <div className={classes.rightColumn}>
             <span style={{ fontWeight: '800', fontSize: '12px' }}>
-              Invoice No.XXXXXXXXX{index ? `-${index}` : ''}
+              Invoice No.XXXXXXXXXXXXXX{index ? `-${index}` : ''}
             </span>
           </div>
         </div>
@@ -114,42 +110,84 @@ const LocalPreviewInvoiceTemplate = (props) => {
             <div>
               <span>Customer Reference #:</span> {invoice.customerReference}
               <br />
-              <span>PO #:</span> {invoice.poNo}
+              <span>PO #:</span>
+              {invoice.poNo}
               <br />
-              {/*<span>Customer Contact:</span> {invoice.clientContact}*/}
-              {/*<br />*/}
-              <span>{t('field:Invoice Date')}:</span> {invoice.invoiceDate}{' '}
+              <span>Customer Contact:</span>
+              {invoice.clientContact}
               <br />
+              <span>Invoice Date:</span> {invoice.invoiceDate} <br />
             </div>
           </div>
 
           <div className={classes.rightColumn}>
             <span>Remit To</span>
             <br />
-            *Please make payment via direct deposit to:
+            Please make payment via direct deposit to:
             <br />
+            Bank of America
             <br />
-            <span>Bank of America</span>
+            Routing #: 121000358
             <br />
-            <span>Routing #:</span> 121000358
+            Account #: 0427571829
             <br />
-            <span>Account #:</span> 000427571829
+            Account name: Intellipro Group Inc.
             <br />
-            <span>Account Name:</span> Intellipro Group Inc.
-            <br />
-            <span>Bank Address:</span> 2900 S. EI Camino Real,
+            Address: 2900 S. EI Camino Real,
             <br />
             <span
               style={{
                 fontWeight: '400',
-                paddingLeft: '74px',
+                paddingLeft: '38px',
                 fontSize: '9px',
               }}
             >
-              San Mateo, CA 94403
+              San Mateo,{' '}
             </span>
             <br />
-            <span>Account Type:</span> Checking
+            <span
+              style={{
+                fontWeight: '400',
+                paddingLeft: '38px',
+                fontSize: '9px',
+              }}
+            >
+              CA 94403{' '}
+            </span>
+            <br />
+            Account Type: Checking
+            <br />
+            Mailing Address: P.O. BOX 4364
+            <br />
+            <span
+              style={{
+                fontWeight: '400',
+                paddingLeft: '70px',
+                fontSize: '9px',
+              }}
+            >
+              4601 LAFAYETTE ST
+            </span>
+            <br />
+            <span
+              style={{
+                fontWeight: '400',
+                paddingLeft: '70px',
+                fontSize: '9px',
+              }}
+            >
+              SANTA CLARA
+            </span>
+            <br />
+            <span
+              style={{
+                fontWeight: '400',
+                paddingLeft: '70px',
+                fontSize: '9px',
+              }}
+            >
+              CA 95056
+            </span>
             <br />
           </div>
         </div>
@@ -161,7 +199,7 @@ const LocalPreviewInvoiceTemplate = (props) => {
           <span>Unit</span>
           <span>Amount Due</span>
         </div>
-        {/*totalBillAmount*/}
+
         <div className={`row expanded ${classes.firstRow}`}>
           <span style={{ padding: '10px 0 10px 20px' }}>
             Placement fee for {invoice.talentName}
@@ -175,78 +213,10 @@ const LocalPreviewInvoiceTemplate = (props) => {
               left: '473px',
             }}
           >
-            {currencyLabels[invoice.currency] || ''}
-            {totalBillAmount.toLocaleString()}
-          </span>
-        </div>
-
-        {/*discount*/}
-        {!!discount && (
-          <div className={`row expanded ${classes.firstRow}`}>
-            <span style={{ padding: '3px 0 3px 20px' }}>Discount</span>
-
-            <span
-              style={{
-                position: 'absolute',
-                left: '473px',
-              }}
-            >
-              -{currencyLabels[invoice.currency] || '$'}
-              {discount.toLocaleString()}
-            </span>
-          </div>
-        )}
-
-        {/*taxAmount*/}
-        <div className={`row expanded ${classes.firstRow}`}>
-          <span style={{ padding: '3px 0 3px 20px' }}>Tax</span>
-
-          <span
-            style={{
-              position: 'absolute',
-              left: '473px',
-            }}
-          >
             {currencyLabels[invoice.currency] || '$'}
-            {taxAmount.toLocaleString()}
+            {subInvoice ? subInvoice : invoice.dueAmount}
           </span>
         </div>
-
-        {/*startupFee*/}
-        {!!invoice.startupFeeAmount && (
-          <div className={`row expanded ${classes.firstRow}`}>
-            <span style={{ padding: '3px 0 3px 20px' }}>Startup Fee</span>
-
-            <span
-              style={{
-                position: 'absolute',
-                left: '473px',
-              }}
-            >
-              -{currencyLabels[invoice.currency] || '$'}
-              {(Number(invoice.startupFeeAmount) || 0).toLocaleString()}
-            </span>
-          </div>
-        )}
-
-        {/*applyCredit*/}
-        {!!invoice.applyCredit && (
-          <div className={`row expanded ${classes.firstRow}`}>
-            <span style={{ padding: '3px 0 3px 20px' }}>Credit</span>
-
-            <span
-              style={{
-                position: 'absolute',
-                left: '473px',
-              }}
-            >
-              -{currencyLabels[invoice.currency] || '$'}
-              {(Number(invoice.applyCredit) || 0).toLocaleString()}
-            </span>
-          </div>
-        )}
-
-        <Divider style={{ marginTop: 10 }} />
 
         <div
           className={`row expanded`}
@@ -254,32 +224,21 @@ const LocalPreviewInvoiceTemplate = (props) => {
         >
           <div className={classes.leftColumn}></div>
           <div className={`${classes.rightColumn} ${classes.table}`}>
-            <div style={{ fontWeight: '600' }}>
-              Total Amount:{' '}
-              <span
-                style={{
-                  width: 122,
-                  display: 'inline-block',
-                  textAlign: 'right',
-                }}
-              >
+            <div>
+              Subtotal:{' '}
+              <span style={{ paddingLeft: '112px' }}>
                 {currencyLabels[invoice.currency] || '$'}
-                {totalInvoiceAmount.toLocaleString()}
+                {subInvoice ? subInvoice : invoice.totalAmount}
               </span>
             </div>
-
-            {subInvoice && (
-              <div
-                className="flex-container align-justify"
-                style={{ fontWeight: '600', paddingRight: 30 }}
-              >
-                <span>{index === 1 ? 'First' : 'Second'} Amount:</span>
-                <span>
-                  {currencyLabels[invoice.currency] || '$'}
-                  {subInvoice.toLocaleString()}
-                </span>
-              </div>
-            )}
+            <div style={{ fontWeight: '800' }}>
+              Total Amount:{' '}
+              <span style={{ paddingLeft: '87px' }}>
+                {currencyLabels[invoice.currency] || '$'}
+                {invoice.totalAmount}
+              </span>
+            </div>
+            <div></div>
           </div>
         </div>
 
@@ -299,23 +258,3 @@ const LocalPreviewInvoiceTemplate = (props) => {
 export default withTranslation(['action', 'message', 'field'])(
   withStyles(style)(LocalPreviewInvoiceTemplate)
 );
-
-const _getDueAmount = (invoice) => {
-  const totalBillAmount = Number(invoice.totalBillAmount) || 0;
-  const discount = Number(invoice.discount) || 0;
-  const taxRate = Number(invoice.taxRate) || 0;
-  const taxAmount = Number(((totalBillAmount - discount) * taxRate).toFixed(2));
-  const totalInvoiceAmount =
-    totalBillAmount -
-    discount +
-    taxAmount -
-    (Number(invoice.startupFeeAmount) || 0) -
-    (Number(invoice.applyCredit) || 0);
-  return {
-    totalBillAmount,
-    discount,
-    taxAmount,
-    totalInvoiceAmount,
-    // dueAmount: totalInvoiceAmount,
-  };
-};

@@ -22,11 +22,7 @@ export default function (state = Immutable.Map(), action = {}) {
       newState = state.merge(
         Immutable.fromJS(action.normalizedData.entities.jobs)
       );
-      console.log(
-        '=============================================================>'
-      );
-      console.log(newState.toJS());
-      return newState;
+      return newState.equals(state) ? state : newState;
 
     case ActionTypes.RECEIVE_RECOMMENDATION_JOB_LIST:
     case ActionTypes.RECEIVE_APPLICATION_LIST:

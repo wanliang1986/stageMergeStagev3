@@ -340,15 +340,6 @@ class MyDBJobs extends React.Component {
     });
   };
 
-  translationLabel = (stateKey) => {
-    const { t } = this.props;
-    let newOpt = this.state[stateKey].map((item) => ({
-      value: item.value,
-      label: t(`tab:${item.label}`),
-    }));
-    return newOpt;
-  };
-
   render() {
     const { classes, t } = this.props;
     // console.log('render', this.props.syncDashboard);
@@ -367,62 +358,59 @@ class MyDBJobs extends React.Component {
       detailData,
     } = this.state;
 
-    let _periodOptions = this.translationLabel('periodOptions');
-    let _companyOptions = this.translationLabel('companyOptions');
-
     const showCountDetailDialog = !!selectedJobId;
     const infoDetail = (
       <div style={{ display: 'flex' }}>
         <div className={classes.left}>
           <Typography color="inherit" variant="caption">
-            {t('tab:submitted to am')}:
+            Submitted to AM:
           </Typography>
           <Typography color="inherit" variant="caption">
-            {t('tab:my submitted to am')}:
+            My Submitted to AM:
           </Typography>
           <Typography color="inherit" variant="caption">
-            {t('tab:submitted to client')}:
+            Submitted to client:
           </Typography>
           <Typography color="inherit" variant="caption">
-            {t('tab:my submitted to client')}:
+            My submitted to client:
           </Typography>
           <Typography color="inherit" variant="caption">
-            {t('tab:interviews')}:
+            Interviews:
           </Typography>
           <Typography color="inherit" variant="caption">
-            {t('tab:my interviews')}:
+            My interviews:
           </Typography>
           <Typography color="inherit" variant="caption">
-            {t('tab:offers')}:
+            Offers:
           </Typography>
           <Typography color="inherit" variant="caption">
-            {t('tab:my offers')}:
+            My offers:
           </Typography>
         </div>
         <div className={classes.right}>
           <Typography color="inherit" variant="caption">
-            {t('tab:Total number of candidates submitted to AM')}
+            Total number of candidates submitted to AM
           </Typography>
           <Typography color="inherit" variant="caption">
-            {t('tab:Total number of candidates submitted to AM by you')}
+            Total number of candidates submitted to AM by you
           </Typography>
           <Typography color="inherit" variant="caption">
-            {t('tab:Total number of candidates submitted to client')}
+            Total number of candidates submitted to client
           </Typography>
           <Typography color="inherit" variant="caption">
-            {t('tab:Total number of candidates submitted to client by you')}
+            Total number of candidates submitted to client by you
           </Typography>
           <Typography color="inherit" variant="caption">
-            {t('tab:Total number of candidates submitted to client by you')}
+            Total number of candidates in interview stage
           </Typography>
           <Typography color="inherit" variant="caption">
-            {t('tab:Total number of your candidates in interview stage')}
+            Total number of your candidates in interview stage
           </Typography>
           <Typography color="inherit" variant="caption">
-            {t('tab:Total number of candidates in offer stage')}
+            Total number of candidates in offer stage
           </Typography>
           <Typography color="inherit" variant="caption">
-            {t('tab:Total number of your candidates in offer stage')}
+            Total number of your candidates in offer stage
           </Typography>
         </div>
       </div>
@@ -449,7 +437,7 @@ class MyDBJobs extends React.Component {
               />
             </StyledTooltip>
           </Typography>
-          <Link href="/jobs?tab=my">{t('tab:More')}</Link>
+          <Link href="/jobs?tab=my">More</Link>
         </div>
         <div className="flex-container align-justify">
           <div className="flex-container">
@@ -457,7 +445,7 @@ class MyDBJobs extends React.Component {
               <FormReactSelectContainer>
                 <Select
                   value={period}
-                  options={_periodOptions}
+                  options={periodOptions}
                   simpleValue
                   onChange={this.handlePeriodChange}
                   autoBlur={true}
@@ -471,7 +459,7 @@ class MyDBJobs extends React.Component {
               <FormReactSelectContainer>
                 <Select
                   value={company}
-                  options={_companyOptions}
+                  options={companyOptions}
                   simpleValue
                   onChange={this.handleCompanyChange}
                   autoBlur={true}

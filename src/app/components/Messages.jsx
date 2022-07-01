@@ -38,13 +38,12 @@ class Messages extends React.PureComponent {
 
   handleClose = (event, reson) => {
     // console.log('Messages: handleClose',event,reson);
-    if (this.props.message.size > 0 && reson !== 'clickaway') {
+    if (this.props.message.size > 0) {
       this.setState({ open: false });
     }
   };
 
   handleExit = () => {
-    console.log('handleExit');
     this.props.dispatch({
       type: ActionTypes.REMOVE_MESSAGE,
     });
@@ -65,7 +64,7 @@ class Messages extends React.PureComponent {
       <ErrorBoundary>
         <Snackbar
           open={this.state.open && message.size > 0}
-          autoHideDuration={message.size > 1 ? 2000 : 1000}
+          autoHideDuration={message.size > 1 ? 2000 : 4000}
           onClose={this.handleClose}
           TransitionProps={{
             onExited: this.handleExit,

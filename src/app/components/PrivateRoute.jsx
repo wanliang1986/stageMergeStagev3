@@ -12,7 +12,7 @@ const PrivateRoute = ({ component: Component, loggedin, eSUser, ...rest }) => {
   return (
     <Route
       {...rest}
-      render={props =>
+      render={(props) =>
         loggedin ? (
           eSUser ? (
             <AsyncGlobalSearch {...props} />
@@ -23,7 +23,7 @@ const PrivateRoute = ({ component: Component, loggedin, eSUser, ...rest }) => {
           <Redirect
             to={{
               pathname: '/login',
-              state: { from: props.location }
+              state: { from: props.location },
             }}
           />
         )
@@ -38,11 +38,11 @@ function mapStoreStateToProps(state) {
     loggedin: state.controller.loggedin,
 
     eSUser:
-      authorities && authorities.includes(Immutable.Map({ name: 'ROLE_ES' }))
+      authorities && authorities.includes(Immutable.Map({ name: 'ROLE_ES' })),
   };
 }
 
 PrivateRoute.propTypes = {
-  component: PropTypes.oneOfType([PropTypes.func, PropTypes.object]).isRequired
+  component: PropTypes.oneOfType([PropTypes.func, PropTypes.object]).isRequired,
 };
 export default withRouter(connect(mapStoreStateToProps)(PrivateRoute));

@@ -52,19 +52,11 @@ import FullTimeForm from './FullTime';
 import ContractForm from './Contract';
 import PayrollingForm from './Payrolling';
 import moment from 'moment-timezone';
-import { withStyles } from '@material-ui/core/styles';
 
 const styles = {
   candidateSec: {
     marginBottom: '1rem',
     display: 'flex',
-  },
-  resumeContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    top: 0,
   },
 };
 
@@ -217,7 +209,6 @@ class OfferAcceptedFrom extends Component {
     activity.eventDate = offerLetter.startDate + 'T00:00:00Z';
     activity.applicationOfferLetter = offerLetter;
     activity.applicationCommissions = filteredApplicationCommissions;
-    activity.agreedPayRate = application.get('agreedPayRate');
 
     dispatch(updateApplication2(activity, application.get('id')))
       .then((newApplication) => {
@@ -805,15 +796,8 @@ class OfferAcceptedFrom extends Component {
   };
 
   render() {
-    const {
-      t,
-      cancelAddActivity,
-      resumes,
-      application,
-      formType,
-      edit,
-      classes,
-    } = this.props;
+    const { t, cancelAddActivity, resumes, application, formType, edit } =
+      this.props;
 
     const {
       showResume,
@@ -825,6 +809,17 @@ class OfferAcceptedFrom extends Component {
       processing,
     } = this.state;
 
+    // console.log('info', activityInfo);
+    if (showResume) {
+      return (
+        <ViewResumeInAddActivity
+          resume={Immutable.fromJS(selectedResume)}
+          t={t}
+          close={this.closeViewResume}
+        />
+      );
+    }
+
     if (fetching) {
       return <Loading />;
     }
@@ -832,9 +827,7 @@ class OfferAcceptedFrom extends Component {
     return (
       <Fragment>
         {/* 标题 */}
-        <DialogTitle>
-          {t(`tab:${getApplicationStatusLabel(formType).toLowerCase()}`)}
-        </DialogTitle>
+        <DialogTitle>{getApplicationStatusLabel(formType)}</DialogTitle>
 
         {/* 表单内容 */}
         <DialogContent>
@@ -845,7 +838,7 @@ class OfferAcceptedFrom extends Component {
             ref={this.formRef}
           >
             {/* 只读信息 */}
-            <section className={classes.candidateSec}>
+            <section style={styles.candidateSec}>
               <ApplicationInfo application={application} t={t} split />
             </section>
             <section>
@@ -991,15 +984,6 @@ class OfferAcceptedFrom extends Component {
             )}
           </div>
         </DialogActions>
-        {showResume && (
-          <div className={classes.resumeContainer}>
-            <ViewResumeInAddActivity
-              resume={Immutable.fromJS(selectedResume)}
-              t={t}
-              close={this.closeViewResume}
-            />
-          </div>
-        )}
       </Fragment>
     );
   }
@@ -1023,9 +1007,7 @@ const mapStoreStateToProps = (state, { application }) => {
   };
 };
 
-export default connect(mapStoreStateToProps)(
-  withStyles(styles)(OfferAcceptedFrom)
-);
+export default connect(mapStoreStateToProps)(OfferAcceptedFrom);
 
 const _filterOption = (option, filterValue, props) => {
   if (!filterValue) return true;

@@ -41,16 +41,16 @@ const styles = {
     '&>div': {
       width: '100%',
     },
-  },
-  errorInput: {
-    '& .react-datepicker-wrapper>.react-datepicker__input-container>.react-datepicker__input-container input':
-      {
+    errorInput: {
+      '& .react-datepicker-wrapper>.react-datepicker__input-container>.react-datepicker__input-container input':
+        {
+          border: '1px solid #cc4b37 !improtant',
+          backgroundColor: '#f9ecea !improtant',
+        },
+      '& .red-border': {
         border: '1px solid #cc4b37 !improtant',
         backgroundColor: '#f9ecea !improtant',
       },
-    '& .red-border': {
-      border: '1px solid #cc4b37 !improtant',
-      backgroundColor: '#f9ecea !improtant',
     },
   },
 };
@@ -105,7 +105,7 @@ class Lead extends Component {
   };
   sendContact = (client) => {
     if (this.props.companyId) {
-      client.companyEntityId = Number(this.props.companyId);
+      client.companyId = Number(this.props.companyId);
       this.props
         .dispatch(upsertClientContact(client))
         .then((res) => {
@@ -128,12 +128,10 @@ class Lead extends Component {
     let newOwnerList = owners.map((item, index) => {
       return {
         ...item,
-        fullName: item.firstName + ' ' + item.lastName,
       };
     });
     return newOwnerList;
   };
-
   hasError = (arr, index) => {
     let _arr = arr.filter((_item, _index) => {
       return _item.salesLeadIndex === index && _item.errorMessage === true;
@@ -161,7 +159,6 @@ class Lead extends Component {
     } = this.props;
     const { range, disabled, value, treeList, addContactDialog, contacts } =
       this.state;
-    console.log('leadSourceError', leadSourceError);
     const isZH = i18n.language.match('zh');
     return (
       <>
@@ -174,9 +171,9 @@ class Lead extends Component {
                   style={{ backgroundColor: '#edf5ff' }}
                 >
                   <div className="small-11 columns">
-                    <Typography variant="h6" gutterBottom>{`${t(
-                      'tab:Sales Lead'
-                    )} ${index + 1}`}</Typography>
+                    <Typography variant="h6" gutterBottom>{`Sales Lead ${
+                      index + 1
+                    }`}</Typography>
                   </div>
                   <div className="small-1 columns">
                     <Button
@@ -185,7 +182,7 @@ class Lead extends Component {
                         this.props.delete(index);
                       }}
                     >
-                      {t('tab:Delete')}
+                      Delete
                     </Button>
                   </div>
                 </div>
@@ -195,11 +192,11 @@ class Lead extends Component {
               <div key={index} className="row expanded">
                 <div className="small-6 columns">
                   <ShareInput
-                    owners={this.newOwners(item.owners)}
+                    owners={item.owners}
+                    label={t('field:SalesLeadOwner')}
                     leadIndex={index}
                     salesLeadError={salesLeadError}
                     errorMessage={errorMessage}
-                    label={t('field:SalesLeadOwner')}
                     userList={this.props.userList}
                     addShare={() => {
                       console.log(index);
@@ -217,10 +214,10 @@ class Lead extends Component {
                 <div className="small-6 columns">
                   <ContactsInput
                     label={t('field:clientContact')}
+                    companyId={this.props.companyId}
                     leadIndex={index}
                     contactsError={contactsError}
                     errorMessage={errorMessage}
-                    companyId={this.props.companyId}
                     contacts={contacts}
                     addContact={() => {
                       this.addContact(index);
@@ -236,6 +233,11 @@ class Lead extends Component {
                 </div>
                 <div className="small-6 columns">
                   <DatePicker
+                    className={
+                      errorMessage && errorMessage.get('estimatedDealTime')
+                        ? classes.errorInput
+                        : classes.fullWidth
+                    }
                     selected={
                       item.estimatedDealTime && moment(item.estimatedDealTime)
                       // : this.state.time
@@ -246,7 +248,7 @@ class Lead extends Component {
                     }}
                     customInput={
                       <FormInput
-                        label={t('tab:Estimated Deal Time')}
+                        label={t('field:Estimated Deal Time')}
                         isRequired={true}
                         errorMessage={
                           errorMessage &&
@@ -258,11 +260,6 @@ class Lead extends Component {
                       />
                     }
                     placeholderText="mm/dd/yyyy"
-                    className={
-                      errorMessage && errorMessage.get('estimatedDealTime')
-                        ? classes.errorInput
-                        : classes.fullWidth
-                    }
                   />
                 </div>
                 <div className="small-6 columns">
@@ -273,25 +270,21 @@ class Lead extends Component {
                         title={
                           <React.Fragment>
                             <div style={{ fontSize: '14px' }}>
-                              {t('tab:Progress Milestones')}
+                              Progress Milestones
                             </div>
                             <div style={{ fontSize: '14px' }}>
-                              0%：{t('tab:Have not contacted client yet')}
+                              0%： Have not contacted client yet
                             </div>
                             <div style={{ fontSize: '14px' }}>
-                              25%:{' '}
-                              {t(
-                                'tab:Initial contact (conference call, email contact, etc…)'
-                              )}
+                              25%: Initial contact (conference call, email
+                              contact, etc…)
                             </div>
                             <div style={{ fontSize: '14px' }}>
-                              50%:{' '}
-                              {t(
-                                'tab:Meet client in person/have lunch, client shows interest'
-                              )}
+                              50%: Meet client in person/have lunch, client
+                              shows interest
                             </div>
                             <div style={{ fontSize: '14px' }}>
-                              75%: {t('tab:Negotiating terms')}
+                              75%: Negotiating terms
                             </div>
                           </React.Fragment>
                         }
@@ -404,7 +397,7 @@ class Lead extends Component {
               <MyDialog
                 btnShow={false}
                 show={addContactDialog && this.state.contactIndex === index}
-                modalTitle={`${t('tab:Create Contact')} `}
+                modalTitle={`Create Contact`}
                 handleClose={() => {
                   this.setState({ addContactDialog: false });
                 }}

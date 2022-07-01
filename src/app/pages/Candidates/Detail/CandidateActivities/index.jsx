@@ -15,6 +15,10 @@ import NextSteps from '../../../../components/applications/Buttons/NextSteps';
 import PreSteps from '../../../../components/applications/Buttons/PreSteps';
 import RejectSteps from '../../../../components/applications/Buttons/RejectSteps';
 import Application from './Application';
+import ApllicationCard from '../../../../components/ApplicationNewCard';
+import ApllicationItem from '../../../../components/ApplicationNewItem';
+import ApllicationItemPayroll from '../../../../components/ApllicationItemPayroll';
+import ApllicationCardPayroll from '../../../../components/ApllicationCardPayroll';
 
 class CandidateActivities extends React.PureComponent {
   constructor(props) {
@@ -27,6 +31,7 @@ class CandidateActivities extends React.PureComponent {
       open: false,
       status: null,
       from: '',
+      flag: false, //测试UI用的
     };
   }
 
@@ -70,47 +75,45 @@ class CandidateActivities extends React.PureComponent {
 
   render() {
     const { applicationList, ...props } = this.props;
-    const { selectedApplication, open, selectedApplication_ViewDetails } =
+    const { selectedApplication, open, selectedApplication_ViewDetails, flag } =
       this.state;
     // console.log(applicationList.toJS());
-    if (applicationList.size === 0) {
-      return (
-        <div className="container-padding">{props.t('message:noActivity')}</div>
-      );
-    }
+    // if (applicationList.size === 0) {
+    //   return (
+    //     <div className="container-padding">{props.t('message:noActivity')}</div>
+    //   );
+    // }
 
     // 点击list进入的阶段详情
     if (selectedApplication) {
-      console.log(selectedApplication.toJS());
       return (
-        <div className="container-padding vertical-layout">
-          {/* update by Bill in 2020/12/23 */}
-
-          <div className="flex-container align-middle">
-            {/* 返回按钮 */}
+        <div className="container-padding">
+          {/* 返回按钮 */}
+          <div style={{ position: 'absolute', left: 0, top: 0 }}>
             <IconButton
               onClick={() => this.setState({ selectedApplication: null })}
             >
               <BackIcon />
             </IconButton>
-            <div className="flex-child-auto" />
-            <div className="horizontal-layout">
-              {/* 下一步操作按钮组件 */}
-              <NextSteps {...props} application={selectedApplication} />
-              {/* 拒绝操作按钮 */}
-              <RejectSteps {...props} application={selectedApplication} />
-              <PreSteps {...props} application={selectedApplication} />
-            </div>
           </div>
-
-          <ActivityCard
-            openAddDialog={this.openAddDialog}
-            applicationId={selectedApplication.get('id')}
-            {...props}
-          />
+          {selectedApplication.get('jobType') === 'PAY_ROLL' &&
+          selectedApplication.get('talentRecruitmentProcessNodes').size ===
+            2 ? (
+            <ApllicationCardPayroll
+              application={selectedApplication}
+              {...props}
+            />
+          ) : (
+            <ApllicationCard
+              // openAddDialog={this.openAddDialog}
+              // applicationId={selectedApplication.get('id')}
+              application={selectedApplication}
+              {...props}
+            />
+          )}
 
           {/* 模态框入口 */}
-          {open && (
+          {/* {open && (
             <AddActivityFormWithEmail
               closeAddActivityFormWithEmail={this.handleCloseAddActivity}
               application={selectedApplication}
@@ -121,16 +124,16 @@ class CandidateActivities extends React.PureComponent {
               application_ViewDetails={selectedApplication_ViewDetails}
               {...props}
             />
-          )}
+          )} */}
         </div>
       );
     }
 
     // 点击之前的界面
     return (
-      <div className="item-padding">
+      <div className="item-padding" key={applicationList.size}>
         <List>
-          {applicationList.map((application) => (
+          {/* {applicationList.map((application) => (
             <Application
               key={application.get('id')}
               application={application}
@@ -139,7 +142,37 @@ class CandidateActivities extends React.PureComponent {
                 this.setState({ selectedApplication: application });
               }}
             />
-          ))}
+          ))} */}
+          {applicationList.map((application, index) => {
+            if (
+              application.get('jobType') === 'PAY_ROLL' &&
+              application.get('talentRecruitmentProcessNodes').size === 2
+            ) {
+              return (
+                <ApllicationItemPayroll
+                  application={application}
+                  key={index}
+                  onClick={() => {
+                    this.setState({ selectedApplication: application });
+                  }}
+                  {...props}
+                />
+              );
+            } else {
+              return (
+                <ApllicationItem
+                  // openAddDialog={this.openAddDialog}
+                  // applicationId={selectedApplication.get('id')}
+                  application={application}
+                  key={index}
+                  onClick={() => {
+                    this.setState({ selectedApplication: application });
+                  }}
+                  {...props}
+                />
+              );
+            }
+          })}
         </List>
       </div>
     );

@@ -10,7 +10,7 @@ export const getCandidateInitColumns = () => {
     },
   };
 
-  return authRequest.sendV2(`/column/31`, config);
+  return authRequest.jobSend(`/column/31`, config);
 };
 
 // commonPool表格初始配置colmun数据
@@ -22,7 +22,7 @@ export const getCommonPoolColumns = () => {
     },
   };
 
-  return authRequest.sendV2(`/column/73`, config);
+  return authRequest.jobSend(`/column/73`, config);
 };
 
 // 获取用户自定义配置
@@ -34,7 +34,7 @@ export const getCandidateColumns = (type) => {
     },
   };
 
-  return authRequest.sendV2(`/jobs/preference/${type}`, config);
+  return authRequest.jobSend(`/jobs/preference/${type}`, config);
 };
 
 // 保存用户自定义配置
@@ -47,7 +47,7 @@ export const saveCandidateColumns = (data) => {
     body: JSON.stringify(data),
   };
 
-  return authRequest.sendV2(`/jobs/preference`, config);
+  return authRequest.jobSend(`/jobs/preference`, config);
 };
 
 // 用户检索条件保存
@@ -61,7 +61,7 @@ export const saveFilterCandidate = (data) => {
     body: JSON.stringify(data),
   };
 
-  return authRequest.sendV2('/jobs/search/config', config);
+  return authRequest.jobSend('/jobs/search/config', config);
 };
 // commonPool用户检索条件
 export const saveFilterCommonPool = (data) => {
@@ -74,7 +74,7 @@ export const saveFilterCommonPool = (data) => {
     body: JSON.stringify(data),
   };
 
-  return authRequest.sendV2('/jobs/search/config', config);
+  return authRequest.jobSend('/jobs/search/config', config);
 };
 // 获取用户检索条件列表
 export const getFilterCandidate = () => {
@@ -83,7 +83,7 @@ export const getFilterCandidate = () => {
     headers: {},
   };
 
-  return authRequest.sendV2('/jobs/search/config/CANDIDATE', config);
+  return authRequest.jobSend('/jobs/search/config/CANDIDATE', config);
 };
 
 // commonPool获取用户检索条件列表
@@ -93,7 +93,7 @@ export const getFilterCommonPool = () => {
     headers: {},
   };
 
-  return authRequest.sendV2('/jobs/search/config/COMMON_POOL', config);
+  return authRequest.jobSend('/jobs/search/config/COMMON_POOL', config);
 };
 // 删除用户检索条件
 export const deleteFilterCandidate = (id) => {
@@ -102,7 +102,7 @@ export const deleteFilterCandidate = (id) => {
     headers: {},
   };
 
-  return authRequest.sendV2(`/jobs/search/${id}`, config);
+  return authRequest.jobSend(`/jobs/search/${id}`, config);
 };
 
 export const getFilterSearchCommonPool = (value) => {
@@ -123,7 +123,7 @@ export const getFilterSearchCandidate = (value) => {
     headers: {},
   };
 
-  return authRequest.sendV2(
+  return authRequest.jobSend(
     `/jobs/search/config/CANDIDATE?searchName=${value}&module=CANDIDATE`,
     config
   );

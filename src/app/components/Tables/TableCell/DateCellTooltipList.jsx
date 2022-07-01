@@ -17,7 +17,6 @@ class DateCellTooltipList extends React.Component {
     const id = data.getIn([rowIndex, 'id']);
     if (id) {
       const text = data.getIn([rowIndex, col]);
-      console.log(data.toJS(), col, text);
       return (
         <Cell {...props}>
           <div
@@ -44,7 +43,7 @@ class DateCellTooltipList extends React.Component {
                 }
                 placement="top"
               >
-                <span>{text[0][col]}</span>
+                <span>{text.length && text[0][col]}</span>
               </Tooltip>
             )}
           </div>

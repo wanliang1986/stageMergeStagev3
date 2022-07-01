@@ -113,7 +113,7 @@ const CandidateTree = ({
     if (language) {
       res = industryList;
     } else {
-      res = industryListZh;
+      res = industryList;
     }
     res.forEach((ite) => {
       if (ite.children) {
@@ -279,10 +279,10 @@ const CandidateTree = ({
   };
 
   const showDialog = () => {
-    setOpen(true);
+    setOpen(!open);
   };
   const closeDialog = () => {
-    setOpen(false);
+    setOpen(!open);
   };
 
   return (
@@ -307,9 +307,9 @@ const CandidateTree = ({
       ></div>
       <div className={classes.icondown}>
         {open ? (
-          <ArrowDropUpIcon style={{ color: '#999' }} />
+          <ArrowDropUpIcon onClick={showDialog} style={{ color: '#999' }} />
         ) : (
-          <ArrowDropDownIcon style={{ color: '#999' }} />
+          <ArrowDropDownIcon onClick={showDialog} style={{ color: '#999' }} />
         )}
       </div>
       <div className={open ? classes.dialog : classes.shrinkage}>

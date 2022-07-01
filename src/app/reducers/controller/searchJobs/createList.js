@@ -2,7 +2,7 @@ import { combineReducers } from 'redux';
 import Immutable from 'immutable';
 import * as ActionTypes from './../../../constants/actionTypes';
 
-const createList = tab => {
+const createList = (tab) => {
   const ids = (state = null, action) => {
     let newState;
     if (action.type === ActionTypes.LOGOUT) {
@@ -93,7 +93,7 @@ const createList = tab => {
   return combineReducers({
     ids,
     isFetching,
-    total
+    total,
     // errorMessage
   });
 };

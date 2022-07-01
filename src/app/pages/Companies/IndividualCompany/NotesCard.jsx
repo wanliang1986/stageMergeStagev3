@@ -1,14 +1,28 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { withTranslation } from 'react-i18next';
 import { withStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
-import moment from 'moment-timezone';
+import Immutable from 'immutable';
+import activitySelector from '../../../selectors/activitySelector';
+import { getActivitiesByApplication } from '../../../actions/applicationActions';
+import { getApplicationStatusLabel } from '../../../constants/formOptions';
+import { formatBy } from '../../../../utils/index';
 
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
-import Chip from '@material-ui/core/Chip';
-
 import * as Colors from '../../../styles/Colors/index';
-import { withTranslation } from 'react-i18next';
+import Chip from '@material-ui/core/Chip';
+import Loading from '../../../components/particial/Loading';
+import moment from 'moment-timezone';
+// import InterviewReadonlyForm from './InterviewReadonlyForm';
+
+// import Dialog from '@material-ui/core/Dialog';
+// import DialogActions from '@material-ui/core/DialogActions';
+// import DialogContent from '@material-ui/core/DialogContent';
+// import PrimaryButton from '../../../components/particial/PrimaryButton';
+
 const styles = {
   root: {
     overflow: 'hidden',
@@ -108,6 +122,11 @@ const styles = {
   ':last-child > .arrow': {},
 };
 
+const notesList = [
+  { id: '1', value: '233' },
+  { id: '2', value: '2343' },
+];
+
 class NotesCard extends React.PureComponent {
   constructor() {
     super();
@@ -118,13 +137,11 @@ class NotesCard extends React.PureComponent {
   }
 
   render() {
-    const { classes, companyNodes, t } = this.props;
+    const { classes, companyNodes } = this.props;
     console.log(companyNodes);
     if (!companyNodes) {
       return (
-        <Typography variant="h5">
-          {t('tab:There is no BD Progress Notes')}
-        </Typography>
+        <Typography variant="h5">There is no BD Progress Notes</Typography>
       );
     }
 
@@ -139,7 +156,7 @@ class NotesCard extends React.PureComponent {
                   {moment(subList.contactDate).format('L hh:ss a')}
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  By {subList.firstName} {subList.lastName}
+                  By {subList.creatorName}
                 </div>
               </div>
               <div className={classes.arrow}>
@@ -150,12 +167,14 @@ class NotesCard extends React.PureComponent {
                 <div className="row expanded">
                   <div className="small-8 columns">
                     <Typography variant="h6" gutterBottom>
-                      {subList.contactName}
+                      {subList.clientContactName}
                     </Typography>
                     <Typography variant="subtitle1" gutterBottom>
-                      {subList.contactCategory === 'OTHER'
-                        ? subList.contactCategory + ':' + subList.otherCategory
-                        : subList.contactCategory}
+                      {subList.contactCategoryType === 'OTHER'
+                        ? subList.contactCategoryType +
+                          ':' +
+                          subList.otherCategory
+                        : subList.contactCategoryType}
                     </Typography>
                   </div>
                   <div
@@ -187,4 +206,4 @@ class NotesCard extends React.PureComponent {
   }
 }
 
-export default withTranslation('tab')(withStyles(styles)(NotesCard));
+export default withStyles(styles)(NotesCard);

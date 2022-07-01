@@ -21,7 +21,7 @@ class SaveAsTemplateForm extends Component {
     this.state = {
       templateName: '',
       errorMessage: Immutable.Map(),
-      step: 1
+      step: 1,
     };
   }
 
@@ -31,7 +31,7 @@ class SaveAsTemplateForm extends Component {
     // const { template, dispatch, handleRequestClose } = this.props;
   };
 
-  handleSubmit = e => {
+  handleSubmit = (e) => {
     e.preventDefault();
 
     const clientForm = e.target;
@@ -43,7 +43,7 @@ class SaveAsTemplateForm extends Component {
     }
 
     const client = {
-      contactType: clientForm.templateName.value
+      contactType: clientForm.templateName.value,
     };
 
     const newTemplate = {
@@ -51,13 +51,13 @@ class SaveAsTemplateForm extends Component {
       title: clientForm.templateName.value,
       subject: this.props.subject,
       template: this.props.template,
-      type: 'Email_Blast'
+      type: 'Email_Blast',
     };
 
     this.props
       .dispatch(upsertTemplate(newTemplate))
       .then(() => this.setState({ step: 2 }))
-      .catch(err => dispatch(showErrorMessage(err)));
+      .catch((err) => dispatch(showErrorMessage(err)));
   };
 
   _validateForm = (form, t) => {
@@ -73,9 +73,9 @@ class SaveAsTemplateForm extends Component {
     return errorMessage.size > 0 && errorMessage;
   };
 
-  removeErrorMessage = key => {
+  removeErrorMessage = (key) => {
     return this.setState({
-      errorMessage: this.state.errorMessage.delete(key)
+      errorMessage: this.state.errorMessage.delete(key),
     });
   };
 
@@ -155,7 +155,7 @@ class SaveAsTemplateForm extends Component {
 
 SaveAsTemplateForm.propTypes = {
   handleRequestClose: PropTypes.func.isRequired,
-  t: PropTypes.func.isRequired
+  t: PropTypes.func.isRequired,
 };
 
 export default connect()(SaveAsTemplateForm);

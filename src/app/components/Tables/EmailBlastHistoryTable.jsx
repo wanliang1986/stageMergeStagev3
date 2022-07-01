@@ -24,7 +24,7 @@ import {
 } from './params';
 import LinkButton from '../particial/LinkButton';
 import { jobType, templateTypes2 } from '../../constants/formOptions';
-import { withTranslation } from 'react-i18next';
+
 const NameButtonCell = ({
   rowIndex,
   data,
@@ -327,7 +327,6 @@ class TemplateTable extends React.PureComponent {
       selected,
       onSelect,
       noAction,
-      t,
     } = this.props;
 
     return (
@@ -408,7 +407,7 @@ class TemplateTable extends React.PureComponent {
                 header={
                   <Cell style={style.headerCell}>
                     <div style={style.headerText}>
-                      {t('tab:Action')}
+                      Action
                       {filterOpen && <br />}
                     </div>
                   </Cell>
@@ -467,4 +466,4 @@ TemplateTable.propTypes = {
   onDelete: PropTypes.func,
 };
 
-export default withTranslation('tab')(withStyles(style)(TemplateTable));
+export default withStyles(style)(TemplateTable);

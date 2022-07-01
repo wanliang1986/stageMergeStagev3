@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import { withStyles } from '@material-ui/core';
-import { externalUrl } from '../../../../../utils';
+
 const styles = {
   title: {
     overflow: 'hidden',
@@ -88,9 +88,12 @@ class ClientOverView extends Component {
   };
   getClientContact = (arr) => {};
   getServiceType = (arr) => {
-    return arr.toJS().map((item, index) => {
-      return item.potentialService;
-    });
+    let _arr = arr
+      .map((item, index) => {
+        return item.get('label');
+      })
+      .join(', ');
+    return _arr;
   };
   getTeamMember = (arr) => {
     let list = [];
@@ -112,16 +115,19 @@ class ClientOverView extends Component {
 
   getAddress = (company) => {
     let address = [];
-    company.get('additionalAddresses') &&
-      company.get('additionalAddresses').forEach((item, index) => {
-        if (item.get('city') || item.get('province') || item.get('country')) {
-          address.push(item);
-        }
+    company.get('companyAddresses') &&
+      company.get('companyAddresses').forEach((item, index) => {
+        address.push(item.get('geoInfoEN'));
       });
-    if (company.get('primaryAddress')) {
-      address.unshift(company.get('primaryAddress'));
-    }
     return address;
+  };
+  getAddresses = (company) => {
+    let addresses = [];
+    company.get('companyAddresses') &&
+      company.get('companyAddresses').forEach((item, index) => {
+        addresses.push(item.get('address'));
+      });
+    return addresses;
   };
   getAddressMsg = (item) => {
     if (item.get('city') && item.get('province') && item.get('country')) {
@@ -176,15 +182,9 @@ class ClientOverView extends Component {
   getOwnerContribution = (item) => {
     let contribution = [];
     let msg;
-    if (item.get('owners') && item.get('owners').size > 0) {
-      item.get('owners').forEach((item, index) => {
-        msg =
-          item.get('firstName') +
-          ' ' +
-          item.get('lastName') +
-          '(' +
-          item.get('percentage') +
-          ')';
+    if (item.get('salesLeadsOwner') && item.get('salesLeadsOwner').size > 0) {
+      item.get('salesLeadsOwner').forEach((item, index) => {
+        msg = item.get('fullName') + '(' + item.get('contribution') + ')';
         contribution.push(msg);
       });
     }
@@ -197,15 +197,12 @@ class ClientOverView extends Component {
   getBDContribution = (item) => {
     let contribution = [];
     let msg;
-    if (item.get('bdManagers') && item.get('bdManagers').size > 0) {
-      item.get('bdManagers').forEach((item, index) => {
-        msg =
-          item.get('firstName') +
-          ' ' +
-          item.get('lastName') +
-          '(' +
-          item.get('percentage') +
-          ')';
+    if (
+      item.get('businessDevelopmentOwner') &&
+      item.get('businessDevelopmentOwner').size > 0
+    ) {
+      item.get('businessDevelopmentOwner').forEach((item, index) => {
+        msg = item.get('fullName') + '(' + item.get('contribution') + ')';
         contribution.push(msg);
       });
     }
@@ -218,9 +215,9 @@ class ClientOverView extends Component {
   getAm = (item) => {
     let contribution = [];
     let msg;
-    if (item.get('accountManager') && item.get('accountManager').size > 0) {
-      item.get('accountManager').forEach((item, index) => {
-        msg = item.get('firstName') + ' ' + item.get('lastName');
+    if (item.get('accountManagers') && item.get('accountManagers').size > 0) {
+      item.get('accountManagers').forEach((item, index) => {
+        msg = item.get('fullName');
         contribution.push(msg);
       });
     }
@@ -245,43 +242,53 @@ class ClientOverView extends Component {
         return 'Client - Sunset ';
     }
   };
+  openWindow = (str) => {
+    if (!/^(f|ht)tps?:\/\//i.test(str)) {
+      let url = 'http://' + str;
+      let w = window.open('about:_blank');
+      w.location.href = url;
+    } else {
+      let w = window.open('about:_blank');
+      w.location.href = str;
+    }
+  };
   render() {
     const { classes, t, company } = this.props;
     const address = this.getAddress(company);
+    const addresses = this.getAddresses(company);
     return (
       <>
         <Paper className={classes.paper} elevation={0}>
           <Grid container spacing={3}>
             <Grid item xs={3}>
-              <div className={classes.title}>{t('tab:Company Name')} </div>
+              <div className={classes.title}>Company Name</div>
               <div className={classes.msg}>{company.get('name')}</div>
             </Grid>
             <Grid item xs={3}>
-              <div className={classes.title}>{t('tab:Industry')} </div>
+              <div className={classes.title}>Industry</div>
               <div className={classes.msg}>{company.get('industry')}</div>
             </Grid>
             <Grid item xs={3}>
-              <div className={classes.title}> {t('tab:Status')}</div>
+              <div className={classes.title}>Status</div>
               <div className={classes.msg}>
-                {company.get('active') ? `${t('common:Active')}` : 'Inactive'}
+                {company.get('active') ? 'Active' : 'Inactive'}
               </div>
             </Grid>
           </Grid>
           <Grid container spacing={3}>
             <Grid item xs={3}>
-              <div className={classes.title}>{t('tab:Client Level')} </div>
+              <div className={classes.title}>Client Level</div>
               <div className={classes.msg}>
-                {t(`tab:${this.getType(company.get('type'))}`)}
+                {this.getType(company.get('companyClientLevelType'))}
               </div>
             </Grid>
             <Grid item xs={3}>
-              <div className={classes.title}> {t('tab:Company Website')}</div>
+              <div className={classes.title}>Company Website</div>
               <div className={classes.msg}>
                 <a
-                  // onClick={() => {
-                  //   this.openWindow(company.get('website'));
-                  // }}
-                  href={externalUrl(company.get('website'))}
+                  onClick={() => {
+                    this.openWindow(company.get('website'));
+                  }}
                   target="_blank"
                 >
                   {company.get('website')}
@@ -291,12 +298,12 @@ class ClientOverView extends Component {
           </Grid>
           <Grid container spacing={3}>
             <Grid item xs={3}>
-              <div className={classes.title}>{t('tab:Address')} </div>
-              {address
-                ? address.map((item, index) => {
+              <div className={classes.title}>Address</div>
+              {addresses
+                ? addresses.map((item, index) => {
                     return (
                       <div key={index} className={classes.msg}>
-                        {item.get('address')}
+                        {item}
                       </div>
                     );
                   })
@@ -304,7 +311,7 @@ class ClientOverView extends Component {
               {/* <div>{company.get('addresses')}</div> */}
             </Grid>
             <Grid item xs={3}>
-              <div className={classes.title}>{t('tab:City/State/Country')}</div>
+              <div className={classes.title}>City/State/Country</div>
               {address
                 ? address.map((item, index) => {
                     return (
@@ -321,23 +328,23 @@ class ClientOverView extends Component {
         <Paper className={classes.paper} elevation={0}>
           <Grid container spacing={3}>
             <Grid item xs={3}>
-              <div className={classes.title}>{t('tab:Service Type')} </div>
-              {company.get('salesLead')
-                ? company.get('salesLead').map((item, index) => {
-                    return item.get('serviceTypeNames') &&
-                      item.get('serviceTypeNames').size > 0 ? (
+              <div className={classes.title}>Service Type</div>
+              {company.get('salesLeadDetails')
+                ? company.get('salesLeadDetails').map((item, index) => {
+                    return item.get('companyServiceTypes') &&
+                      item.get('companyServiceTypes').size > 0 ? (
                       <div key={index} className={classes.msg}>
-                        {item.get('serviceTypeNames').join(', ')}
+                        {this.getServiceType(item.get('companyServiceTypes'))}
                       </div>
                     ) : null;
                   })
                 : null}
             </Grid>
             <Grid item xs={3}>
-              <div className={classes.title}>{t('tab:Account Manager')} </div>
+              <div className={classes.title}>Account Manager</div>
 
-              {company.get('salesLead')
-                ? company.get('salesLead').map((item, index) => {
+              {company.get('salesLeadDetails')
+                ? company.get('salesLeadDetails').map((item, index) => {
                     // return item.get('accountManager') &&
                     //   item.get('accountManager').size > 0
                     //   ? item.get('accountManager').map((am, index) => {
@@ -353,13 +360,10 @@ class ClientOverView extends Component {
                 : null}
             </Grid>
             <Grid item xs={3}>
-              <div className={classes.title}>
-                {' '}
-                {t('tab:BD Owner & Contribution%')}
-              </div>
+              <div className={classes.title}>{`BD Owner & Contribution%`}</div>
 
-              {company.get('salesLead')
-                ? company.get('salesLead').map((item, index) => {
+              {company.get('salesLeadDetails')
+                ? company.get('salesLeadDetails').map((item, index) => {
                     // return item.get('bdManagers') &&
                     //   item.get('bdManagers').size > 0
                     //   ? item.get('bdManagers').map((bd, index) => {
@@ -374,12 +378,12 @@ class ClientOverView extends Component {
                 : null}
             </Grid>
             <Grid item xs={3}>
-              <div className={classes.title}>
-                {t('tab:Sales Lead Owner & Contribution%')}
-              </div>
+              <div
+                className={classes.title}
+              >{`Sales Lead Owner & Contribution%`}</div>
               <div className={classes.msg}>
-                {company.get('salesLead')
-                  ? company.get('salesLead').map((item, index) => {
+                {company.get('salesLeadDetails')
+                  ? company.get('salesLeadDetails').map((item, index) => {
                       // return item.get('owners') && item.get('owners').size > 0
                       //   ? item.get('owners').map((owner, index) => {
                       // return (
@@ -408,17 +412,17 @@ class ClientOverView extends Component {
         <Paper className={classes.paper} elevation={0}>
           <Grid container spacing={3}>
             <Grid item xs={3}>
-              <div className={classes.title}>{t('tab:Staff Size')}</div>
+              <div className={classes.title}>Staff Size</div>
               <div className={classes.msg}>{company.get('staffSizeType')}</div>
             </Grid>
             <Grid item xs={3}>
-              <div className={classes.title}> {t('tab:Business Revenue')}</div>
+              <div className={classes.title}>Business Revenue</div>
               <div className={classes.msg}>
                 {company.get('businessRevenue')}
               </div>
             </Grid>
             <Grid item xs={3}>
-              <div className={classes.title}>{t('tab:Organization Name')}</div>
+              <div className={classes.title}>Organization Name</div>
               <div className={classes.msg}>
                 {company.get('organizationName')
                   ? company.get('organizationName')
@@ -428,21 +432,17 @@ class ClientOverView extends Component {
           </Grid>
           <Grid container spacing={3}>
             <Grid item xs={3}>
-              <div className={classes.title}>{t('tab:Fortune Ranking')}</div>
+              <div className={classes.title}>Fortune Ranking</div>
               <div className={classes.msg}>{company.get('fortuneRank')}</div>
             </Grid>
             <Grid item xs={3}>
-              <div className={classes.title}>
-                {t('tab:LinkedIn Company Profile')}
-              </div>
+              <div className={classes.title}>LinkedIn Company Profile</div>
               <div className={classes.msg}>
                 {company.get('linkedinCompanyProfile')}
               </div>
             </Grid>
             <Grid item xs={3}>
-              <div className={classes.title}>
-                {t('tab:Crunchbase Company Profile')}
-              </div>
+              <div className={classes.title}>Crunchbase Company Profile</div>
               <div className={classes.msg}>
                 {company.get('crunchbaseCompanyProfile')}
               </div>

@@ -1,10 +1,26 @@
 import * as apnSDK from './../../apn-sdk/';
 import * as ActionTypes from '../constants/actionTypes';
-
-import { normalize } from 'normalizr';
-import { start, esStart } from './schemas';
+import Immutable from 'immutable';
+import { normalize, schema } from 'normalizr';
+import { start, esStart, miniUser, newStart } from './schemas';
 import { showErrorMessage } from './index';
 import { JOB_TYPES } from '../constants/formOptions';
+import { getJob } from './jobActions';
+
+const talent = new schema.Entity('talents');
+const job = new schema.Entity('jobs');
+const resume = new schema.Entity('resumes');
+const activity = new schema.Entity('activities', {
+  user: miniUser,
+});
+const application = new schema.Entity('applications', {
+  talent,
+  job,
+  user: miniUser,
+  resume,
+  currentActivity: activity,
+  lastModifiedUser: miniUser,
+});
 
 export const createStart = (data) => (dispatch) => {
   return apnSDK.createStart(data).then(({ response }) => {
@@ -17,6 +33,40 @@ export const createStart = (data) => (dispatch) => {
     });
 
     return normalizedData;
+  });
+};
+
+// 新流程onboard
+export const newCreateStart = (data) => (dispatch, getState) => {
+  return apnSDK.ApplicationsSubmitToOnboard(data).then(({ response }) => {
+    const normalizedData2 = normalize(response, application);
+    const currentUser = getState().controller.currentUser;
+    const currentActivity = Object.assign({}, response, {
+      // id: response.currentActivityId,对应字段的发生变化
+      id: response.recruitmentProcessId,
+      applicationId: response.id,
+      createdDate: new Date().toISOString(),
+      job: undefined,
+      applyToUser: undefined,
+      lastModifiedUser: undefined,
+      talent: undefined,
+      user: undefined,
+      createdBy: `${currentUser.get('id')},${currentUser.get('tenantId')}`,
+    });
+    dispatch({
+      type: ActionTypes.EDIT_APPLICATION,
+      normalizedData: normalizedData2,
+      currentActivity,
+    });
+    const normalizedData = normalize(response, start);
+    console.log('add start ', normalizedData);
+
+    dispatch({
+      type: ActionTypes.ADD_START,
+      normalizedData,
+    });
+
+    return response;
   });
 };
 
@@ -178,16 +228,13 @@ export const getStartByTalentId = (talentId) => (dispatch) => {
     .getStartByTalentId(talentId)
     .then(({ response }) => {
       const normalizedData = normalize(response, [start]);
-      let id = normalizedData.result[0];
-      console.log('get talent start ', normalizedData.entities.starts[id]);
+      console.log('get talent start ', normalizedData);
+
       dispatch({
         type: ActionTypes.RECEIVE_START,
         normalizedData,
       });
-      dispatch({
-        type: ActionTypes.APP_LICATION_ID,
-        payload: normalizedData.entities.starts[id]?.applicationId,
-      });
+
       return normalizedData;
     })
     .catch((e) => e);
@@ -263,47 +310,49 @@ export const loadMoreAllStart =
       });
   };
 
-export const selectStartToOpen =
-  (start, hasOnboardingBtn) => (dispatch, getState) => {
-    try {
-      window.dispatchEvent(new CustomEvent('resize'));
-      // issue: https://github.com/mui-org/material-ui/issues/9337
-    } catch (e) {
-      console.log(e);
-    }
-    if (!start || !start.get('id')) {
-      dispatch({
-        type: ActionTypes.SELECT_START,
-        start,
-      });
-      dispatch(selectExtensionToOpen());
-      dispatch(selectConversionFTEToOpen());
-    } else {
-      const state = getState();
-      // const startType = start.get('startType');
-      const applicationId = start.get('applicationId');
-      const starts = state.relationModel.starts;
-      const startList = starts
-        .filter((s) => s.get('applicationId') === Number(applicationId))
-        .sortBy((el) => el.get('id'));
-      const extension = startList
-        .filter((s) => s.get('startType') === 'CONTRACT_EXTENSION')
-        .last();
-      const conversionStart = startList
-        .filter((s) => s.get('startType') === 'CONVERT_TO_FTE')
-        .last();
-      dispatch({
-        type: ActionTypes.SELECT_START,
-        start: startList.first(),
-        isShowStart: true,
-      });
-      dispatch(selectExtensionToOpen(extension));
-      dispatch(selectConversionFTEToOpen(conversionStart));
-      dispatch(
-        OpenOnboarding(applicationId, 'openStart', start, hasOnboardingBtn)
-      );
-    }
-  };
+export const selectStartToOpen = (start) => (dispatch, getState) => {
+  try {
+    window.dispatchEvent(new CustomEvent('resize'));
+    // issue: https://github.com/mui-org/material-ui/issues/9337
+  } catch (e) {
+    console.log(e);
+  }
+  if (!start || !start.get('id')) {
+    dispatch({
+      type: ActionTypes.SELECT_START,
+      start,
+    });
+    dispatch(selectExtensionToOpen());
+    dispatch(selectConversionFTEToOpen());
+  } else {
+    const state = getState();
+    // const startType = start.get('startType');
+    const applicationId = start.get('applicationId');
+    const starts = state.relationModel.starts;
+    const startList = starts
+      .filter((s) => s.get('applicationId') === Number(applicationId))
+      .sortBy((el) => el.get('id'));
+    const extension = startList
+      .filter((s) => s.get('startType') === 'CONTRACT_EXTENSION')
+      .last();
+    const conversionStart = startList
+      .filter((s) => s.get('startType') === 'CONVERT_TO_FTE')
+      .last();
+    console.log(
+      'selectStartToOpen',
+      start.get('id'),
+      applicationId,
+      startList.toJS(),
+      extension && extension.toJS()
+    );
+    dispatch({
+      type: ActionTypes.SELECT_START,
+      start: startList.first(),
+    });
+    dispatch(selectExtensionToOpen(extension));
+    dispatch(selectConversionFTEToOpen(conversionStart));
+  }
+};
 
 export const selectExtensionToOpen = (extension) => (dispatch) => {
   dispatch({
@@ -311,25 +360,6 @@ export const selectExtensionToOpen = (extension) => (dispatch) => {
     extension,
   });
 };
-
-export const OpenOnboarding =
-  (applicationId, title, start, hasOnboardingBtn) => (dispatch, getState) => {
-    dispatch({
-      type: ActionTypes.OPEN_ON_BOARDING,
-      action: { applicationId, title, hasOnboardingBtn },
-    });
-    if (!(!start || !start.get('id'))) {
-      const state = getState();
-      const starts = state.relationModel.starts;
-      const startList = starts
-        .filter((s) => s.get('applicationId') === Number(applicationId))
-        .sortBy((el) => el.get('id'));
-      dispatch({
-        type: ActionTypes.SELECT_START,
-        start: startList.first(),
-      });
-    }
-  };
 
 export const selectConversionFTEToOpen = (conversionStart) => (dispatch) => {
   dispatch({

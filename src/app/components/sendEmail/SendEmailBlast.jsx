@@ -569,7 +569,7 @@ class SendEmailToTalents extends React.Component {
                 ref={this.saveAsRef}
                 onClick={() => this.setState({ openSaveAs: !openSaveAs })}
               >
-                {t('action:Save As')}
+                Save As
                 {openSaveAs ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
               </Button>
 
@@ -593,9 +593,7 @@ class SendEmailToTalents extends React.Component {
                         onClickAway={() => this.setState({ openSaveAs: false })}
                       >
                         <MenuList id="split-button-menu" dense disablePadding>
-                          <MenuItem onClick={this.saveAsDraft}>
-                            {t('action:Draft')}
-                          </MenuItem>
+                          <MenuItem onClick={this.saveAsDraft}>Draft</MenuItem>
                           <MenuItem
                             onClick={() =>
                               this.setState({
@@ -604,7 +602,7 @@ class SendEmailToTalents extends React.Component {
                               })
                             }
                           >
-                            {t('action:Template')}
+                            Template
                           </MenuItem>
                         </MenuList>
                       </ClickAwayListener>

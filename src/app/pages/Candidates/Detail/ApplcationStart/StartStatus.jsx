@@ -69,8 +69,7 @@ const styles = {
 
 class StartStatus extends React.Component {
   render() {
-    const { t, classes, start, isOpen, canView, onOpenStart, startAuthority } =
-      this.props;
+    const { t, classes, start, isOpen, canView, onOpenStart } = this.props;
 
     const termination = start.get('termination');
     const failedWarranty = start.get('failedWarranty');
@@ -87,7 +86,7 @@ class StartStatus extends React.Component {
       );
       return (
         <div className="horizontal-layout">
-          {!isOpen && (startAuthority || canView) ? (
+          {canView && !isOpen ? (
             <Link
               color={'primary'}
               onClick={onOpenStart}
@@ -125,7 +124,7 @@ class StartStatus extends React.Component {
       const reason = reasonMaps[failedWarranty.get('reason')];
       return (
         <div className="horizontal-layout">
-          {!isOpen && (startAuthority || canView) ? (
+          {canView && !isOpen ? (
             <Link
               color={'primary'}
               onClick={onOpenStart}
@@ -148,7 +147,7 @@ class StartStatus extends React.Component {
     const text = startType === 'CONTRACT_EXTENSION' ? 'Extended' : 'Started';
     return (
       <div>
-        {!isOpen && (startAuthority || canView) ? (
+        {canView && !isOpen ? (
           <Link color={'primary'} onClick={onOpenStart}>
             {text + ' at ' + startDate}
           </Link>

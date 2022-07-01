@@ -102,9 +102,10 @@ export default function createDetectElementResize(nonce) {
       keyframeprefix = '',
       animationstartevent = 'animationstart',
       domPrefixes = 'Webkit Moz O ms'.split(' '),
-      startEvents = 'webkitAnimationStart animationstart oAnimationStart MSAnimationStart'.split(
-        ' '
-      ),
+      startEvents =
+        'webkitAnimationStart animationstart oAnimationStart MSAnimationStart'.split(
+          ' '
+        ),
       pfx = '';
     {
       var elm = document.createElement('fakeelement');
@@ -193,13 +194,12 @@ export default function createDetectElementResize(nonce) {
 
         /* Listen for a css animation to detect element display/re-attach */
         if (animationstartevent) {
-          element.__resizeTriggers__.__animationListener__ = function animationListener(
-            e
-          ) {
-            if (e.animationName == animationName) {
-              resetTriggers(element);
-            }
-          };
+          element.__resizeTriggers__.__animationListener__ =
+            function animationListener(e) {
+              if (e.animationName == animationName) {
+                resetTriggers(element);
+              }
+            };
           element.__resizeTriggers__.addEventListener(
             animationstartevent,
             element.__resizeTriggers__.__animationListener__

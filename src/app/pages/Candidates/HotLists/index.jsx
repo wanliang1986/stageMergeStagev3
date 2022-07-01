@@ -32,7 +32,7 @@ function mapStateToProps(state, { location }) {
     authorities,
     isLimitUser:
       !authorities ||
-      authorities.includes(Immutable.Map({ name: 'ROLE_LIMIT_USER' }))
+      authorities.includes(Immutable.Map({ name: 'ROLE_LIMIT_USER' })),
   };
 }
 

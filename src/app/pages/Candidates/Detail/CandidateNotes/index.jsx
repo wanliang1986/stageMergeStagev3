@@ -16,7 +16,6 @@ class CandidateNotes extends React.PureComponent {
     super(props);
     this.state = {
       open: false,
-      selectNote: null,
     };
   }
 
@@ -25,14 +24,7 @@ class CandidateNotes extends React.PureComponent {
   };
 
   handleClose = () => {
-    this.setState({ open: false, selectNote: null });
-  };
-
-  openEdit = (note) => {
-    this.setState({
-      selectNote: note,
-      open: true,
-    });
+    this.setState({ open: false });
   };
 
   render() {
@@ -45,7 +37,6 @@ class CandidateNotes extends React.PureComponent {
         </Fab>
         <AddNote
           open={this.state.open}
-          selectNote={this.state.selectNote}
           {...props}
           entityId={candidateId}
           type="talent"
@@ -55,12 +46,7 @@ class CandidateNotes extends React.PureComponent {
         <div className="vertical-layout">
           {notes.map((note) => (
             <div key={note.get('id')}>
-              <Note
-                note={note}
-                openEdit={(note) => {
-                  this.openEdit(note);
-                }}
-              />
+              <Note note={note} />
             </div>
           ))}
         </div>

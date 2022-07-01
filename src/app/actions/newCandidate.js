@@ -8,7 +8,6 @@ import {
 } from '../../utils/search';
 import { normalize } from 'normalizr';
 import { jobBasic, talentBasic } from './schemas';
-import { indexOf } from 'lodash';
 
 // table 排序特殊字段处理
 const filterSort = (sort) => {
@@ -39,163 +38,6 @@ export const changeSearchFlag = (payload) => {
   };
 };
 
-// commonPool基本搜索
-export const commonPoolGetSearchData = (jobId) => (dispatch, getState) => {
-  dispatch({
-    type: ActionTypes.NEW_CANDIDATE_RESETSORT,
-    payload: true,
-  });
-
-  let {
-    basicSearch,
-    page,
-    size,
-    sort,
-    allOrMy,
-    resume,
-    commonPoolSelectListTo,
-    defultStatus,
-    commonPoolSelectList,
-  } = getState().controller.newCandidateJob.toJS();
-  let { id } = getState().controller.currentUser.toJS();
-
-  let { arr } = commonPoolFilterSearch(basicSearch);
-  let requestData = candidateRequestFilter(arr);
-  dispatch({
-    type: ActionTypes.NEW_CANDIDATE_LOADING,
-    payload: true,
-  });
-
-  dispatch({
-    type: ActionTypes.NEW_CANDIDATE_ADVANCED_RESET,
-    payload: true,
-  });
-
-  dispatch({
-    type: ActionTypes.NEW_CANDIDATE_GENERAL_RESET,
-  });
-
-  dispatch({
-    type: ActionTypes.NEW_CANDIDATE_LEVEL,
-    payload: 'BASE',
-  });
-
-  let str = filterSort(sort);
-
-  // 判断是否用条件查询
-  let initFlag = null;
-  if (requestData['and'].length) {
-    initFlag = false;
-  } else {
-    initFlag = true;
-  }
-
-  if (allOrMy) {
-    // my
-    requestData['and'].push({
-      and: [
-        {
-          assignedUsers: {
-            ANY: id + '',
-          },
-        },
-      ],
-    });
-  }
-  if (resume) {
-    requestData['and'].push({
-      and: [
-        {
-          hasResume: resume + '',
-        },
-      ],
-    });
-  }
-  if ((commonPoolSelectListTo ?? '') !== '') {
-    // 循环数组拼接数据格式
-    commonPoolSelectListTo.forEach((item) => {
-      if (item === 'hasLinkedIn') {
-        requestData['and'].push({
-          and: [
-            {
-              [item]: true,
-            },
-          ],
-        });
-      }
-      if (item === 'hasValidEmail') {
-        requestData['and'].push({
-          and: [
-            {
-              [item]: true,
-            },
-          ],
-        });
-      }
-      if (item === 'hasPhone') {
-        requestData['and'].push({
-          and: [
-            {
-              [item]: true,
-            },
-          ],
-        });
-      }
-    });
-  }
-  // requestData['and'].push({
-  //   and: [
-  //     {
-  //       affiliations: ['all', 'user_' + id],
-  //     },
-  //   ],
-  // });
-  // console.log(requestData);
-
-  return apnSDK
-    .jobCommonPoolSearchSrot({
-      filter: requestData,
-      page,
-      size,
-      sort: str,
-      jobId,
-      initFlag,
-      defultStatus,
-      commonPoolSelectList,
-    })
-    .then((res) => {
-      if (res) {
-        let { response, headers } = res;
-        dispatch({
-          type: ActionTypes.NEW_CANDIDATE_DATA,
-          payload: response,
-        });
-
-        dispatch({
-          type: ActionTypes.NEW_CANDIDATE_COUNT,
-          payload: headers.get('Pagination-Count'),
-        });
-        const normalizedData = normalize(response, [talentBasic]);
-
-        dispatch({
-          type: ActionTypes.RECEIVE_TALENT_LIST,
-          tab: 'es',
-          normalizedData,
-          total: response.length,
-        });
-      }
-    })
-    .catch((err) => {
-      console.log(err);
-    })
-    .finally(() => {
-      dispatch({
-        type: ActionTypes.NEW_CANDIDATE_LOADING,
-        payload: false,
-      });
-    });
-};
-
 // 基本搜索
 export const getSearchData = (jobId) => (dispatch, getState) => {
   dispatch({
@@ -209,6 +51,7 @@ export const getSearchData = (jobId) => (dispatch, getState) => {
 
   let { arr } = candidateFilterSearch(basicSearch);
   let requestData = candidateRequestFilter(arr);
+
   dispatch({
     type: ActionTypes.NEW_CANDIDATE_LOADING,
     payload: true,
@@ -317,10 +160,6 @@ export const getCommonPoolSavedSearchData = (jobId) => (dispatch, getState) => {
     type: ActionTypes.NEW_CANDIDATE_RESETSORT,
     payload: true,
   });
-  dispatch({
-    type: ActionTypes.UN_SELECT_STATUS,
-    payload: true,
-  });
   let {
     basicSearch,
     page,
@@ -354,12 +193,12 @@ export const getCommonPoolSavedSearchData = (jobId) => (dispatch, getState) => {
     payload: 'BASE',
   });
   // 查询列表接口参数增加 initialSearch ，必填参数 true ：是初始查询 false ： 不是初始查询
-  // let initialSearch = null;
-  // if (requestData.and.length === 0) {
-  //   initialSearch = true;
-  // } else {
-  //   initialSearch = false;
-  // }
+  let initialSearch = null;
+  if (requestData.and.length === 0) {
+    initialSearch = true;
+  } else {
+    initialSearch = false;
+  }
   let str = filterSort(sort);
 
   if (allOrMy) {
@@ -418,10 +257,7 @@ export const getCommonPoolSavedSearchData = (jobId) => (dispatch, getState) => {
         }
       });
   }
-  dispatch({
-    type: ActionTypes.ORDER_STATES,
-    payload: requestData,
-  });
+
   // requestData['and'].push({
   //   and: [
   //     {
@@ -439,7 +275,7 @@ export const getCommonPoolSavedSearchData = (jobId) => (dispatch, getState) => {
       sort: str,
       jobId,
       commonPoolSelectList,
-      // initialSearch,
+      initialSearch,
     })
     .then((res) => {
       if (res) {
@@ -476,9 +312,7 @@ export const getCommonPoolSavedSearchData = (jobId) => (dispatch, getState) => {
 
 // commonPool普通搜索search
 export const getCommonPoolSearchData =
-  (jobId, value, index) => (dispatch, getState) => {
-    console.log(value);
-
+  (jobId, value) => (dispatch, getState) => {
     dispatch({
       type: ActionTypes.NEW_CANDIDATE_RESETSORT,
       payload: true,
@@ -494,14 +328,14 @@ export const getCommonPoolSearchData =
       commonPoolSelectList,
       commonPoolSelectListTo,
     } = getState().controller.newCandidateJob.toJS();
-    // let initialSearch = null;
+    let initialSearch = null;
     let { id } = getState().controller.currentUser.toJS();
     let { arr } = commonPoolFilterSearch(basicSearch);
-    // if (arr.length !== 0 || value) {
-    //   initialSearch = false;
-    // } else {
-    //   initialSearch = true;
-    // }
+    if (arr.length !== 0 || value) {
+      initialSearch = false;
+    } else {
+      initialSearch = true;
+    }
     let requestData = candidateRequestFilter(arr);
     dispatch({
       type: ActionTypes.NEW_CANDIDATE_LOADING,
@@ -513,10 +347,6 @@ export const getCommonPoolSearchData =
       payload: true,
     });
 
-    //  dispatch({
-    //   type: ActionTypes.UN_SELECT_STATUS,
-    //   payload: true,
-    // });
     dispatch({
       type: ActionTypes.NEW_CANDIDATE_GENERAL_RESET,
     });
@@ -597,81 +427,8 @@ export const getCommonPoolSearchData =
     //     },
     //   ],
     // });
-    console.log(requestData);
-    console.log(index);
-    if (typeof value == 'undefined' || value == '') {
-      if (
-        requestData.and.length == 0 ||
-        requestData.length == 0 ||
-        value == 0 ||
-        value == 'undefined'
-      ) {
-        dispatch({
-          type: ActionTypes.UN_SELECT_STATUS,
-          payload: false,
-        });
-        dispatch({
-          type: ActionTypes.SELECT_TO_STATUS_EMPTY,
-        });
-        dispatch({
-          type: ActionTypes.ORDER_STATES_DELETE,
-        });
-      } else {
-        let requestDataArr = [];
-        requestData.and.forEach((item, index) => {
-          for (let key in item) {
-            // if (key === 'and') {
-            for (let _key in item[key][0]) {
-              requestDataArr.push(_key);
-            }
-            // }
-          }
-        });
-        console.log(requestDataArr);
-        let filterData = [];
-        requestDataArr.forEach((data) => {
-          if (
-            data !== 'hasLinkedIn' &&
-            data !== 'hasValidEmail' &&
-            data !== 'hasPhone'
-          ) {
-            filterData.push(data);
-          }
-        });
-        console.log(filterData);
+    // console.log(requestData);
 
-        if (filterData.length === 0) {
-          dispatch({
-            type: ActionTypes.UN_SELECT_STATUS,
-            payload: false,
-          });
-          dispatch({
-            type: ActionTypes.SELECT_TO_STATUS_EMPTY,
-          });
-          dispatch({
-            type: ActionTypes.ORDER_STATES_DELETE,
-          });
-        } else {
-          dispatch({
-            type: ActionTypes.UN_SELECT_STATUS,
-            payload: true,
-          });
-          dispatch({
-            type: ActionTypes.ORDER_STATES,
-            payload: requestData,
-          });
-        }
-      }
-    } else {
-      dispatch({
-        type: ActionTypes.UN_SELECT_STATUS,
-        payload: true,
-      });
-      dispatch({
-        type: ActionTypes.ORDER_STATES,
-        payload: requestData,
-      });
-    }
     return apnSDK
       .commonPoolCurrencySearch({
         filter: requestData,
@@ -680,7 +437,7 @@ export const getCommonPoolSearchData =
         sort: str,
         jobId,
         commonPoolSelectList,
-        // initialSearch,
+        initialSearch,
       })
       .then((res) => {
         if (res) {
@@ -866,12 +623,12 @@ export const commonPoolDataSort = (jobId) => (dispatch, getState) => {
     payload: 'BASE',
   });
   // 查询列表接口参数增加 initialSearch ，必填参数 true ：是初始查询 false ： 不是初始查询
-  // let initialSearch = null;
-  // if (requestData.and.length === 0) {
-  //   initialSearch = true;
-  // } else {
-  //   initialSearch = false;
-  // }
+  let initialSearch = null;
+  if (requestData.and.length === 0) {
+    initialSearch = true;
+  } else {
+    initialSearch = false;
+  }
   let str = filterSort(sort);
 
   // commonPoolSelectListTo是commonpool中第二个select中的数组
@@ -948,7 +705,7 @@ export const commonPoolDataSort = (jobId) => (dispatch, getState) => {
       sort: str,
       jobId,
       commonPoolSelectList,
-      // initialSearch,
+      initialSearch,
     })
     .then((res) => {
       if (res) {
@@ -1063,6 +820,7 @@ export const commonPoolChagneSort = (sorts) => (dispatch, getState) => {
       value: Object.values(sorts)[0],
     },
   });
+
   let { searchLevel } = getState().controller.newCandidateJob.toJS();
   if (searchLevel === 'BASE') {
     dispatch(getCommonPoolSearchDataSort());
@@ -1089,6 +847,7 @@ export const getCommonPoolSearchDataSort = (jobId) => (dispatch, getState) => {
     commonPoolSelectList,
   } = getState().controller.newCandidateJob.toJS();
   let { id } = getState().controller.currentUser.toJS();
+
   let { arr } = commonPoolFilterSearch(basicSearch);
   let requestData = candidateRequestFilter(arr);
   dispatch({
@@ -1110,12 +869,12 @@ export const getCommonPoolSearchDataSort = (jobId) => (dispatch, getState) => {
     payload: 'BASE',
   });
   // 查询列表接口参数增加 initialSearch ，必填参数 true ：是初始查询 false ： 不是初始查询
-  // let initialSearch = null;
-  // if (requestData.and.length === 0) {
-  //   initialSearch = true;
-  // } else {
-  //   initialSearch = false;
-  // }
+  let initialSearch = null;
+  if (requestData.and.length === 0) {
+    initialSearch = true;
+  } else {
+    initialSearch = false;
+  }
   let str = filterSort(sort);
 
   if (allOrMy) {
@@ -1181,7 +940,7 @@ export const getCommonPoolSearchDataSort = (jobId) => (dispatch, getState) => {
       jobId,
       defultStatus,
       commonPoolSelectList,
-      // initialSearch,
+      initialSearch,
     })
     .then((res) => {
       if (res) {
@@ -1380,17 +1139,6 @@ export const resetSearchValue = () => (dispatch, getState) => {
 // commonPool clearAll清除搜索
 export const commonPoolClearAll = () => (dispatch, getState) => {
   dispatch({
-    type: ActionTypes.SELECT_TO_STATUS_EMPTY,
-  });
-  dispatch({
-    type: ActionTypes.ORDER_STATES_DELETE,
-  });
-
-  dispatch({
-    type: ActionTypes.UN_SELECT_STATUS,
-    payload: false,
-  });
-  dispatch({
     type: ActionTypes.NEW_CANDIDATE_RESETSORT,
     payload: true,
   });
@@ -1461,7 +1209,7 @@ export const commonPoolClearAll = () => (dispatch, getState) => {
       });
   }
   // 查询列表接口参数增加 initialSearch ，必填参数 true ：是初始查询 false ： 不是初始查询
-  // let initialSearch = true;
+  let initialSearch = true;
 
   if (allOrMy) {
     let obj = {};
@@ -1496,7 +1244,7 @@ export const commonPoolClearAll = () => (dispatch, getState) => {
       page,
       size,
       commonPoolSelectList,
-      // initialSearch,
+      initialSearch,
     })
     .then((res) => {
       if (res) {
@@ -1584,12 +1332,12 @@ export const dialogCommonSearch = (value, talentId) => (dispatch, getState) => {
           payload: response,
         });
 
-        const normalizedData = normalize(response, [jobBasic]);
-        dispatch({
-          type: ActionTypes.RECEIVE_JOB_LIST,
-          tab: 'myOpen',
-          normalizedData,
-        });
+        // const normalizedData = normalize(response, [jobBasic]);
+        // dispatch({
+        //   type: ActionTypes.RECEIVE_JOB_LIST,
+        //   tab: 'myOpen',
+        //   normalizedData,
+        // });
       }
     })
     .catch((err) => {
@@ -1640,18 +1388,13 @@ export const deleteFilter = (payload) => (dispatch, getState) => {
 };
 
 //CommonPool删除filter搜索
-export const commonDeleteFilter = (payload, index) => (dispatch, getState) => {
-  console.log(index);
+export const commonDeleteFilter = (payload) => (dispatch, getState) => {
   let { size } = getState().controller.newCandidateJob.toJS();
-
   dispatch({
     type: ActionTypes.NEW_CANDIDATE_LOADING,
     payload: true,
   });
-  dispatch({
-    type: ActionTypes.UN_SELECT_STATUS,
-    payload: false,
-  });
+
   dispatch({
     type: ActionTypes.NEW_CANDIDATE_LEVEL,
     payload: 'BASE',
@@ -1668,12 +1411,8 @@ export const commonDeleteFilter = (payload, index) => (dispatch, getState) => {
       size,
     },
   });
-  if (index.length === 0) {
-    dispatch({
-      type: ActionTypes.ORDER_STATES_DELETE,
-    });
-  }
-  dispatch(getCommonPoolSearchData(payload.jobId, index.length));
+
+  dispatch(getCommonPoolSearchData(payload.jobId));
 };
 
 export const setInFilter = (payload) => {
@@ -1963,23 +1702,6 @@ export const CommonPoolGeneral = (value, jobId) => (dispatch, getState) => {
     type: ActionTypes.NEW_CANDIDATE_RESET_ADVANCED,
     payload: false,
   });
-  if (value === '') {
-    dispatch({
-      type: ActionTypes.UN_SELECT_STATUS,
-      payload: false,
-    });
-    dispatch({
-      type: ActionTypes.SELECT_TO_STATUS_EMPTY,
-    });
-    dispatch({
-      type: ActionTypes.ORDER_STATES_DELETE,
-    });
-  } else {
-    dispatch({
-      type: ActionTypes.UN_SELECT_STATUS,
-      payload: true,
-    });
-  }
 
   // dispatch({
   //   type: ActionTypes.NEW_CANDIDATE_ADVANCED_RESET,
@@ -2030,12 +1752,12 @@ export const CommonPoolGeneral = (value, jobId) => (dispatch, getState) => {
     ],
   });
   // 查询列表接口参数增加 initialSearch ，必填参数 true ：是初始查询 false ： 不是初始查询
-  // let initialSearch = null;
-  // if (!value) {
-  //   initialSearch = true;
-  // } else {
-  //   initialSearch = false;
-  // }
+  let initialSearch = null;
+  if (!value) {
+    initialSearch = true;
+  } else {
+    initialSearch = false;
+  }
   if (resume) {
     requestData['and'].push({
       and: [
@@ -2091,10 +1813,7 @@ export const CommonPoolGeneral = (value, jobId) => (dispatch, getState) => {
       }
     });
   }
-  dispatch({
-    type: ActionTypes.ORDER_STATES,
-    payload: requestData,
-  });
+
   let str = filterSort(sort);
 
   return apnSDK
@@ -2105,7 +1824,7 @@ export const CommonPoolGeneral = (value, jobId) => (dispatch, getState) => {
       sort: str,
       jobId,
       commonPoolSelectList,
-      // initialSearch,
+      initialSearch,
     })
     .then((res) => {
       if (res) {
@@ -2175,24 +1894,21 @@ export const commonPoolSaveAdvancedFilterCandidate =
       type: ActionTypes.NEW_CANDIDATE_LOADING,
       payload: true,
     });
+
     dispatch({
       type: ActionTypes.NEW_CANDIDATE_LEVEL,
       payload: 'ADVANCED',
-    });
-    dispatch({
-      type: ActionTypes.UN_SELECT_STATUS,
-      payload: true,
     });
     let requestData = candidateRequestAdvincedFilter(value);
     let { id } = getState().controller.currentUser.toJS();
 
     // 查询列表接口参数增加 initialSearch ，必填参数 true ：是初始查询 false ： 不是初始查询
-    // let initialSearch = null;
-    // if (!value) {
-    //   initialSearch = true;
-    // } else {
-    //   initialSearch = false;
-    // }
+    let initialSearch = null;
+    if (!value) {
+      initialSearch = true;
+    } else {
+      initialSearch = false;
+    }
     if (allOrMy) {
       // my
       let obj = {},
@@ -2269,10 +1985,7 @@ export const commonPoolSaveAdvancedFilterCandidate =
         }
       });
     }
-    dispatch({
-      type: ActionTypes.ORDER_STATES,
-      payload: requestData,
-    });
+
     let str = filterSort(sort);
     console.log(requestData);
     return apnSDK
@@ -2282,7 +1995,7 @@ export const commonPoolSaveAdvancedFilterCandidate =
         size,
         sort: str,
         commonPoolSelectList,
-        // initialSearch,
+        initialSearch,
       })
       .then((res) => {
         console.log(res);
@@ -2459,7 +2172,7 @@ export const CommonPoolGeneralToo =
           size,
         },
       });
-      dispatch(commonPoolGetSearchData(jobId));
+      dispatch(getSearchData(jobId));
       return;
     }
 
@@ -2497,12 +2210,12 @@ export const CommonPoolGeneralToo =
       ],
     });
     // 查询列表接口参数增加 initialSearch ，必填参数 true ：是初始查询 false ： 不是初始查询
-    // let initialSearch = null;
-    // if (requestData.and.length === 0) {
-    //   initialSearch = true;
-    // } else {
-    //   initialSearch = false;
-    // }
+    let initialSearch = null;
+    if (requestData.and.length === 0) {
+      initialSearch = true;
+    } else {
+      initialSearch = false;
+    }
     if ((commonPoolSelectListTo ?? '') !== '') {
       // 循环数组拼接数据格式
       commonPoolSelectListTo.forEach((item) => {
@@ -2545,7 +2258,7 @@ export const CommonPoolGeneralToo =
         jobId,
         defultStatus,
         commonPoolSelectList,
-        // initialSearch,
+        initialSearch,
       })
       .then((res) => {
         if (res) {
@@ -2749,12 +2462,12 @@ export const commonPoolGetAdvancedData = (sortFlag) => (dispatch, getState) => {
     payload: 'ADVANCED',
   });
   // 查询列表接口参数增加 initialSearch ，必填参数 true ：是初始查询 false ： 不是初始查询
-  // let initialSearch = null;
-  // if (requestData.or.length === 0) {
-  //   initialSearch = true;
-  // } else {
-  //   initialSearch = false;
-  // }
+  let initialSearch = null;
+  if (requestData.or.length === 0) {
+    initialSearch = true;
+  } else {
+    initialSearch = false;
+  }
   let str = filterSort(sort);
   if (allOrMy) {
     // my
@@ -2836,10 +2549,7 @@ export const commonPoolGetAdvancedData = (sortFlag) => (dispatch, getState) => {
       }
     });
   }
-  dispatch({
-    type: ActionTypes.ORDER_STATES,
-    payload: requestData,
-  });
+
   return apnSDK
     .jobCommonPoolSearchSrot({
       filter: requestData,
@@ -2848,7 +2558,7 @@ export const commonPoolGetAdvancedData = (sortFlag) => (dispatch, getState) => {
       sort: str,
       defultStatus,
       commonPoolSelectList,
-      // initialSearch,
+      initialSearch,
     })
     .then((res) => {
       if (res) {
@@ -3006,10 +2716,7 @@ export const saveAdvancedFilterCommonPool = (value) => (dispatch, getState) => {
     type: ActionTypes.NEW_CANDIDATE_RESETSORT,
     payload: true,
   });
-  dispatch({
-    type: ActionTypes.UN_SELECT_STATUS,
-    payload: true,
-  });
+
   let {
     size,
     sort,
@@ -3049,19 +2756,15 @@ export const saveAdvancedFilterCommonPool = (value) => (dispatch, getState) => {
     type: ActionTypes.NEW_CANDIDATE_LEVEL,
     payload: 'ADVANCED',
   });
-  dispatch({
-    type: ActionTypes.UN_SELECT_STATUS,
-    payload: true,
-  });
   let requestData = candidateRequestAdvincedFilter(value);
   let { id } = getState().controller.currentUser.toJS();
   // 查询列表接口参数增加 initialSearch ，必填参数 true ：是初始查询 false ： 不是初始查询
-  // let initialSearch = null;
-  // if (requestData.or.length === 0) {
-  //   initialSearch = true;
-  // } else {
-  //   initialSearch = false;
-  // }
+  let initialSearch = null;
+  if (requestData.or.length === 0) {
+    initialSearch = true;
+  } else {
+    initialSearch = false;
+  }
   if (allOrMy) {
     // my
     let obj = {},
@@ -3139,10 +2842,7 @@ export const saveAdvancedFilterCommonPool = (value) => (dispatch, getState) => {
       }
     });
   }
-  dispatch({
-    type: ActionTypes.ORDER_STATES,
-    payload: requestData,
-  });
+
   let str = filterSort(sort);
   console.log(requestData);
   return apnSDK
@@ -3152,7 +2852,7 @@ export const saveAdvancedFilterCommonPool = (value) => (dispatch, getState) => {
       size,
       sort: str,
       commonPoolSelectList,
-      // initialSearch,
+      initialSearch,
     })
     .then((res) => {
       console.log(res);

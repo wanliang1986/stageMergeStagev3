@@ -20,10 +20,7 @@ import DateCell from './TableCell2/DateCell';
 import FooterCell from './TableCell2/FooterCell';
 import PaymentDetail from '../MyFinance/PaymentDetail';
 import DashbaordChangeStatus from '../../../components/applications/Buttons/DashbaordChangeStatus';
-import {
-  currency as currencyOptions,
-  currency,
-} from '../../../constants/formOptions';
+import { currency } from '../../../constants/formOptions';
 import {
   styles,
   HEADER_HEIGHT,
@@ -186,10 +183,12 @@ const EnumCell = ({ rowIndex, data, col, ...props }) => {
   return <Cell {...props}>loading...</Cell>;
 };
 
-const currencyLabels = currencyOptions.reduce((res, v) => {
-  res[v.value] = v.label;
-  return res;
-}, {});
+const currencyMap = {
+  USD: '$',
+  CNY: '¥',
+  null: '',
+  undefined: '',
+};
 
 const InvoiceReminderCell = ({ rowIndex, data, col, loadMore, ...props }) => {
   const id = data.getIn([rowIndex, 'id']);
@@ -253,7 +252,7 @@ const MoneyCell = ({ rowIndex, data, col, ...props }) => {
     return (
       <Cell {...props}>
         <div className="overflow_ellipsis_1">
-          {currencyLabels[currency]}
+          {currencyMap[currency]}
           {money ? money.toLocaleString() : 0}
         </div>
       </Cell>
@@ -472,7 +471,7 @@ const ChangeJobStatusCell = ({
             textTransform: 'capitalize',
           }}
         >
-          <span>{statusLabels[text] || text} </span>
+          <span>{statusLabels[text] || text}</span>
           <Edit style={{ width: '.6em', height: '.6em', marginLeft: '3px' }} />
         </div>
       </Cell>
@@ -695,7 +694,6 @@ class DashboardTable extends React.PureComponent {
                     <FooterCell
                       className={classes.footerCell}
                       data={footerData}
-                      t={t}
                     />
                   }
                   width={this.state.columnWidths[column.col]}

@@ -203,11 +203,6 @@ class UserSearchSelect extends Component {
               })
             : ''}
         </div>
-        <span
-          style={{ color: '#cc4b37', fontSize: '0.75rem', fontWeight: 'bold' }}
-        >
-          {errorMessage && errorMessage.get('teamMember')}
-        </span>
       </>
     );
   }

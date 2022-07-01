@@ -331,7 +331,7 @@ class Contract extends React.Component {
         <div className="row expanded">
           <div className="small-6 columns">
             <FormReactSelectContainer
-              label={t('field:Tax Burden Rate')}
+              label="Tax Burden Rate"
               isRequired
               errorMessage={t(errorMessage.get('taxBurdenRate'))}
             >
@@ -356,7 +356,7 @@ class Contract extends React.Component {
 
           <div className="small-6 columns">
             <FormReactSelectContainer
-              label={t('field:MSP Rate')}
+              label="MSP Rate"
               isRequired
               errorMessage={t(errorMessage.get('mspRate'))}
             >
@@ -382,7 +382,7 @@ class Contract extends React.Component {
         <div className="row expanded">
           <div className="small-6 columns">
             <FormReactSelectContainer
-              label={t('field:Immigration Cost')}
+              label="Immigration Cost"
               isRequired
               errorMessage={t(errorMessage.get('immigrationCost'))}
             >

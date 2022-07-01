@@ -447,7 +447,7 @@ export const WeeklyInitData = {
       if (i === 26) {
         colorList.push('#669df6');
       } else {
-        colorList.push('#669df6');
+        colorList.push('#83e39d');
       }
     }
     return colorList;
@@ -460,5 +460,4 @@ export const countryObj = {
   EUR: '€',
   CAD: 'C$',
   GBP: '£',
-  NON_CHINA: '$',
 };

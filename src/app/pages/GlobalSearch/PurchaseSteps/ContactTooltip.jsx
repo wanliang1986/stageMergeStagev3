@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 
-const styles = theme => ({
+const styles = (theme) => ({
   tooltip: {
-    position: 'relative'
+    position: 'relative',
   },
   arrowPopper: {
     '&[x-placement*="bottom"] $arrowArrow': {
@@ -15,10 +15,8 @@ const styles = theme => ({
       height: '1em',
       '&::before': {
         borderWidth: '0 1em 1em 1em',
-        borderColor: `transparent transparent ${
-          theme.palette.grey[700]
-        } transparent`
-      }
+        borderColor: `transparent transparent ${theme.palette.grey[700]} transparent`,
+      },
     },
     '&[x-placement*="top"] $arrowArrow': {
       bottom: 0,
@@ -28,10 +26,8 @@ const styles = theme => ({
       height: '1em',
       '&::before': {
         borderWidth: '1em 1em 0 1em',
-        borderColor: `${
-          theme.palette.grey[700]
-        } transparent transparent transparent`
-      }
+        borderColor: `${theme.palette.grey[700]} transparent transparent transparent`,
+      },
     },
     '&[x-placement*="right"] $arrowArrow': {
       left: 0,
@@ -40,10 +36,8 @@ const styles = theme => ({
       width: '1em',
       '&::before': {
         borderWidth: '1em 1em 1em 0',
-        borderColor: `transparent ${
-          theme.palette.grey[700]
-        } transparent transparent`
-      }
+        borderColor: `transparent ${theme.palette.grey[700]} transparent transparent`,
+      },
     },
     '&[x-placement*="left"] $arrowArrow': {
       right: 0,
@@ -52,11 +46,9 @@ const styles = theme => ({
       width: '1em',
       '&::before': {
         borderWidth: '1em 0 1em 1em',
-        borderColor: `transparent transparent transparent ${
-          theme.palette.grey[700]
-        }`
-      }
-    }
+        borderColor: `transparent transparent transparent ${theme.palette.grey[700]}`,
+      },
+    },
   },
   arrowArrow: {
     position: 'absolute',
@@ -69,22 +61,22 @@ const styles = theme => ({
       display: 'block',
       width: 0,
       height: 0,
-      borderStyle: 'solid'
-    }
-  }
+      borderStyle: 'solid',
+    },
+  },
 });
 
 class ContactTooltip extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      arrowRef: null
+      arrowRef: null,
     };
   }
 
-  handleArrowRef = node => {
+  handleArrowRef = (node) => {
     this.setState({
-      arrowRef: node
+      arrowRef: node,
     });
   };
 
@@ -106,10 +98,10 @@ class ContactTooltip extends Component {
             modifiers: {
               arrow: {
                 enabled: Boolean(this.state.arrowRef),
-                element: this.state.arrowRef
-              }
-            }
-          }
+                element: this.state.arrowRef,
+              },
+            },
+          },
         }}
       >
         {icon}

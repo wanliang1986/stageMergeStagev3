@@ -72,7 +72,7 @@ class BasicInfo extends React.Component {
             <div className="small-6 columns">
               <FormInput
                 name="jobId"
-                label={t('field:jobNumber')}
+                label={t('field:Job Number')}
                 defaultValue={start.jobId}
                 disabled
               />
@@ -130,7 +130,7 @@ class BasicInfo extends React.Component {
             </div>
             <div className="small-6 columns">
               <FormInput
-                label={t('field:location')}
+                label={t('field:Location')}
                 value={startAddress && startAddress.show}
                 disabled
               />

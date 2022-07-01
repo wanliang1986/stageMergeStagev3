@@ -7,7 +7,6 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import FormReactSelectContainer from './particial/FormReactSelectContainer';
 import { connect } from 'react-redux';
 import { getActiveTenantUserList } from '../selectors/userSelector';
-import { withTranslation } from 'react-i18next';
 const styles = {
   root: {
     width: '100%',
@@ -65,7 +64,7 @@ class AddSales extends Component {
                 }}
                 color="primary"
               >
-                {this.props.t('tab:Add Share')}
+                Add Share
               </Button>
             </div>
           </div>
@@ -143,6 +142,4 @@ const mapStoreStateToProps = (state, props) => {
   return { userList };
 };
 
-export default withTranslation('tab')(
-  connect(mapStoreStateToProps)(withStyles(styles)(AddSales))
-);
+export default connect(mapStoreStateToProps)(withStyles(styles)(AddSales));

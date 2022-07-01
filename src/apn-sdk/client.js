@@ -8,7 +8,10 @@ export const getClientContactByCompanyId = (companyId) => {
     method: 'GET',
     headers: {},
   };
-  return authRequest.send(`/client-contacts/company/${companyId}`, config);
+  return authRequest.companySend(
+    `/saleslead/client-contact/company/${companyId}`,
+    config
+  );
 };
 
 export const getClientContactById = (clientContactId) => {
@@ -20,6 +23,9 @@ export const getClientContactById = (clientContactId) => {
 };
 
 export const upsertClientContact = (clientContact, clientContactId) => {
+  if (clientContactId) {
+    clientContact.id = clientContactId;
+  }
   const config = {
     method: clientContactId ? 'PUT' : 'POST',
     headers: {
@@ -27,29 +33,7 @@ export const upsertClientContact = (clientContact, clientContactId) => {
     },
     body: JSON.stringify(clientContact),
   };
-  return authRequest.send(`/client-contacts/${clientContactId || ''}`, config);
-};
-
-export const addCommonPooltoCompany = (clientContact) => {
-  const config = {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(clientContact),
-  };
-  return authRequest.send(`/client-contacts/common-pool`, config);
-};
-
-export const upsertapprover = (obj) => {
-  const config = {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(obj),
-  };
-  return authRequest.send(`/client-contacts/approver`, config);
+  return authRequest.companySend(`/saleslead/client-contact`, config);
 };
 
 //创建联系人
@@ -70,16 +54,8 @@ export const getClientContactList = (companyId) => {
     method: 'GET',
     headers: {},
   };
-  return authRequest.send(`/client-contacts/company/${companyId}`, config);
-};
-
-export const gethasApproverPermissionId = (companyId) => {
-  const config = {
-    method: 'GET',
-    headers: {},
-  };
-  return authRequest.send(
-    `/client-contacts/hasApproverPermission/${companyId}`,
+  return authRequest.companySend(
+    `/saleslead/client-contact/company/${companyId}`,
     config
   );
 };
@@ -135,10 +111,10 @@ export const getClientInfo = (id) => {
     headers: {},
   };
 
-  return authRequest.send(`/client/${id}`, config);
+  return authRequest.companySend(`/company/client/${id}`, config);
 };
 
-export const putClientInfo = (params, id) => {
+export const putClientInfo = (params) => {
   const config = {
     method: 'PUT',
     headers: {
@@ -146,7 +122,7 @@ export const putClientInfo = (params, id) => {
     },
     body: JSON.stringify(params),
   };
-  return authRequest.send(`/client/${id}`, config);
+  return authRequest.companySend(`/company/client`, config);
 };
 
 export const createCompany = (obj) => {
@@ -157,7 +133,8 @@ export const createCompany = (obj) => {
     },
     body: JSON.stringify(obj),
   };
-  return authRequest.send(`/prospect-details`, config);
+  // return authRequest.send(`/prospect-details`, config);
+  return authRequest.companySend(`/company/`, config);
 };
 
 export const getCompanyById = (companyId, type) => {
@@ -212,6 +189,14 @@ export const getOpenJobsByCompany = (companyId) => {
               status: 'REOPENED',
             },
           ],
+          // or: [
+          //   {
+          //     type: 'CONTRACT',
+          //   },
+          //   {
+          //     type: 'FULL_TIME',
+          //   },
+          // ],
         },
         {
           or: [
@@ -222,12 +207,12 @@ export const getOpenJobsByCompany = (companyId) => {
         },
       ],
     }),
-    pageSize: 600,
+    pageSize: 10,
     pageNumber: 1,
     module,
     timezone: moment.tz.guess(),
   });
-  return authRequest.sendV2(`/jobs/search`, config);
+  return authRequest.jobSend(`/jobs/search`, config);
 };
 
 export const getUploadContractUrl = () => {
@@ -236,7 +221,7 @@ export const getUploadContractUrl = () => {
     headers: {},
   };
 
-  return authRequest.send3(`/contracts/upload-url`, config);
+  return authRequest.companySend2(`/contract/upload-url`, config);
 };
 
 export const createContract = (contract, contractId) => {
@@ -248,7 +233,7 @@ export const createContract = (contract, contractId) => {
     },
     body: JSON.stringify(contract),
   };
-  return authRequest.send(`/contracts`, config);
+  return authRequest.companySend(`/contract`, config);
 };
 
 export const getContractsByCompany = (companyEntityId) => {
@@ -257,10 +242,7 @@ export const getContractsByCompany = (companyEntityId) => {
     headers: {},
   };
 
-  return authRequest.send(
-    `/contracts?companyEntityId=${companyEntityId}&page=0&size=1000&sort=status,desc&sort=contractType,asc&sort=uploadDate,desc&sort=startDate,desc`,
-    config
-  );
+  return authRequest.companySend(`/contract/${companyEntityId}`, config);
 };
 
 export const getContractById = (contractId) => {
@@ -269,7 +251,7 @@ export const getContractById = (contractId) => {
     headers: {},
   };
 
-  return authRequest.send(`/contracts/${contractId}`, config);
+  return authRequest.companySend2(`/contract/detail/${contractId}`, config);
 };
 
 export const deleteContractById = (contractId) => {
@@ -278,7 +260,7 @@ export const deleteContractById = (contractId) => {
     headers: {},
   };
 
-  return authRequest.send(`/contracts/${contractId}`, config);
+  return authRequest.companySend(`/contract/${contractId}`, config);
 };
 
 export const getProgramTeamListByCompany = (companyId) => {
@@ -287,7 +269,10 @@ export const getProgramTeamListByCompany = (companyId) => {
     headers: {},
   };
 
-  return authRequest.send(`/project-teams/company/${companyId}`, config);
+  return authRequest.companySend(
+    `/company/project-teams/company/${companyId}`,
+    config
+  );
 };
 
 export const upsertProgramTeam = (team, teamId = '') => {
@@ -321,7 +306,7 @@ export const deleteProgramTeam = (teamId = '') => {
     headers: {},
   };
 
-  return authRequest.send(`/project-teams/${teamId}`, config);
+  return authRequest.companySend(`/company/project-teams/${teamId}`, config);
 };
 
 //根据公司id获取该公司saleLead
@@ -331,7 +316,7 @@ export const getSaleLead = (companyId) => {
     headers: {},
   };
 
-  return authRequest.send(`/saleslead/company/${companyId}`, config);
+  return authRequest.companySend(`/salesLead/${companyId}`, config);
 };
 //获取Potential Service Type树
 export const getPotentialServiceTypeTree = () => {
@@ -340,7 +325,7 @@ export const getPotentialServiceTypeTree = () => {
     headers: {},
   };
 
-  return authRequest.send(`/potentialServiceType`, config);
+  return authRequest.companySend(`/company/service-types`, config);
 };
 
 //地址模糊搜索
@@ -350,7 +335,10 @@ export const searchLocation = (location) => {
     headers: {},
   };
 
-  return authRequest.send(`/geoinfo/search?condition=${location}`, config);
+  return authRequest.locationSendV3(
+    `/geoinfo/search?condition=${location}`,
+    config
+  );
 };
 
 export const searchAudience = (params) => {
@@ -371,11 +359,18 @@ export const getAllProgressNotesByCompanyId = (id, contactId) => {
     method: 'GET',
     headers: {},
   };
-  return authRequest.send(`/company/${id}/note?contactId=${contactId}`, config);
+  if (contactId) {
+    return authRequest.companySend(
+      `/company/progress-note/${id}/?clientContactId=${contactId}`,
+      config
+    );
+  } else {
+    return authRequest.companySend(`/company/progress-note/${id}`, config);
+  }
 };
 
 //创建progressNotes
-export const postProgressNotes = (id, params) => {
+export const postProgressNotes = (params) => {
   const config = {
     method: 'POST',
     headers: {
@@ -384,7 +379,7 @@ export const postProgressNotes = (id, params) => {
     body: JSON.stringify(params),
   };
 
-  return authRequest.send(`/company/${id}/note`, config);
+  return authRequest.companySend(`/company/progress-note`, config);
 };
 
 //保存联系人地址
@@ -396,7 +391,7 @@ export const postClientContactAddress = (obj) => {
     },
     body: JSON.stringify(obj),
   };
-  return authRequest.send(`/company-address`, config);
+  return authRequest.companySend(`/company/address`, config);
 };
 
 //获取联系人地址
@@ -405,7 +400,7 @@ export const getCLientContactAddress = (companyId) => {
     method: 'GET',
     headers: {},
   };
-  return authRequest.send(`/address/company/${companyId}`, config);
+  return authRequest.companySend(`/company/address/${companyId}`, config);
 };
 
 //
@@ -418,7 +413,7 @@ export const createProjectTeam = (params) => {
     body: JSON.stringify(params),
   };
 
-  return authRequest.send(`/project-teams`, config);
+  return authRequest.companySend(`/company/project-teams`, config);
 };
 
 export const uploadProjectTeam = (params, id) => {
@@ -430,7 +425,7 @@ export const uploadProjectTeam = (params, id) => {
     body: JSON.stringify(params),
   };
 
-  return authRequest.send(`/project-teams/${id}`, config);
+  return authRequest.companySend(`/company/project-teams/${id}`, config);
 };
 
 export const addSaleLead = (params) => {
@@ -442,7 +437,7 @@ export const addSaleLead = (params) => {
     body: JSON.stringify(params),
   };
 
-  return authRequest.send(`/saleslead`, config);
+  return authRequest.companySend(`/saleslead`, config);
 };
 
 export const putCompany = (params) => {
@@ -453,43 +448,46 @@ export const putCompany = (params) => {
     },
     body: JSON.stringify(params),
   };
-  return authRequest.send(`/prospect-details`, config);
+  return authRequest.companySend(`/company/prospect`, config);
 };
 
 export const prospectUpgrade = (params) => {
   const config = {
-    method: 'POST',
+    method: 'PUT',
     headers: {
       'content-type': 'application/json',
     },
     body: JSON.stringify(params),
   };
 
-  return authRequest.send(`/prospect-upgrade`, config);
+  return authRequest.companySend(`/company/prospect/upgrade`, config);
 };
 
 export const updateContactPhone = (params) => {
   const config = {
-    method: 'POST',
+    method: 'PUT',
     headers: {
       'content-type': 'application/json',
     },
     body: JSON.stringify(params),
   };
 
-  return authRequest.send(`/update-client-contacts-batch`, config);
+  return authRequest.companySend(
+    `/saleslead/client-contact/batch-update`,
+    config
+  );
 };
 
 export const setCompanyInfo = (companyId, info) => {
   const config = {
-    method: 'POST',
+    method: 'PUT',
     headers: {
       'content-type': 'application/json',
     },
-    body: JSON.stringify({ info }),
+    body: JSON.stringify({ id: companyId, note: info }),
   };
 
-  return authRequest.send(`/company-infos/companyId/${companyId}`, config);
+  return authRequest.companySend(`/company/client/note`, config);
 };
 export const getCompanyInfo = (companyId) => {
   const config = {
@@ -497,7 +495,7 @@ export const getCompanyInfo = (companyId) => {
     headers: {},
   };
 
-  return authRequest.send(`/company-infos/companyId/${companyId}`, config);
+  return authRequest.companySend(`/company/client/note/${companyId}`, config);
 };
 
 //AmReport 获取数据
@@ -521,7 +519,7 @@ export const getHrInfo = (companyId) => {
     headers: {},
   };
 
-  return authRequest.sendV2(`/jobs/contact/${companyId}`, config);
+  return authRequest.jobSend(`/jobs/contact/${companyId}`, config);
 };
 
 export const amReportDown = (companyId) => {
@@ -564,9 +562,12 @@ export const getClientBriefList = (type) => {
     headers: {},
   };
   if (type === null) {
-    return authRequest.send(`/clientBriefList`, config);
+    return authRequest.companySend(`/company/clients/list`, config);
   } else {
-    return authRequest.send(`/clientBriefList?type=${type}`, config);
+    return authRequest.companySend(
+      `/company/clients/list?type=${type}`,
+      config
+    );
   }
 };
 
@@ -595,37 +596,89 @@ export const internalDownLoad = (params) => {
   return authRequest.send2(`/performance/download`, config);
 };
 
-export const getSkipSubmitToAMCompanies = () => {
+//v3
+
+export const getAllClientCompanyList = (type) => {
+  console.log(type);
   const config = {
     method: 'GET',
     headers: {},
   };
-
-  return authRequest.send(`/skip-submit-to-am-companies`, config);
+  if (type === 0) {
+    return authRequest.companySend(
+      `/company/clients?mine=false&page=0&size=2000`,
+      config
+    );
+  } else if (type === 1) {
+    return authRequest.companySend(
+      `/company/clients?mine=true&page=0&size=2000`,
+      config
+    );
+  } else if (type === 3) {
+    return authRequest.companySend(
+      `/company/prospects?mine=true&page=0&size=2000`,
+      config
+    );
+  } else {
+    return authRequest.companySend(
+      `/company/prospects?mine=false&page=0&size=2000`,
+      config
+    );
+  }
 };
-export const getSkipSubmitToAMUsers = (companyId) => {
+
+export const searchLocationV3 = (location) => {
   const config = {
     method: 'GET',
     headers: {},
   };
 
-  return authRequest.send(
-    `/skip-submit-to-am-companies/${companyId}/all-users`,
+  return authRequest.locationSendV3(
+    `/geoinfo/search?condition=${location}`,
     config
   );
 };
 
-export const updateSkipSubmitToAMUsers = (companyId, userIds) => {
+export const getNoContracts = () => {
   const config = {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify(userIds),
+    method: 'GET',
+    headers: {},
   };
 
-  return authRequest.send(
-    `/skip-submit-to-am-companies/${companyId}/replace-users`,
+  return authRequest.companySend(`/company/noContracts`, config);
+};
+
+export const companySearchV3 = (str) => {
+  const config = {
+    method: 'GET',
+    headers: {},
+  };
+  return authRequest.companySend(`/company/search/${str}`, config);
+};
+
+export const getClientDetail = (id) => {
+  const config = {
+    method: 'GET',
+    headers: {},
+  };
+  return authRequest.companySend(`/company/client/${id}`, config);
+};
+
+export const getProspectDetail = (id) => {
+  const config = {
+    method: 'GET',
+    headers: {},
+  };
+  return authRequest.companySend(`/company/prospect/${id}`, config);
+};
+
+export const getCompanyContact = (id) => {
+  const config = {
+    method: 'GET',
+    headers: {},
+  };
+  return authRequest.companySend(
+    `/saleslead/client-contact/company/${id}`,
     config
   );
 };

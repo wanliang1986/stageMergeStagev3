@@ -265,14 +265,14 @@ class WeekReport extends React.PureComponent {
       >
         <div>
           <Typography variant="h5" className="item-padding">
-            {t('tab:LinkedIn Usage')}
+            {t('message:LinkedIn Usage')}
           </Typography>
 
           <div
             className={clsx('horizontal-layout align-bottom', classes.actions)}
           >
             <div>
-              <FormReactSelectContainer label={t('tab:Date Range')}>
+              <FormReactSelectContainer label={t('field:Date Range')}>
                 <DateRangePicker
                   value={range}
                   ranges={getRanges(t)}
@@ -282,7 +282,7 @@ class WeekReport extends React.PureComponent {
                   style={{ height: 32 }}
                   block
                   onChange={this.handleDateRangeChange}
-                  placeholder={t('tab:Date Range')}
+                  placeholder={t('message:selectDateRange')}
                   locale={isZH ? zhCN.DateRangePicker : enUS.DateRangePicker}
                 />
               </FormReactSelectContainer>

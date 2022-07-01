@@ -24,7 +24,7 @@ export default function (state = Immutable.OrderedMap(), action = {}) {
         action.client.id.toString(),
         Immutable.fromJS(action.client)
       );
-    // case ActionTypes.REQUEST_CLIENTSBYCOMPANY:
+    case ActionTypes.REQUEST_CLIENTSBYCOMPANY:
     case ActionTypes.LOGOUT:
       return state.clear();
 

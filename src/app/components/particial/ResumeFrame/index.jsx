@@ -170,7 +170,6 @@ class ResumePDF extends React.PureComponent {
 
 const docRegex = /\.(doc|docx|undefined)$/;
 const pdfRegex = /\.pdf$/;
-const imgRegex = /\.(jpg|jpeg|png|webp|gif|bmp)$/;
 
 class ResumeFrame extends React.PureComponent {
   render() {
@@ -178,7 +177,6 @@ class ResumeFrame extends React.PureComponent {
     if (resume) {
       const matchDoc = (resume.get('name') || '').toLowerCase().match(docRegex);
       const matchPdf = (resume.get('name') || '').toLowerCase().match(pdfRegex);
-      const matchImg = (resume.get('name') || '').toLowerCase().match(imgRegex);
       return (
         <AutoSizer>
           {({ width, height }) => {
@@ -198,16 +196,6 @@ class ResumeFrame extends React.PureComponent {
                   width={width}
                   height={height}
                 />
-              );
-            }
-            if (matchImg) {
-              return (
-                <div style={{ width, height, overflow: 'auto' }}>
-                  <img
-                    src={externalUrl(resume.get('s3Link'), true)}
-                    style={{ width }}
-                  />
-                </div>
               );
             }
             return (

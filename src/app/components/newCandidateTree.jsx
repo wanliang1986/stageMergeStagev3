@@ -7,8 +7,6 @@ import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import TextField from '@material-ui/core/TextField';
 import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 import ClearIcon from '@material-ui/icons/Clear';
-
-import { withTranslation } from 'react-i18next';
 const styles = {
   root: {
     position: 'relative',
@@ -262,7 +260,7 @@ const JobTree = (props) => {
       <TextField
         value={value && value.join(', ')}
         variant="outlined"
-        placeholder={props.t('tab:select')}
+        placeholder="Select"
         fullWidth
         style={{ width: '100%', height: 34 }}
         InputProps={{
@@ -286,7 +284,6 @@ const JobTree = (props) => {
             {value.length > 0 ? (
               <ClearIcon
                 style={{ color: 'gray', zIndex: '1001', fontSize: 14 }}
-                fontSize="small"
                 onClick={disabled ? null : clearAllValue}
               />
             ) : null}
@@ -425,6 +422,4 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default withTranslation('tab')(
-  connect(mapStateToProps)(withStyles(styles)(JobTree))
-);
+export default connect(mapStateToProps)(withStyles(styles)(JobTree));

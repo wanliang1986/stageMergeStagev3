@@ -6,7 +6,6 @@ import {
   selectStartToOpen,
   updateStartBasicInfo,
   updateStartAddress,
-  OpenOnboarding,
 } from '../../../../../actions/startActions';
 import { getClientContactByCompanyId } from '../../../../../actions/clientActions';
 import { getClientContactArrayByCompany } from '../../../../../selectors/clientSelector';
@@ -24,7 +23,6 @@ import PrimaryButton from '../../../../../components/particial/PrimaryButton';
 import Location from '../../../../../components/particial/Location';
 
 import { showErrorMessage } from '../../../../../actions';
-import { showOnboarding } from '../../../../../../utils/index';
 
 class BasicInfo extends React.Component {
   constructor(props) {
@@ -81,22 +79,6 @@ class BasicInfo extends React.Component {
         dispatch(
           selectStartToOpen(
             Immutable.fromJS(this.props.start).merge(Immutable.fromJS(newStart))
-          )
-        );
-
-        let hasOnboardingBtn = showOnboarding(
-          Immutable.fromJS(this.props.start).merge(Immutable.fromJS(newStart))
-        );
-        dispatch(
-          OpenOnboarding(
-            Immutable.fromJS(this.props.start)
-              .merge(Immutable.fromJS(newStart))
-              .get('applicationId'),
-            'openStart',
-            Immutable.fromJS(this.props.start).merge(
-              Immutable.fromJS(newStart)
-            ),
-            hasOnboardingBtn
           )
         );
       })
@@ -190,7 +172,7 @@ class BasicInfo extends React.Component {
               <div className="small-6 columns">
                 <FormInput
                   name="jobId"
-                  label={t('field:jobNumber')}
+                  label={t('field:Job Number')}
                   defaultValue={start.jobId}
                   disabled
                 />
@@ -258,7 +240,7 @@ class BasicInfo extends React.Component {
                 <FormReactSelectContainer
                   isRequired
                   errorMessage={errorMessage.get('startAddress')}
-                  label={t('field:location')}
+                  label={t('field:Location')}
                 />
                 <Location
                   value={startAddress}

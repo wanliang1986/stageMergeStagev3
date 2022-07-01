@@ -1,7 +1,7 @@
 import * as ActionTypes from '../../constants/actionTypes';
 import Immutable from 'immutable';
 
-export default function(state = Immutable.OrderedMap(), action = {}) {
+export default function (state = Immutable.OrderedMap(), action = {}) {
   let newState;
   switch (action.type) {
     case ActionTypes.GET_EMAIL_BLAST_LIST:
@@ -33,7 +33,7 @@ export default function(state = Immutable.OrderedMap(), action = {}) {
       return state.updateIn(
         [action.listId, 'recipientIds'],
         (recipientIds = Immutable.List()) =>
-          recipientIds.filter(id => id !== action.recipientId)
+          recipientIds.filter((id) => id !== action.recipientId)
       );
 
     case ActionTypes.LOGOUT:

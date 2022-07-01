@@ -9,14 +9,14 @@ const styles = {
   checkboxRoot: {
     height: '100%',
     paddingTop: 0,
-    paddingBottom: 0
+    paddingBottom: 0,
   },
   switchRoot: {
-    left: -10
+    left: -10,
   },
   switchBase: {
-    height: '100%'
-  }
+    height: '100%',
+  },
 };
 
 class CheckCell extends React.Component {
@@ -29,15 +29,8 @@ class CheckCell extends React.Component {
   };
 
   render() {
-    const {
-      rowIndex,
-      data,
-      col,
-      onChange,
-      classes,
-      isSwitch,
-      ...props
-    } = this.props;
+    const { rowIndex, data, col, onChange, classes, isSwitch, ...props } =
+      this.props;
     const entry = data.get(rowIndex);
 
     return (
@@ -49,7 +42,7 @@ class CheckCell extends React.Component {
             color="primary"
             classes={{
               root: classes.switchRoot,
-              switchBase: classes.switchBase
+              switchBase: classes.switchBase,
             }}
             disabled={!onChange}
           />
@@ -59,7 +52,7 @@ class CheckCell extends React.Component {
             onChange={() => onChange(rowIndex, col)}
             color="primary"
             classes={{
-              root: classes.checkboxRoot
+              root: classes.checkboxRoot,
             }}
             disabled={!onChange}
           />

@@ -27,8 +27,8 @@ import PrimaryButton from '../../../components/particial/PrimaryButton';
 import RefreshIcon from '@material-ui/icons/Sync';
 import Divider from '@material-ui/core/Divider';
 import { showErrorMessage } from '../../../actions';
+import { Trans } from 'react-i18next';
 import AlertDialog from '../../../components/particial/AlertDialog';
-import BulkCreateTalents from '../UploadResumeDialog/BulkCreateTalents';
 
 const columns = [
   {
@@ -48,11 +48,17 @@ const columns = [
     type: 'source',
     disableSearch: true,
   },
+  // {
+  //   colName: 'OCRText',
+  //   colWidth: 160,
+  //   flexGrow: 2,
+  //   col: 'originalText',
+  //   sortable: true
+  // },
   {
     colName: 'note',
     colWidth: 160,
     flexGrow: 3,
-    type: 'note',
     col: 'note',
   },
   {
@@ -77,6 +83,16 @@ const styles = {
     width: 600,
     margin: 12,
     zIndex: 1,
+  },
+  wrapper: {
+    position: 'relative',
+  },
+  buttonProgress: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    marginTop: -12,
+    marginLeft: -12,
   },
 };
 
@@ -110,7 +126,6 @@ class ErrorResumes extends React.Component {
       openDialog: false,
 
       flashing: false,
-      openCreate: false,
     };
   }
 
@@ -229,7 +244,7 @@ class ErrorResumes extends React.Component {
     );
     const filteredSelected = selected.intersect(parseRecordIds);
 
-    if (filteredSelected.size > 0) {
+    if (filteredSelected.size === parseRecordIds.size) {
       this.setState({ selected: selected.subtract(filteredSelected) });
     } else {
       this.setState({ selected: selected.union(parseRecordIds) });
@@ -280,24 +295,6 @@ class ErrorResumes extends React.Component {
     });
   };
 
-  handleBulkCreateTalents = () => {
-    console.log('handleBulkCreateTalents');
-    const { parseRecordList } = this.props;
-    const { selected, indexList } = this.state;
-    const filteredParseRecordList = indexList.map((index) =>
-      parseRecordList.get(index)
-    );
-    const filteredSelected = selected
-      .intersect(
-        filteredParseRecordList.map((parseRecord) => parseRecord.get('id'))
-      )
-      .toJS();
-    this.setState({ openCreate: true, parseRecordIds: filteredSelected });
-  };
-  handleCancelCreate = () => {
-    this.setState({ openCreate: false });
-  };
-
   render() {
     console.time('ErrorResumes');
     const { parseRecordList, classes, t } = this.props;
@@ -312,8 +309,6 @@ class ErrorResumes extends React.Component {
       filters,
       processing,
       bulkDelete,
-      openCreate,
-      parseRecordIds,
     } = this.state;
     const filteredParseRecordList = indexList.map((index) =>
       parseRecordList.get(index)
@@ -341,7 +336,7 @@ class ErrorResumes extends React.Component {
                 size="small"
                 className={clsx({ [classes.flash]: flashing })}
               >
-                {parseRecordList.size.toLocaleString()} {t('tab:Error Resumes')}
+                {parseRecordList.size.toLocaleString()} {'Error Resumes'}
               </Button>
             </Tooltip>
           </div>
@@ -360,35 +355,24 @@ class ErrorResumes extends React.Component {
                 className="horizontal-layout align-middle item-padding"
                 style={{ height: 56 }}
               >
-                <Typography variant="h6">{t('tab:Error Resume')}</Typography>
-                {filteredSelected.size > 0 && (
-                  <Typography variant="h6">
-                    {filteredSelected.size.toLocaleString()} selected
-                  </Typography>
-                )}
-
+                <Typography variant="h6">{'Error Resume'}</Typography>
                 <div className="flex-child-auto" />
 
-                <div className="item-padding horizontal-layout">
-                  <PrimaryButton
-                    onClick={this.handleBulkCreateTalents}
-                    disabled={!filteredSelected.size}
-                    processing={processing}
-                    style={{ width: 160 }}
-                    size="small"
+                <div className="item-padding">
+                  <div
+                    className={classes.wrapper}
+                    ref={(el) => (this.anchorEl = el)}
                   >
-                    {t('action:createTalents')}
-                  </PrimaryButton>
-
-                  <PrimaryButton
-                    onClick={this.handleBulkDelete}
-                    disabled={!filteredSelected.size}
-                    processing={processing}
-                    style={{ width: 160 }}
-                    size="small"
-                  >
-                    {t('action:bulkDelete')}
-                  </PrimaryButton>
+                    <PrimaryButton
+                      onClick={this.handleBulkDelete}
+                      disabled={!filteredSelected.size}
+                      processing={processing}
+                      style={{ width: 160 }}
+                      size="small"
+                    >
+                      {t('action:bulkDelete')}
+                    </PrimaryButton>
+                  </div>
                 </div>
                 <Tooltip title={t('action:refresh')} disableFocusListener>
                   <IconButton onClick={this.handleRefresh} size="small">
@@ -440,22 +424,6 @@ class ErrorResumes extends React.Component {
           okLabel={t('action:confirm')}
           cancelLabel={t('action:cancel')}
         />
-
-        <Dialog
-          open={openCreate}
-          maxWidth="md"
-          PaperProps={{
-            style: {
-              overflow: 'visible',
-            },
-          }}
-        >
-          <BulkCreateTalents
-            parseRecordIds={parseRecordIds}
-            t={t}
-            onClose={this.handleCancelCreate}
-          />
-        </Dialog>
       </>
     );
   }

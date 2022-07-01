@@ -26,7 +26,7 @@ import Loading from '../../../components/particial/Loading';
 import CreateCandidateButton from './CreateCandidateButton';
 import AddEmailBlastButton from '../List/AddEmailBlastButton';
 import AddTalentsToHotListButton from '../List/AddTalentsToHotListButton';
-
+import Tooltip from '@material-ui/core/Tooltip';
 import AllTable from './table/candidateMyTable';
 import SearchBox from './search/index';
 
@@ -186,12 +186,16 @@ class CandidateListMy extends React.PureComponent {
               {total ? total : 0} {t('common:results')}
             </Typography>
             <AddTalentsToHotListButton talentIds={selected} {...props} t={t} />
-            <IconButton
-              disabled={selected.size === 0}
-              onClick={this.handleSendEmailToTalents}
-            >
-              <MailIcon />
-            </IconButton>
+            <Tooltip title={'Email to candidates'}>
+              <span>
+                <IconButton
+                  disabled={selected.size === 0}
+                  onClick={this.handleSendEmailToTalents}
+                >
+                  <MailIcon />
+                </IconButton>
+              </span>
+            </Tooltip>
             <AddEmailBlastButton talentIds={selected} {...props} t={t} />
 
             <span className={classes.horizontalDivider} />
@@ -204,7 +208,7 @@ class CandidateListMy extends React.PureComponent {
                   color="primary"
                 />
               }
-              label={t('tab:Candidates with Resume')}
+              label={t('Candidates with Resume')}
             />
           </div>
 
@@ -220,7 +224,7 @@ class CandidateListMy extends React.PureComponent {
                   general: e.target.value,
                 });
               }}
-              placeholder={this.props.t('tab:Search Candidates')}
+              placeholder="Search Candidates"
               startAdornment={
                 <InputAdornment color="disabled" position="start">
                   <SearchIcon style={{ fontSize: 18 }} />
@@ -228,9 +232,7 @@ class CandidateListMy extends React.PureComponent {
               }
             />
             <span onClick={this.handleShow} style={{ ...styles.show }}>
-              {showFilter
-                ? this.props?.t('tab:Hide Filters')
-                : this.props?.t('tab:Show Filters')}
+              {showFilter ? 'Hide Filters' : 'Show Filters'}
             </span>
           </div>
         </div>

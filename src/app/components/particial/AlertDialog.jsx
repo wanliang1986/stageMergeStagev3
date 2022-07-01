@@ -15,26 +15,17 @@ class AlertDialog extends React.PureComponent {
     processing: false,
   };
 
-  componentDidUpdate(
-    prevProps: Readonly<P>,
-    prevState: Readonly<S>,
-    snapshot: SS
-  ) {
-    if (!this.props.onOK && this.state.processing) {
-      this.setState({ processing: false });
-    }
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    this.setState({ processing: false });
   }
 
   handleSubmit = () => {
     this.setState({ processing: true });
-    clearTimeout(this.timeout);
-    this.timeout = setTimeout(() => {
-      try {
-        this.props.onOK();
-      } catch (e) {
-        this.setState({ processing: false });
-      }
-    }, 100);
+    try {
+      this.props.onOK();
+    } catch (e) {
+      this.setState({ processing: false });
+    }
   };
 
   render() {
@@ -45,13 +36,13 @@ class AlertDialog extends React.PureComponent {
         onClose={onCancel}
         aria-labelledby="delete-team-title"
         aria-describedby="delete-team-description"
-        mixWidth="sm"
+        maxWidth="sm"
         fullWidth
         open={!!onOK}
       >
         <DialogTitle id="delete-team-title">{title}</DialogTitle>
 
-        <DialogContent style={{ padding: '8px 12px' }}>
+        <DialogContent>
           <DialogContentText component="div" id="delete-team-description">
             {content}
           </DialogContentText>
@@ -64,7 +55,6 @@ class AlertDialog extends React.PureComponent {
           <PrimaryButton
             onClick={this.handleSubmit}
             processing={this.state.processing}
-            disabled={!onOK}
             size="small"
           >
             {okLabel}

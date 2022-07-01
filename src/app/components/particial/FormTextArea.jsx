@@ -3,8 +3,6 @@
  */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Tooltip } from '@material-ui/core';
-import InfoIcon from '@material-ui/icons/Info';
 
 class FormTextArea extends Component {
   render() {
@@ -15,7 +13,6 @@ class FormTextArea extends Component {
       isRequired,
       errorMessage,
       textAreaRef,
-      isIcon,
       ...otherProps
     } = this.props;
 
@@ -27,24 +24,6 @@ class FormTextArea extends Component {
           {label}
           {isRequired && (
             <span style={{ color: 'red', paddingLeft: '4px' }}>*</span>
-          )}
-          {isIcon && (
-            <>
-              <Tooltip title={this.props.tooltip} arrow placement="top">
-                {this.props.icon ? (
-                  this.props.icon
-                ) : (
-                  <InfoIcon
-                    style={{
-                      fontSize: '15px',
-                      color: '#bdbdbd',
-                      verticalAlign: 'middle',
-                      marginLeft: '5px',
-                    }}
-                  />
-                )}
-              </Tooltip>
-            </>
           )}
           <textarea
             ref={textAreaRef}

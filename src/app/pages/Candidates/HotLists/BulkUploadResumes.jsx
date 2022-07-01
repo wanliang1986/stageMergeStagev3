@@ -132,8 +132,7 @@ class UploadResumes extends React.Component {
           />
         )}
         <Typography variant="h6" gutterBottom>
-          {t('tab:Processing Resumes')}
-          {`(${resumeFiles.length} resumes)`}
+          Processing Resumes {`(${resumeFiles.length} resumes)`}
         </Typography>
 
         <div>
@@ -157,13 +156,16 @@ class UploadResumes extends React.Component {
               <Typography variant="subtitle2" color="secondary">
                 {this.state.error.length} &nbsp;
               </Typography>
-              <Typography variant="subtitle2">{t('tab:Error')}</Typography>
+              <Typography variant="subtitle2">Error</Typography>
             </div>
             <Typography variant="body2">
               {this.state.error.map(({ fileName }) => `${fileName}`).join(', ')}
               &nbsp;&nbsp; failed
             </Typography>
-            <Typography variant="body2">{t('tab:ErrorResumes')}</Typography>
+            <Typography variant="body2">
+              On "Error Resumes" page, click on each pending resume to edit the
+              profile and finish creating candidates.
+            </Typography>
           </div>
         )}
         <div className="horizontal-layout">

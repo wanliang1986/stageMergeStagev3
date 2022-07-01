@@ -121,7 +121,7 @@ const contents_en = {
 };
 const contents_zh = {
   topics: [
-    '首次电访',
+    'Cold Call',
     '拿简历',
     '电话背调',
     '不看机会',
@@ -131,7 +131,7 @@ const contents_zh = {
     '安排面试',
   ],
   scripts: {
-    首次电访:
+    'Cold Call':
       '•\t您好XX, 我是XXX咨询的猎头XX, 专注在XXX领域的猎头（我的同事XX曾经与您沟通过）\n' +
       '•\t请问您还在XX公司，做XX岗位吗？我想了解一下根据您未来的规划，对什么样的机会比较感兴趣？\n' +
       '•\t能简单介绍一下您的背景吗？（了解工作经历及学历背景）\n' +
@@ -215,7 +215,7 @@ class PhoneCallScripts extends React.Component {
         </Typography>
         <div>
           <Typography variant="subtitle1" className={classes.subTitle}>
-            {t('common:Topic')}
+            Topic
           </Typography>
           <div className={classes.buttonContainer}>
             {contents.topics.map((topic) => (

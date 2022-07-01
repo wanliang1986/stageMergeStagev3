@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { withTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { asyncPool } from '../../../../utils/asyncPool';
 import {
   jobChartSearch,
   getCountryList,
@@ -18,7 +17,6 @@ import PotentialButton from '../../../components/particial/PotentialButton';
 import Select from 'react-select';
 import { Bar } from 'react-chartjs-2';
 import FormReactSelectContainer from '../../../components/particial/FormReactSelectContainer';
-import { showErrorMessage } from '../../../actions';
 
 const options = {
   legend: {
@@ -85,7 +83,7 @@ class JobChart extends Component {
   componentDidMount() {
     this.getCountryList();
     this.getCompanyList();
-    this.fetchDataForJob().catch(console.error);
+    this.fetchDataForJob();
   }
 
   getCountryList = () => {
@@ -99,7 +97,17 @@ class JobChart extends Component {
           countryList: this.state.countryList.concat(arr),
         });
       })
-      .catch((err) => dispatch(showErrorMessage(err)));
+      .catch((error) => {
+        if (error?.message) {
+          dispatch({
+            type: 'add_message',
+            message: {
+              message: error.message,
+              type: 'error',
+            },
+          });
+        }
+      });
   };
 
   getCompanyList = () => {
@@ -113,58 +121,58 @@ class JobChart extends Component {
           companyList: this.state.companyList.concat(arr),
         });
       })
-      .catch((err) => dispatch(showErrorMessage(err)));
+      .catch((error) => {
+        if (error?.message) {
+          dispatch({
+            type: 'add_message',
+            message: {
+              message: error.message,
+              type: 'error',
+            },
+          });
+        }
+      });
   };
 
-  fetchDataForJob = async (company, country) => {
-    const months = this._getMonths();
-    // console.log('months', months);
-
-    const data = await asyncPool(4, months, (month) => {
-      let and = [
-        { and: [{ postingTime: { gte: month.start, lte: month.end } }] },
-      ];
-      if (company !== 'All') {
-        and.push({ or: [{ companyId: company }] });
-      }
-      if (country !== 'All') {
-        and.push({ or: [{ location: country }] });
-      }
-      const time = JSON.stringify({ and });
-      let params = {
-        pageSize: 600,
-        pageNumber: 1,
-        module: 'REPORTS',
-        condition: time,
-        timezone: moment.tz.guess(),
-      };
-
-      return this._searchAllJobs(params);
-    });
-    // console.log(data);
-    this.setState({
-      loading: false,
-      tableData: data.flat(),
-    });
-  };
-
-  _searchAllJobs = (params) => {
+  fetchDataForJob = (company, country) => {
     const { dispatch } = this.props;
-    return jobChartSearch(params)
-      .then(({ response }) => response)
-      .catch((err) => dispatch(showErrorMessage(err)));
-  };
-  _getMonths = () => {
-    let end = moment(new Date()).format('YYYY-MM-DD');
-    let start = moment(end).startOf('weeks').format('YYYY-MM-DD');
-    const months = [{ end, start }];
-    for (let i = 0; i < 30; i++) {
-      end = start;
-      start = moment(end).subtract('2', 'weeks').format('YYYY-MM-DD');
-      months.push({ end, start });
+    const now = moment(new Date()).format('YYYY-MM-DD');
+    const preYears = moment(now).subtract('1', 'years').format('YYYY-MM-DD');
+    let and = [{ and: [{ postingTime: { gte: preYears, lte: now } }] }];
+    if (company != 'All') {
+      and.push({ or: [{ companyId: company }] });
     }
-    return months;
+    if (country != 'All') {
+      and.push({ or: [{ location: country }] });
+    }
+    const time = JSON.stringify({ and });
+    let params = {
+      pageSize: 10000,
+      pageNumber: 1,
+      module: 'REPORTS',
+      condition: time,
+      timezone: moment.tz.guess(),
+    };
+    jobChartSearch(params)
+      .then(({ response }) => {
+        this.setState({
+          loading: false,
+          tableData: response,
+        });
+      })
+      .catch((error) => {
+        if (error?.message) {
+          dispatch({
+            type: 'add_message',
+            message: {
+              message: error.message,
+              type: 'error',
+            },
+          });
+        }
+      });
   };
+
   prepareGraphData = (dataList) => {
     // console.log('dataList', dataList);
     const dateStart = moment()
@@ -172,20 +180,20 @@ class JobChart extends Component {
       .add(1, 'days')
       .startOf('month');
     const dateEnd = moment().startOf('month');
-    const jobIds = {}; //use id maps to remove duplications
-    let issuedDate = dataList.reduce((acc, ele) => {
-      const key = moment(ele.postingTime).format('YYYY/MM');
-      // console.log(data,key);
-      if (!jobIds[ele.id]) {
-        jobIds[ele.id] = true;
+
+    let issuedDate = dataList
+      .map((ele) => ele.postingTime)
+      .reduce((acc, ele) => {
+        const key = moment(ele).format('YYYY/MM');
+        // console.log(data,key);
+
         if (acc[key]) {
           acc[key] += 1;
         } else {
           acc[key] = 1;
         }
-      }
-      return acc;
-    }, {});
+        return acc;
+      }, {});
 
     const labels = [];
 
@@ -256,8 +264,8 @@ class JobChart extends Component {
     const { t } = this.props;
 
     const graphOptions = options;
-    let companyName = companyList.filter((item) => item.value === company);
-    graphOptions.title.text = `${t('tab:Jobs By Month')} -- ${
+    let companyName = companyList.filter((item) => item.value == company);
+    graphOptions.title.text = `Jobs By Month -- ${
       companyName[0].label || country || 'All'
     }`;
     const jobData = this.state.tableData
@@ -277,9 +285,9 @@ class JobChart extends Component {
               alignItems: 'center',
             }}
           >
-            <Typography variant="h5">{t('tab:Analysis Graph')}</Typography>
+            <Typography variant="h5">{t('message:Analysis Graph')}</Typography>
             <PotentialButton component="a" onClick={this.downloadCanvas}>
-              {t('tab:Download as image')}
+              Download as image
             </PotentialButton>
           </div>
           <Divider />

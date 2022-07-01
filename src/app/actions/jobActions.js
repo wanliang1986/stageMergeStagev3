@@ -243,6 +243,150 @@ export const editJobNote = (note, id) => (dispatch) => {
     });
 };
 
+export const searchMyJobList =
+  (page, size, search, sort, advancedSearch) => (dispatch, getState) => {
+    if (getState().controller.searchJobs.my.isFetching) {
+      return Promise.resolve('loading...');
+    }
+    dispatch({
+      type: ActionTypes.REQUEST_JOB_LIST,
+      tab: 'my',
+    });
+    return apnSDK
+      .searchMyJobList(page, size, search, sort, advancedSearch)
+      .then(({ response, headers }) => {
+        console.log('my jobs', response);
+        // headers.forEach(value=>console.log(value))
+        const normalizedData = normalize(response, [jobBasic]);
+        dispatch({
+          type: ActionTypes.RECEIVE_JOB_LIST,
+          tab: 'my',
+          normalizedData,
+          total: parseInt(headers.get('pagination-count'), 10),
+        });
+        dispatch({
+          type: ActionTypes.ADD_MY_JOBS,
+          ids: normalizedData.result,
+        });
+      })
+      .catch((err) => {
+        dispatch({
+          type: ActionTypes.FAILURE_JOB_LIST,
+          tab: 'my',
+        });
+        dispatch(showErrorMessage(err));
+      });
+  };
+export const loadMoreMyJobList =
+  (page, size, search, sort, advancedSearch) => (dispatch, getState) => {
+    if (getState().controller.searchJobs.my.isFetching) {
+      return Promise.resolve('loading...');
+    }
+    dispatch({
+      type: ActionTypes.REQUEST_JOB_LIST,
+      tab: 'my',
+    });
+    return apnSDK
+      .searchMyJobList(page, size, search, sort, advancedSearch)
+      .then(({ response, headers }) => {
+        console.log('my jobs', response);
+        const normalizedData = normalize(response, [jobBasic]);
+        dispatch({
+          type: ActionTypes.ADD_JOBS_TO_LIST,
+          tab: 'my',
+          ids: normalizedData.result,
+          normalizedData,
+        });
+        dispatch({
+          type: ActionTypes.ADD_MY_JOBS,
+          ids: normalizedData.result,
+        });
+      })
+      .catch((err) => {
+        dispatch({
+          type: ActionTypes.FAILURE_JOB_LIST,
+          tab: 'my',
+        });
+        dispatch(showErrorMessage(err));
+      });
+  };
+
+export const getFavoriteJobList = () => (dispatch, getState) => {
+  if (getState().controller.searchJobs.favor.isFetching) {
+    return Promise.resolve('loading...');
+  }
+  // loadingFavoriteJobs = true;
+  dispatch({
+    type: ActionTypes.REQUEST_JOB_LIST,
+    tab: 'favor',
+  });
+  return apnSDK
+    .getFavoriteJobList()
+    .then(({ response }) => {
+      // loadingFavoriteJobs = false;
+      const normalizedData = normalize(response, [jobBasic]);
+      // console.log(response, normalizedData);
+      dispatch({
+        type: ActionTypes.RECEIVE_JOB_LIST,
+        tab: 'favor',
+        normalizedData,
+      });
+    })
+    .catch((err) => {
+      dispatch({
+        type: ActionTypes.FAILURE_JOB_LIST,
+        tab: 'favor',
+      });
+      throw err;
+    });
+};
+
+export const addFavoriteJob = (jobIds) => (dispatch, getState) => {
+  const oldIds = (
+    getState().controller.searchJobs.favor.ids || Immutable.List()
+  ).toArray();
+
+  dispatch({
+    type: ActionTypes.ADD_JOBS_TO_LIST,
+    tab: 'favor',
+    ids: jobIds,
+  });
+
+  return apnSDK.addFavoriteJobs(jobIds).catch((err) => {
+    dispatch({
+      type: ActionTypes.RECEIVE_JOB_LIST,
+      tab: 'favor',
+      normalizedData: {
+        result: oldIds,
+        entities: {},
+      },
+    });
+  });
+};
+
+export const deleteFavoriteJob = (jobIds) => (dispatch, getState) => {
+  const oldIds = (
+    getState().controller.searchJobs.favor.ids || Immutable.List()
+  ).toArray();
+
+  dispatch({
+    type: ActionTypes.DELETE_JOBS_FROM_LIST,
+    tab: 'favor',
+    ids: jobIds,
+  });
+
+  return apnSDK.deleteFavoriteJobs(jobIds).catch((err) => {
+    dispatch({
+      type: ActionTypes.RECEIVE_JOB_LIST,
+      tab: 'favor',
+      normalizedData: {
+        result: oldIds,
+        entities: {},
+      },
+    });
+  });
+};
+
 export const getAIRecommendedJobList =
   (talentId, page, pageStatus) => (dispatch, getState) => {
     return apnSDK.getRecommendedJobList(talentId, page).then(({ response }) => {

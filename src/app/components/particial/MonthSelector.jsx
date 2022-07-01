@@ -16,7 +16,7 @@ import PrimaryButton from './PrimaryButton';
 const styles = {
   root: {
     width: 320,
-    padding: '4px 8px'
+    padding: '4px 8px',
   },
   monthButton: {
     width: '100%',
@@ -24,8 +24,8 @@ const styles = {
     minWidth: 0,
     marginTop: 4,
     marginBottom: 8,
-    display: 'block'
-  }
+    display: 'block',
+  },
 };
 
 class MonthSelector extends React.Component {
@@ -37,7 +37,7 @@ class MonthSelector extends React.Component {
     this.onResetYear = this.onResetYear.bind(this);
 
     this.state = {
-      year: props.year
+      year: props.year,
     };
   }
 
@@ -52,7 +52,7 @@ class MonthSelector extends React.Component {
   onSelect(month) {
     this.props.onSelect({
       month,
-      year: this.state.year
+      year: this.state.year,
     });
   }
 
@@ -72,9 +72,7 @@ class MonthSelector extends React.Component {
             style={styles.monthButton}
             disabled={disabled}
           >
-            {moment()
-              .month(month)
-              .format('MMM')}
+            {moment().month(month).format('MMM')}
           </PrimaryButton>
         ) : (
           <PotentialButton
@@ -82,9 +80,7 @@ class MonthSelector extends React.Component {
             style={styles.monthButton}
             disabled={disabled}
           >
-            {moment()
-              .month(month)
-              .format('MMM')}
+            {moment().month(month).format('MMM')}
           </PotentialButton>
         )}
       </div>
@@ -122,7 +118,7 @@ class MonthSelector extends React.Component {
 MonthSelector.propTypes = {
   onSelect: PropTypes.func.isRequired,
   month: PropTypes.number.isRequired,
-  year: PropTypes.number.isRequired
+  year: PropTypes.number.isRequired,
 };
 
 class MonthSelectorButton extends React.Component {
@@ -130,7 +126,7 @@ class MonthSelectorButton extends React.Component {
     super(props);
     this.state = {
       value: props.value,
-      open: false
+      open: false,
     };
   }
 
@@ -140,7 +136,7 @@ class MonthSelectorButton extends React.Component {
     }
   }
 
-  handleClick = event => {
+  handleClick = (event) => {
     // This prevents ghost click.
     event.preventDefault();
     this.setState({ open: true });
@@ -157,12 +153,12 @@ class MonthSelectorButton extends React.Component {
     }
     this.setState({ value, open: false });
   };
-  onBlur = e => {
+  onBlur = (e) => {
     if (e.target.value !== this.props.value) {
       this.props.onChange(e.target.value);
     }
   };
-  onSubmit = e => {
+  onSubmit = (e) => {
     e.preventDefault();
     // e.target.month.blur();
     if (e.target.month.value !== this.props.value) {
@@ -174,7 +170,7 @@ class MonthSelectorButton extends React.Component {
     const { onChange, ...props } = this.props;
     const { value } = this.state;
     return (
-      <div ref={root => (this.root = root)}>
+      <div ref={(root) => (this.root = root)}>
         <div className="flex-container align-middle foundation">
           <form onSubmit={this.onSubmit}>
             <input
@@ -183,7 +179,7 @@ class MonthSelectorButton extends React.Component {
               name="month"
               placeholder="yyyy-mm"
               value={value}
-              onChange={e => this.setState({ value: e.target.value })}
+              onChange={(e) => this.setState({ value: e.target.value })}
               onBlur={this.onBlur}
             />
           </form>

@@ -25,13 +25,12 @@ import {
 } from './params';
 import LinkButton from '../particial/LinkButton';
 import { jobType, templateTypes2 } from '../../constants/formOptions';
-import { withTranslation } from 'react-i18next';
 
-const NameButtonCell = ({ rowIndex, data, col, onEdit, t, ...props }) => {
+const NameButtonCell = ({ rowIndex, data, col, onEdit, ...props }) => {
   const id = data.getIn([rowIndex, 'id']);
 
   if (id) {
-    const text = data.getIn([rowIndex, col]) || t('tab:Untitled');
+    const text = data.getIn([rowIndex, col]) || 'Untitled';
     return (
       <Cell {...props}>
         <div
@@ -145,7 +144,6 @@ class TemplateTable extends React.PureComponent {
       selected,
       onSelect,
       openSendEmailForm,
-      t,
     } = this.props;
 
     return (
@@ -207,7 +205,6 @@ class TemplateTable extends React.PureComponent {
                     col={column.col}
                     style={style.displayCell}
                     openSendEmailForm={openSendEmailForm}
-                    t={this.props.t}
                   />
                 }
                 width={column.colWidth}
@@ -220,7 +217,7 @@ class TemplateTable extends React.PureComponent {
                 header={
                   <Cell style={style.headerCell}>
                     <div style={style.headerText}>
-                      {t('tab:Action')}
+                      Action
                       {filterOpen && <br />}
                     </div>
                   </Cell>
@@ -283,4 +280,4 @@ TemplateTable.propTypes = {
   onDelete: PropTypes.func,
 };
 
-export default withTranslation('tab')(withStyles(style)(TemplateTable));
+export default withStyles(style)(TemplateTable);

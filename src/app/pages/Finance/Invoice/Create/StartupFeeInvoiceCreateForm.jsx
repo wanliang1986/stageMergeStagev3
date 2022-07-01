@@ -35,10 +35,6 @@ const invoiceTypeList = [
   { value: 'STARTUP_FEE', label: 'Startup Fee Invoice' },
   { value: 'FTE', label: 'FTE' },
 ];
-const currencyLabels = currencyOptions.reduce((res, v) => {
-  res[v.value] = v.label;
-  return res;
-}, {});
 
 class StartupFeeInvoiceCreateForm extends React.Component {
   constructor(props) {
@@ -202,7 +198,7 @@ class StartupFeeInvoiceCreateForm extends React.Component {
             style={{ overflow: 'auto' }}
           >
             <Typography variant="h5" style={{ marginBottom: '10px' }}>
-              {t('tab:Invoice')} #
+              Invoice #
             </Typography>
             <div className="row expanded">
               <div className="small-4 columns">
@@ -221,7 +217,6 @@ class StartupFeeInvoiceCreateForm extends React.Component {
                     autoBlur={true}
                     clearable={false}
                     openOnFocus={true}
-                    placeholder={t('tab:select')}
                   />
                 </FormReactSelectContainer>
                 <input type="hidden" name="companyId" value={companyId || ''} />
@@ -250,7 +245,6 @@ class StartupFeeInvoiceCreateForm extends React.Component {
                     autoBlur={true}
                     clearable={false}
                     openOnFocus={true}
-                    placeholder={t('tab:select')}
                   />
                 </FormReactSelectContainer>
                 <input
@@ -275,7 +269,6 @@ class StartupFeeInvoiceCreateForm extends React.Component {
                     clearable={false}
                     autoBlur={true}
                     onFocus={() => this.removeErrorMessage('division')}
-                    placeholder={t('tab:select')}
                   />
                 </FormReactSelectContainer>
                 <input
@@ -358,14 +351,13 @@ class StartupFeeInvoiceCreateForm extends React.Component {
                   errorMessage={errorMessage.get('dueAmount')}
                 >
                   <NumberFormat
-                    decimalScale={2}
+                    decimalScale={0}
                     thousandSeparator
-                    prefix={currencyLabels[currency]}
+                    prefix={currency === 'USD' ? '$' : '¥'}
                     value={this.state.dueAmount}
                     onValueChange={(values) =>
                       this.setState({ dueAmount: values.value })
                     }
-                    allowNegative={false}
                   />
                 </FormReactSelectContainer>
                 <input
@@ -377,7 +369,6 @@ class StartupFeeInvoiceCreateForm extends React.Component {
               <div className="small-4 columns">
                 <FormReactSelectContainer label="&nbsp;">
                   <Select
-                    labelKey={'label3'}
                     value={this.state.currency}
                     onChange={(currency) =>
                       currency && this.setState({ currency })

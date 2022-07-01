@@ -3,8 +3,11 @@ import PropTypes from 'prop-types';
 import Immutable from 'immutable';
 import { ADD_MESSAGE } from '../../../../constants/actionTypes';
 import { Trans } from 'react-i18next';
-import { getMemoFromApplication } from '../../../../../utils';
-import { getTalent } from '../../../../actions/talentActions';
+import { makeCancelable, getMemoFromApplication } from '../../../../../utils';
+import {
+  getResumesByTalentId,
+  getTalent,
+} from '../../../../actions/talentActions';
 import { addApplicationPayrolling } from '../../../../actions/applicationActions';
 import { showErrorMessage } from '../../../../actions';
 import { createApplicationOfferLetter } from '../../../../../apn-sdk';
@@ -24,7 +27,6 @@ import ApplicationInfo from '../../views/ApplicationInfo';
 import Loading from '../../../particial/Loading';
 import FormInput from '../../../particial/FormInput';
 import PayrollingForm from '../AddActivityOfferAcceptedForm/Payrolling';
-import ResumeSelector from '../ResumeSelector';
 
 const styles = {
   candidateSec: {
@@ -43,6 +45,7 @@ class OfferAcceptedFrom extends Component {
         applicationOfferLetter: Immutable.Map(),
       }),
       errorMessage: Immutable.Map(),
+      selectedResume: this._getResume(props),
       note: '',
       applicationCommissions: this._getApplicationCommissions(props),
       fetching: true,
@@ -55,13 +58,31 @@ class OfferAcceptedFrom extends Component {
     const { talentId, dispatch, isTalentDetail } = this.props;
     if (!isTalentDetail) {
       dispatch(getTalent(talentId));
+
+      this.resumeTask = makeCancelable(
+        dispatch(getResumesByTalentId(talentId))
+      );
+      this.resumeTask.promise.then(() => {
+        this.setState({ selectedResume: this._getResume(this.props) });
+      });
     }
+  };
+  _getResume = ({ resumeId, resumeList }) => {
+    return resumeId
+      ? resumeList.find((value) => value.id === resumeId)
+      : resumeList[0];
   };
 
   componentDidMount() {
     this.fetchData();
     if (this.props.handleMaxWidth) {
       this.props.handleMaxWidth(720);
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.resumeTask) {
+      this.resumeTask.cancel();
     }
   }
 
@@ -78,7 +99,7 @@ class OfferAcceptedFrom extends Component {
   submitAddCandidateActivity = (e) => {
     e.preventDefault();
     const submitForm = e.target;
-    const { note } = this.state;
+    const { selectedResume, note } = this.state;
     const { t, dispatch, onSubmitSuccess, jobId, talentId } = this.props;
     const { applicationCommissions } = this.state;
 
@@ -100,7 +121,7 @@ class OfferAcceptedFrom extends Component {
     const newApplication = {
       talentId: talentId,
       jobId: jobId,
-      resumeId: submitForm.resumeId.value || null,
+      resumeId: selectedResume && selectedResume.id,
       memo: note,
       applicationCommissions,
       applicationOfferLetter,
@@ -411,15 +432,6 @@ class OfferAcceptedFrom extends Component {
               </div>
             </div>
           </section>
-          <ResumeSelector
-            hidden
-            key={props.talentId}
-            talentId={props.talentId}
-            t={t}
-            isTalentDetail={props.isTalentDetail}
-            errorMessage={errorMessage}
-            removeErrorMessage={this._removeErrorMsgHandler}
-          />
         </form>
       </>
     );

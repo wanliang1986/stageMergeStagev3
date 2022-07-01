@@ -53,7 +53,7 @@ const styles = {
   },
   dialog: {
     width: 320,
-    height: 220,
+    height: 300,
     overflowY: 'auto',
     position: 'absolute',
     left: 0,
@@ -104,8 +104,7 @@ const CandidateWorkAuth = ({
   const [data, setData] = useState([]);
   const [errorMessage, setErrorMessage] = useState(['']);
   const { candidateSelect } = useSelector((state) => state.controller);
-  const { workAuthList, jobFounctionList, jobFounctionListZh } =
-    candidateSelect.toJS();
+  const { workAuthList, jobFounctionList } = candidateSelect.toJS();
   const [selecteds, setSelecteds] = useState([]);
   useEffect(() => {
     if (error) {
@@ -126,7 +125,7 @@ const CandidateWorkAuth = ({
       if (language) {
         List = jobFounctionList;
       } else {
-        List = jobFounctionListZh;
+        List = jobFounctionList;
       }
     }
     filterOthers(List);
@@ -164,7 +163,7 @@ const CandidateWorkAuth = ({
       if (language) {
         List2 = jobFounctionList;
       } else {
-        List2 = jobFounctionListZh;
+        List2 = jobFounctionList;
       }
     }
     if (data.length) {

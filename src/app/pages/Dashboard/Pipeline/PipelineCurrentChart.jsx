@@ -11,68 +11,68 @@ const statusOptions = [
   {
     value: 'applied',
     label: 'Submitted to AM',
-    color: '#ff6384'
+    color: '#ff6384',
   },
   {
     value: 'submitted',
     label: 'Submitted to Client',
-    color: '#36a2eb'
+    color: '#36a2eb',
   },
   {
     value: 'interview',
     label: 'Interview',
-    color: '#cc65fe'
+    color: '#cc65fe',
   },
   {
     value: 'offered',
     label: 'Offered',
-    color: '#ffce56'
+    color: '#ffce56',
   },
   {
     value: 'started',
     label: 'On board',
-    color: '#26ff23'
-  }
+    color: '#26ff23',
+  },
 ];
 const chartOptions = {
   legend: {
-    display: false
+    display: false,
   },
   scales: {
     yAxes: [
       {
         ticks: {
-          beginAtZero: true
+          beginAtZero: true,
           // stepSize: 1
         },
 
-        stacked: true
-      }
+        stacked: true,
+      },
     ],
     xAxes: [
       {
         stacked: true,
         gridLines: {
-          display: false
-        }
-      }
-    ]
+          display: false,
+        },
+      },
+    ],
   },
   layout: {
     padding: {
       left: 0,
       right: 0,
       top: 0,
-      bottom: 0
-    }
+      bottom: 0,
+    },
   },
   events: ['click'],
   tooltips: {
     // enabled: false
   },
   hover: {
-    mode: 'nearest'
-  }
+    mode: 'nearest',
+  },
 };
 const columns = statusOptions.reduce((res, option) => {
   res[option.value] = [
@@ -81,62 +81,62 @@ const columns = statusOptions.reduce((res, option) => {
       colWidth: 200,
       col: 'talentName',
       type: 'talentNameLink',
-      fixed: true
+      fixed: true,
     },
     {
       colName: 'Current Status',
       colWidth: 170,
-      col: 'latestActivityStatusDesc'
+      col: 'latestActivityStatusDesc',
     },
     {
       colName: `Date of ${option.label}`,
       colWidth: 160,
       col: `${option.value}Date`,
-      type: 'date'
+      type: 'date',
     },
 
     {
       colName: 'jobTitle',
       colWidth: 200,
-      col: 'title'
+      col: 'title',
     },
     {
       colName: 'Job Status',
       colWidth: 120,
       flexGrow: 1,
-      col: 'status'
+      col: 'status',
     },
     {
       colName: 'Job Id',
       colWidth: 180,
       flexGrow: 1,
-      col: 'jobId'
+      col: 'jobId',
     },
     {
       colName: 'Client Job Code',
       colWidth: 180,
       flexGrow: 1,
-      col: 'jobRef'
+      col: 'jobRef',
     },
     {
       colName: 'hiringManager',
       colWidth: 140,
       flexGrow: 1,
-      col: 'hiringManager'
+      col: 'hiringManager',
     },
     {
       colName: 'company',
       colWidth: 160,
       flexGrow: 2,
-      col: 'company'
+      col: 'company',
     },
 
     {
       colName: 'Sourced By',
       colWidth: 150,
       flexGrow: 1,
-      col: 'appliedBy'
-    }
+      col: 'appliedBy',
+    },
   ];
 
   return res;
@@ -148,64 +148,64 @@ const columns2 = statusOptions.reduce((res, option) => {
       colWidth: 200,
       col: 'talentName',
       type: 'talentNameLink',
-      fixed: true
+      fixed: true,
     },
     {
       colName: 'Current Status',
       colWidth: 170,
-      col: 'latestActivityStatusDesc'
+      col: 'latestActivityStatusDesc',
     },
     {
       colName: `Date of ${option.label}`,
       colWidth: 160,
       col: `${option.value}Date`,
-      type: 'date'
+      type: 'date',
     },
 
     {
       colName: 'jobTitle',
       colWidth: 200,
-      col: 'title'
+      col: 'title',
     },
     {
       colName: 'Job Status',
       colWidth: 120,
       flexGrow: 1,
-      col: 'status'
+      col: 'status',
     },
     {
       colName: 'Job Id',
       colWidth: 180,
       flexGrow: 1,
-      col: 'jobId'
+      col: 'jobId',
     },
     {
       colName: 'Client Job Code',
       colWidth: 180,
       flexGrow: 1,
-      col: 'jobRef'
+      col: 'jobRef',
     },
     {
       colName: 'company',
       colWidth: 160,
       flexGrow: 2,
-      col: 'company'
+      col: 'company',
     },
 
     {
       colName: 'Sourced By',
       colWidth: 150,
       flexGrow: 1,
-      col: 'appliedBy'
-    }
+      col: 'appliedBy',
+    },
   ];
 
   return res;
 }, {});
 const styles = {
   hidden: {
-    maxHeight: 0
-  }
+    maxHeight: 0,
+  },
 };
 
 class PipelineCurrentChart extends React.Component {
@@ -217,20 +217,20 @@ class PipelineCurrentChart extends React.Component {
     this.state = {
       chartData: {
         labels: [],
-        datasets: []
+        datasets: [],
       },
       origin: {
         applied: [],
         submitted: [],
         interview: [],
         offered: [],
-        started: []
+        started: [],
       },
       index: 0,
       datasetIndex: 0,
       selectedData: Immutable.List(),
       selectedStatus: 'applied',
-      options: chartOptions
+      options: chartOptions,
     };
   }
 
@@ -244,11 +244,11 @@ class PipelineCurrentChart extends React.Component {
           this.state.origin[statusOptions[_index].value]
         ),
         index: _index,
-        datasetIndex: _datasetIndex
+        datasetIndex: _datasetIndex,
       });
     } else {
       this.setState({
-        selectedData: Immutable.List()
+        selectedData: Immutable.List(),
       });
     }
   };
@@ -257,18 +257,20 @@ class PipelineCurrentChart extends React.Component {
     this.fetchData();
   }
 
-  fetchData = blockTimerPromise => {
+  fetchData = (blockTimerPromise) => {
     getDashboardPipeline({})
-      .then(response => {
+      .then((response) => {
         const chartData = {
-          labels: statusOptions.map(status => status.label),
+          labels: statusOptions.map((status) => status.label),
           datasets: [
             {
-              data: statusOptions.map(status => response[status.value].length),
+              data: statusOptions.map(
+                (status) => response[status.value].length
+              ),
               backgroundColor: '#3498DB',
-              borderColor: '#3498DB'
-            }
-          ]
+              borderColor: '#3498DB',
+            },
+          ],
         };
 
         if (blockTimerPromise) {
@@ -279,12 +281,12 @@ class PipelineCurrentChart extends React.Component {
           this.setState({ loading: false, chartData, origin: response });
         }
       })
-      .catch(err => this.setState({ loading: false }));
+      .catch((err) => this.setState({ loading: false }));
   };
 
   _blockTimer = (time = 400) => {
     this.setState({ loading: true });
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       this.bTimer = setTimeout(resolve, time);
     });
   };
@@ -295,7 +297,7 @@ class PipelineCurrentChart extends React.Component {
     return (
       <div
         className={clsx('flex-child-auto', {
-          [classes.hidden]: hidden
+          [classes.hidden]: hidden,
         })}
         style={{ overflow: 'auto' }}
       >
@@ -305,7 +307,7 @@ class PipelineCurrentChart extends React.Component {
             position: 'relative',
             width: '80vw',
             maxWidth: 800,
-            cursor: 'pointer'
+            cursor: 'pointer',
           }}
         >
           <Bar data={chartData} options={options} width={400} height={150} />

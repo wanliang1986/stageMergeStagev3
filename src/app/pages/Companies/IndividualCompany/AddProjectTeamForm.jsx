@@ -72,7 +72,9 @@ class AddTeamForm extends React.Component {
     const { currentUser } = this.props;
     const { oldTeam } = this.state;
     this.setState({
-      users: oldTeam.get('id') ? oldTeam.get('users') : Immutable.List(),
+      users: oldTeam.get('id')
+        ? oldTeam.get('companyProjectTeamUsers')
+        : Immutable.List(),
     });
   }
 
@@ -96,11 +98,11 @@ class AddTeamForm extends React.Component {
     const leaderUserId = teamForm.leaderUserId.value;
     let errorMessage = Immutable.Map();
     let hasPermissionSet = users.some((item, index) => {
-      return item.get('permissionSet').size === 0;
+      return item.get('permissions').size === 0;
     });
     if (hasPermissionSet) {
       errorMessage = errorMessage.set(
-        'permissionSet',
+        'permissions',
         t('message:Permissionset must be selected')
       );
     }
@@ -118,21 +120,21 @@ class AddTeamForm extends React.Component {
     }
     // console.log(users.toJS());
     const owner = users.filter((user) =>
-      user.get('permissionSet').includes('Owner')
+      user.get('permissions').includes('Owner')
     );
     const pRecruiter = users.filter((user) =>
-      user.get('permissionSet').includes('Admin')
+      user.get('permissions').includes('Admin')
     );
 
     if (owner.size === 0) {
       errorMessage = errorMessage.set(
-        'owner',
+        'Owner',
         t(`message:Account Manager is required. `)
       );
     }
     if (owner.size > 1) {
       errorMessage = errorMessage.set(
-        'owner',
+        'Owner',
         t(`message:Only 1 Account Manager is required. You set ${owner.size}. `)
       );
     }
@@ -153,8 +155,8 @@ class AddTeamForm extends React.Component {
 
     if (users.size === 0) {
       errorMessage = errorMessage.set(
-        'teamMember',
-        t('message:Please select group members!')
+        'users',
+        t('message:Please select group members')
       );
     }
     if (errorMessage.size > 0) {
@@ -186,7 +188,7 @@ class AddTeamForm extends React.Component {
       name: name,
       leaderUserId: leaderUserId,
       companyId: companyId,
-      users: users,
+      companyProjectTeamUsers: users,
     };
     if (team.get('id')) {
       dispatch(uploadProjectTeam(obj, team.get('id')))
@@ -231,13 +233,13 @@ class AddTeamForm extends React.Component {
     let { users, errorMessage } = this.state;
     this.setState({
       users: users.updateIn(
-        [index, 'permissionSet'],
-        (permissionSet = Immutable.List()) => {
-          let index = permissionSet.indexOf(value);
+        [index, 'permissions'],
+        (permissions = Immutable.List()) => {
+          let index = permissions.indexOf(value);
           if (index === -1) {
-            return permissionSet.push(value);
+            return permissions.push(value);
           } else {
-            return permissionSet.remove(index);
+            return permissions.remove(index);
           }
         }
       ),
@@ -253,14 +255,20 @@ class AddTeamForm extends React.Component {
 
   _createNewTeamUser = (user, permission) => {
     const { oldTeam } = this.state;
-    const oldTeamUser = oldTeam
-      .get('users')
-      .find((teamUser) => teamUser.get('userId') === user.get('id'));
-
+    let oldTeamUser;
+    if (oldTeam.get('companyProjectTeamUsers')) {
+      oldTeamUser = oldTeam
+        .get('companyProjectTeamUsers')
+        .find((teamUser) => teamUser.get('userId') === user.get('id'));
+    } else {
+      oldTeamUser = oldTeam
+        .get('users')
+        .find((teamUser) => teamUser.get('userId') === user.get('id'));
+    }
     return (
       oldTeamUser ||
       Immutable.Map({
-        permissionSet: Immutable.List([permission || 'Apply_Candidate']),
+        permissions: Immutable.List([permission || 'Apply_Candidate']),
         userId: user.get('id'),
         firstName: user.get('firstName'),
         lastName: user.get('lastName'),
@@ -295,8 +303,8 @@ class AddTeamForm extends React.Component {
     }
     let _index = this.getUser(leader, users);
     if (_index !== null) {
-      users = users.update(_index, 'permissionSet', (val) =>
-        val.updateIn(['permissionSet'], (k) => k.push('Owner'))
+      users = users.update(_index, 'permissions', (val) =>
+        val.updateIn(['permissions'], (k) => k.push('Owner'))
       );
     } else {
       users = users.push(
@@ -312,7 +320,7 @@ class AddTeamForm extends React.Component {
   getUsersOwner = (users) => {
     let ownerIndex = null;
     users.forEach((item, index) => {
-      let userSet = item.get('permissionSet').toJS();
+      let userSet = item.get('permissions').toJS();
       let type = userSet.some((val, key) => {
         return val === 'Owner';
       });
@@ -408,8 +416,7 @@ class AddTeamForm extends React.Component {
                     }}
                     options={this.state.userOptions}
                     // simpleValue
-                    onBlur={() => this.removeErrorMessage('teamLeader')}
-                    placeholder={t('tab:select')}
+                    onBlur={() => this.removeErrorMessage('name')}
                   />
                 </FormReactSelectContainer>
                 <input
@@ -428,14 +435,13 @@ class AddTeamForm extends React.Component {
                   }}
                 /> */}
                 <UserSearchSelect
-                  label={`${t('field:AssignTeamMember')}`}
+                  label={`Assign Team Member`}
                   checkedMember={users ? this.setFullName(users.toJS()) : []}
                   checkedName={users ? this.setCheckedNames(users.toJS()) : []}
                   teamMember={filteredUserList}
                   handleCheck={(user) => {
                     this.handleCheck(user);
                   }}
-                  errorMessage={errorMessage}
                 />
               </div>
             </form>
@@ -524,7 +530,7 @@ class AddTeamForm extends React.Component {
                                 <div className="columns small-2">
                                   <Checkbox
                                     checked={teamUser
-                                      .get('permissionSet')
+                                      .get('permissions')
                                       .includes('Owner')}
                                     onChange={this.handlePermission(
                                       'Owner',
@@ -537,7 +543,7 @@ class AddTeamForm extends React.Component {
                                 <div className="columns small-2">
                                   <Checkbox
                                     checked={teamUser
-                                      .get('permissionSet')
+                                      .get('permissions')
                                       .includes('Sales')}
                                     onChange={this.handlePermission(
                                       'Sales',
@@ -551,7 +557,7 @@ class AddTeamForm extends React.Component {
                                 <div className="columns small-2">
                                   <Checkbox
                                     checked={teamUser
-                                      .get('permissionSet')
+                                      .get('permissions')
                                       .includes('Delivery_Manager')}
                                     onChange={this.handlePermission(
                                       'Delivery_Manager',
@@ -564,7 +570,7 @@ class AddTeamForm extends React.Component {
                                 <div className="columns small-2">
                                   <Checkbox
                                     checked={teamUser
-                                      .get('permissionSet')
+                                      .get('permissions')
                                       .includes('Apply_Candidate')}
                                     onChange={this.handlePermission(
                                       'Apply_Candidate',
@@ -577,7 +583,7 @@ class AddTeamForm extends React.Component {
                                 <div className="columns small-2">
                                   <Checkbox
                                     checked={teamUser
-                                      .get('permissionSet')
+                                      .get('permissions')
                                       .includes('Admin')}
                                     onChange={this.handlePermission(
                                       'Admin',
@@ -609,9 +615,9 @@ class AddTeamForm extends React.Component {
                 <div className="foundation" style={{ marginTop: '20px' }}>
                   <span className="form-error is-visible">
                     {errorMessage.get('users')}
-                    {errorMessage.get('owner')}
+                    {errorMessage.get('Owner')}
                     {errorMessage.get('pRecruiter')}
-                    {errorMessage.get('permissionSet')}
+                    {errorMessage.get('permissions')}
                   </span>
                 </div>
                 {/* <form

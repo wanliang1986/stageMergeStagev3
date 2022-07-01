@@ -33,9 +33,11 @@ export const getClientListByCompany = createSelector(
   [getClients, getCompanyId],
   (clients, companyId) => {
     // console.log(clients.toJS());
-    return clients
-      .filter((client) => client.get('companyEntityId') === companyId)
-      .toList();
+    return (
+      clients
+        // .filter((client) => client.get('companyEntityId') === companyId)
+        .toList()
+    );
   }
 );
 
@@ -44,17 +46,6 @@ export const getClientContactArrayByCompany = createSelector(
   (clientContactList) => {
     // console.log(clients.toJS());
     return clientContactList.toJS();
-  }
-);
-
-export const getHasApprovedClientContactByCompany = createSelector(
-  [getClientListByCompany],
-  (clientContactList) => {
-    // console.log(clients.toJS());
-    let list = clientContactList.filter(
-      (client) => client.get('inactived') === false && client.get('approverId')
-    );
-    return list.toJS();
   }
 );
 

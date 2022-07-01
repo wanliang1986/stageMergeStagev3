@@ -1,5 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import Immutable from 'immutable';
+import {
+  getTalent,
+  getResumesByTalentId,
+} from '../../../../../actions/talentActions';
 
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -10,7 +16,25 @@ import PrimaryButton from '../../../../../components/particial/PrimaryButton';
 import AddApplicationForm from '../../../../../components/applications/forms/AddApplicationForm';
 
 class ApplyJobFromApplication extends React.PureComponent {
-  state = { processing: false };
+  constructor(props) {
+    super(props);
+    this.state = {
+      selected: Immutable.Set(),
+      stepIndex: 0,
+
+      processing: false,
+    };
+  }
+
+  componentDidMount() {
+    this.fetchData();
+  }
+
+  fetchData() {
+    const { dispatch, talentId } = this.props;
+    dispatch(getTalent(talentId));
+    dispatch(getResumesByTalentId(talentId));
+  }
 
   beforeApply = () => {
     this.setState({ processing: true });
@@ -25,8 +49,10 @@ class ApplyJobFromApplication extends React.PureComponent {
   };
 
   render() {
-    const { handleRequestClose, t, talentId, jobId } = this.props;
-
+    const { handleRequestClose, t, talentId, jobId, talent } = this.props;
+    if (!talent) {
+      return null;
+    }
     return (
       <div
         className="flex-child-auto flex-container flex-dir-column"
@@ -70,4 +96,10 @@ ApplyJobFromApplication.propTypes = {
   talentId: PropTypes.number.isRequired,
 };
 
-export default ApplyJobFromApplication;
+function mapStoreStateToProps(state, { talentId }) {
+  return {
+    talent: state.model.talents.get(String(talentId)),
+  };
+}
+
+export default connect(mapStoreStateToProps)(ApplyJobFromApplication);

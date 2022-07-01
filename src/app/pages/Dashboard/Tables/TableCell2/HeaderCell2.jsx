@@ -105,9 +105,8 @@ class HeaderCell extends React.PureComponent {
             className="flex-container align-justify align-middle"
           >
             <span>
-              {column.type === 'activityCount' && <div>{t('Sum of')}</div>}
+              {column.type === 'activityCount' && <div>Sum of</div>}
               {t(column.colName)}
-              {console.log(column.colName)}
             </span>
             {onSortChange &&
               column.sortable &&
@@ -147,11 +146,10 @@ class HeaderCell extends React.PureComponent {
                   // onChange={(e) => this.setState({value: e.target.value})}
                   onChange={(e) => onFilter(e.target)}
                 >
-                  <option value=""> {t('tab:All')} </option>
+                  <option value="">All</option>
                   {enums[column.col].map((option, index) => (
                     <option key={index} value={option.value}>
-                      {console.log(option.value)}
-                      {t(`tab:${option.value}`)}
+                      {option.label}
                     </option>
                   ))}
                 </select>
@@ -166,4 +164,4 @@ class HeaderCell extends React.PureComponent {
   }
 }
 
-export default withTranslation('field', 'tab')(HeaderCell);
+export default withTranslation('field')(HeaderCell);

@@ -22,33 +22,33 @@ const styles = {
     '&>:first-child': {
       overflow: 'hidden',
       display: 'flex',
-      flex: '1 1 auto'
-    }
+      flex: '1 1 auto',
+    },
   },
   fileName: {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     maxWidth: 300,
     marginRight: 4,
-    whiteSpace: 'nowrap'
+    whiteSpace: 'nowrap',
   },
   iconLeft: {
     marginLeft: -8,
     marginRight: 8,
-    position: 'relative'
+    position: 'relative',
   },
   smallIcon: {
-    fontSize: 20
+    fontSize: 20,
   },
   smallIconButton: {
-    padding: 4
+    padding: 4,
   },
 
   attachButton: {
     transform: 'scale(.75)',
     fontSize: 18,
-    transformOrigin: '0'
-  }
+    transformOrigin: '0',
+  },
 };
 
 class Attachment extends React.PureComponent {
@@ -61,7 +61,7 @@ class Attachment extends React.PureComponent {
       handleDelete,
       handleClick,
       loadingResume,
-      uploadingAttachment
+      uploadingAttachment,
     } = this.props;
     return (
       <React.Fragment>
@@ -87,7 +87,7 @@ class Attachment extends React.PureComponent {
                   top: '50%',
                   left: '50%',
                   marginTop: -12,
-                  marginLeft: -12
+                  marginLeft: -12,
                 }}
               />
             )}
@@ -142,7 +142,7 @@ class Attachment extends React.PureComponent {
 Attachment.propTypes = {
   t: PropTypes.func.isRequired,
   handleChange: PropTypes.func.isRequired,
-  handleDelete: PropTypes.func.isRequired
+  handleDelete: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(Attachment);

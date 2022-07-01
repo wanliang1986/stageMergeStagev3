@@ -14,30 +14,30 @@ import PotentialButton from '../../components/particial/PotentialButton';
 import FormInput from '../../components/particial/FormInput';
 import FormTextArea from '../../components/particial/FormTextArea';
 
-const styles = theme => ({
+const styles = (theme) => ({
   chip: {
-    margin: '0 12px 10px 0'
+    margin: '0 12px 10px 0',
   },
   content: {
     height: 500,
-    display: 'flex'
+    display: 'flex',
   },
   formContainer: {
     border: '1px solid #cacaca',
     '&>:first-child': {
-      borderRight: '1px solid #cacaca'
-    }
+      borderRight: '1px solid #cacaca',
+    },
   },
   expand: {
     transform: 'rotate(0deg)',
     transition: theme.transitions.create('transform', {
-      duration: theme.transitions.duration.shortest
+      duration: theme.transitions.duration.shortest,
     }),
-    marginLeft: 'auto'
+    marginLeft: 'auto',
   },
   expandOpen: {
-    transform: 'rotate(180deg)'
-  }
+    transform: 'rotate(180deg)',
+  },
 });
 
 class CreateForm extends React.Component {
@@ -48,10 +48,10 @@ class CreateForm extends React.Component {
       errorMessage: Immutable.Map(),
       // hotListUsers: Immutable.Set(),
       // selectMode: 0
-      processing: false
+      processing: false,
     };
   }
-  handleSubmit = e => {
+  handleSubmit = (e) => {
     e.preventDefault();
 
     const emailBlastForm = e.target;
@@ -76,7 +76,7 @@ class CreateForm extends React.Component {
     this.setState({ processing: true });
     dispatch(
       upsertEmailBlast({ name, description }, emailBlast.get('id'))
-    ).then(res => {
+    ).then((res) => {
       if (res) {
         onClose();
       }
@@ -84,9 +84,9 @@ class CreateForm extends React.Component {
     });
   };
 
-  removeErrorMessage = key => {
+  removeErrorMessage = (key) => {
     this.setState({
-      errorMessage: this.state.errorMessage.delete(key)
+      errorMessage: this.state.errorMessage.delete(key),
     });
   };
 
@@ -146,7 +146,7 @@ class CreateForm extends React.Component {
 }
 
 CreateForm.defaultProps = {
-  emailBlast: Immutable.Map()
+  emailBlast: Immutable.Map(),
 };
 
 export default withStyles(styles)(CreateForm);

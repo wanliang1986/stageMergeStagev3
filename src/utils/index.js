@@ -182,9 +182,6 @@ export const dateFormat = (date) => {
 export const dateFormat2 = (date) => {
   return moment(date).format('lll');
 };
-export const dateFormat3 = (date) => {
-  return moment(date).format('ll');
-};
 
 export const jobDateTimeFormat = (date) => {
   return moment(date).format('YYYY-MM-DD HH:mm');
@@ -317,44 +314,27 @@ export const sortList = (indexList, dataList, columnKey, sortDir, extraKey) => {
   let newList = indexList.sort((indexA, indexB) => {
     let valueA = dataList.getIn([indexA, columnKey]);
     let valueB = dataList.getIn([indexB, columnKey]);
-
-    // console.log(columnKey);
-    // console.log('before:::valueA', valueA);
-    // console.log('before:::valueB', valueB);
-    // if (columnKey === 'revenue') {
-    //   if (isNaN(valueA) || valueA === null || valueA === 0) {
-    //     valueA = 0;
-    //   } else {
-    //     let valueAList = valueA.substring(1).split(',');
-    //     let valueAStr = valueAList.reduce((total, item) => {
-    //       return total + item;
-    //     });
-    //     valueA = Number(valueAStr);
-    //   }
-    //   if (isNaN(valueB) || valueB === null || valueB === 0) {
-    //     valueB = 0;
-    //   } else {
-    //     let valueBList = valueB.substring(1).split(',');
-    //     let valueBStr = valueBList.reduce((total, item) => {
-    //       return total + item;
-    //     });
-    //     valueB = Number(valueBStr);
-    //   }
-    // }
-
-    if (columnKey === 'totalBillAmount' || columnKey === 'revenue') {
-      if (valueA === null || valueA === 0) {
+    if (columnKey === 'revenue' || columnKey === 'totalBillAmount') {
+      if (valueA === NaN || valueA === null || valueA === 0) {
         valueA = 0;
       } else {
-        valueA = Number(valueA?.replace(/\$|\￥|\€|C\$|\£|\,/g, ''));
+        let valueAList = valueA.substring(1).split(',');
+        let valueAStr = valueAList.reduce((total, item) => {
+          return total + item;
+        });
+        valueA = Number(valueAStr);
       }
-      if (valueB === null || valueB === 0) {
+      if (valueB === NaN || valueB === null || valueB === 0) {
         valueB = 0;
       } else {
-        valueB = Number(valueB?.replace(/\$|\￥|\€|C\$|\£|\,/g, ''));
+        let valueBList = valueB.substring(1).split(',');
+        let valueBStr = valueBList.reduce((total, item) => {
+          return total + item;
+        });
+        valueB = Number(valueBStr);
       }
     }
-
+    // console.log(valueA, valueB);
     if (columnKey === 'latestActivityStatusDesc') {
       valueA = applicationStatusDesc[valueA] || 0;
       valueB = applicationStatusDesc[valueB] || 0;
@@ -393,17 +373,14 @@ export const sortList = (indexList, dataList, columnKey, sortDir, extraKey) => {
     if (
       columnKey === 'talentName' ||
       columnKey === 'company' ||
-      columnKey === 'fullName' ||
-      columnKey === 'school' ||
-      columnKey === 'title' ||
-      columnKey === 'notes' ||
-      columnKey === 'documentName'
+      columnKey === 'name'
     ) {
-      sortVal = valueA.localeCompare(valueB, 'zh-CN-u-co-pinyin');
+      sortVal = valueA.localeCompare(valueB, 'zh-CN');
     }
     if (sortVal !== 0 && sortDir !== SortTypes.ASC) {
       sortVal = sortVal * -1;
     }
+    // console.log(valueA, valueB, sortVal);
 
     return sortVal;
   });
@@ -505,18 +482,32 @@ function _filterForAdvancedSearch(data, filterOption, key) {
       break;
 
     ////serviceTypes 表格搜索
-    case 'serviceTypes':
-      if (typeof filterOption === 'object' && data.get('saleLead')) {
+    case 'companyServiceTypes':
+      if (
+        typeof filterOption === 'object' &&
+        (data.get('salesLeads') || data.get('companyServiceTypes'))
+      ) {
         let serviceTypesList = [];
-        data.get('saleLead').forEach((item, index) => {
-          item.get('serviceTypes').forEach((val, key) => {
-            serviceTypesList.push(val.get('value'));
-          });
-        });
         let selectedServiceTypes = [];
-        filterOption.forEach((item, index) => {
-          selectedServiceTypes.push(item.value);
-        });
+        if (data.get('salesLeads')) {
+          data.get('salesLeads').forEach((item, index) => {
+            item.get('companyServiceTypes').forEach((val, key) => {
+              serviceTypesList.push(val.get('label'));
+            });
+          });
+
+          filterOption.forEach((item, index) => {
+            selectedServiceTypes.push(item.label);
+          });
+        } else {
+          data.get('companyServiceTypes').forEach((item, index) => {
+            serviceTypesList.push(item.get('label'));
+          });
+          filterOption.forEach((item, index) => {
+            selectedServiceTypes.push(item.label);
+          });
+        }
+
         let msg1 = serviceTypesList.join(',');
         let msg2 = selectedServiceTypes.join(',');
         if (msg1.search(msg2) > -1) {
@@ -528,18 +519,19 @@ function _filterForAdvancedSearch(data, filterOption, key) {
         return null;
       }
     case 'type':
-    case 'industry':
+    case 'companyClientLevelType':
       if (data.get(key) === filterOption) {
         return data;
       } else {
         return null;
       }
     case 'score':
-      if (parseInt(data.get(key)) === Number(filterOption)) {
+      if (parseInt(data.get(key)) == filterOption) {
         return data;
       } else {
         return null;
       }
+
     default:
       query = new RegExp(filterOption, 'i');
       return query.test(data.get(key));
@@ -550,7 +542,8 @@ export const isEmail = (email) => {
   if (email) {
     email = email.trim();
   }
-  const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  const re =
+    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   return re.test(email);
 };
 export const isUrl = (url) => {
@@ -646,15 +639,15 @@ export const formatMultipleName = (user) => {
   let userName = userList.map((item, index) => {
     // console.log('item', item);
     if (!item) return '****';
-    if (item.firstName && item.lastName) {
-      let fullName = formatFullName(
-        item.firstName.trim(),
-        item.lastName.trim()
-      );
-      name = fullName;
-    } else {
-      name = item.username;
-    }
+    // if (item.firstName && item.lastName) {
+    //   let fullName = formatFullName(
+    //     item.firstName.trim(),
+    //     item.lastName.trim()
+    //   );
+    //   name = fullName;
+    // } else {
+    name = item.fullName;
+    // }
     return name;
   });
   return userName.join(',');
@@ -1129,55 +1122,4 @@ export const getAgreedPayRateLabel = (agreedPayRate) => {
   return `${currencyLabels[currency] || ''} ${
     amount < 0 ? '' : amount || ''
   } per ${rateUnitTypeLabels[rateUnitType]}`;
-};
-export const getAgreedPayRateLabel2 = (agreedPayRate) => {
-  if (!agreedPayRate || agreedPayRate.agreedPayRate < 0) {
-    return '';
-  }
-  const currency = agreedPayRate.currency;
-  const amount = agreedPayRate.agreedPayRate;
-  const rateUnitType = agreedPayRate.rateUnitType;
-  return `${currencyLabels[currency] || ''} ${
-    amount < 0 ? '' : amount || ''
-  } per ${rateUnitTypeLabels[rateUnitType]}`;
-};
-
-export const getLocationLabel = (location) => {
-  if (!location) {
-    return '';
-  }
-  location = location.toJS();
-  if (location.city) {
-    return `${location.city}, ${location.province}, ${location.country}`;
-  }
-  if (location.province) {
-    return `${location.province}, ${location.country}`;
-  }
-  if (location.country) {
-    return location.country;
-  }
-  if (location.location) {
-    return location.location;
-  }
-};
-
-export const showOnboarding = (start) => {
-  let startType = start.get('positionType');
-  let isC2c = false;
-  if (startType == 'FULL_TIME') {
-    isC2c = true;
-  } else {
-    let startContractRates = start.get('startContractRates').toJS();
-    let taxBurdenRate = startContractRates[0].taxBurdenRate
-      ? startContractRates[0].taxBurdenRate.code
-      : startContractRates[0].taxBurdenRateCode;
-    isC2c =
-      (taxBurdenRate && taxBurdenRate.indexOf('C2C') == -1) ||
-      (taxBurdenRate && taxBurdenRate.indexOf('1099') == -1);
-  }
-  if ((startType === 'CONTRACT' || startType === 'PAY_ROLL') && isC2c) {
-    return true;
-  } else {
-    return false;
-  }
 };

@@ -119,7 +119,7 @@ class Example extends React.Component {
             </Typography>
             <FormInput
               name="title"
-              placeholder={t('tab:title')}
+              placeholder="title"
               value={title}
               onChange={(e) => this.setState({ title: e.target.value })}
               style={{ margin: 0 }}
@@ -127,16 +127,16 @@ class Example extends React.Component {
             <div className="flex-child-auto" />
             <div className="horizontal-layout">
               <PrimaryButton onClick={this.saveDesign} processing={updating}>
-                {t('common:Save Design')}
+                {'Save Design'}
               </PrimaryButton>
               <PrimaryButton onClick={this.exportHtml}>
-                {t('common:Export as Template')}
+                {'Export as Template'}
               </PrimaryButton>
               <PrimaryButton
                 onClick={this.handleSendTestEmail}
                 processing={sending}
               >
-                {t('common:Send Test Email')}
+                {'Send Test Email'}
               </PrimaryButton>
 
               <PotentialButton onClick={onClose}>

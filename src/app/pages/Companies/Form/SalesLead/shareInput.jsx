@@ -5,7 +5,6 @@ import Button from '@material-ui/core/Button';
 import Select from 'react-select';
 import DeleteIcon from '@material-ui/icons/Delete';
 import FormReactSelectContainer from '../../../../components/particial/FormReactSelectContainer';
-import { withTranslation } from 'react-i18next';
 const styles = {
   root: {
     width: '100%',
@@ -54,7 +53,7 @@ class ShareInput extends Component {
       isReduired,
     } = this.props;
     const { owner } = this.state;
-    console.log(salesLeadError);
+    console.log(owners);
     return (
       <>
         <div>
@@ -74,7 +73,7 @@ class ShareInput extends Component {
                   this.props.addShare();
                 }}
               >
-                {this.props.t('tab:Add Share')}
+                Add Share
               </Button>
             </div>
           </div>
@@ -141,4 +140,4 @@ class ShareInput extends Component {
   }
 }
 
-export default withTranslation('tab')(withStyles(styles)(ShareInput));
+export default withStyles(styles)(ShareInput);

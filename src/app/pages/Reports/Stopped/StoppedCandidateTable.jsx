@@ -74,9 +74,7 @@ class StoppedCandidateTable extends React.PureComponent {
       >
         <div>
           <Typography variant="subtitle1" style={{ margin: '10px' }}>
-            {t('tab:Status stayed at')} "{t(`tab:${title.toLowerCase()}`)}"
-            {t('tab:formore than')}
-            {t(`tab:${timeRange}`)}.
+            Status stayed at "{title}" for more than {timeRange}.
           </Typography>
         </div>
 

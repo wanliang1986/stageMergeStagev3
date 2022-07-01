@@ -67,20 +67,6 @@
   "thisMonth": "这个月",
   "last3Months": "最近3个月",
   "ytd": "年初至今",
-  "closeTab": "关闭标签",
-  "Click to view candidate phone call scripts": "查看致电候选人话术",
-  "Export": "导出",
-  "Create/Renew Contract": "创建/更新合同",
-  "Favorite": "收藏",
-  "view": "查看",
-  "Schedule a Start": "预定开始日期",
-  "Checking Duplication": "联系方式查重",
-  "Please add": "请添加",
-  "or":"或",
-  "talent title": "候选人职衔",
-  "skills": "技能",
-  "in order to get job recommendation": "以获得职位推荐",
-  "Save As": "存为",
-  "Draft": "草稿",
-  "Template": "模板"
+  "closeTab": "关闭标签"
+
 }

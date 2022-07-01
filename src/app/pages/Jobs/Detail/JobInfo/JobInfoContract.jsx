@@ -20,10 +20,6 @@ import JobDescription from '../../JobDescriptionRich3';
 import JobBasicForm from '../../DeatilContactForm';
 import SectionHeader from './SectionHeader';
 
-import * as apnSDK from '../../../../../apn-sdk/';
-import { showErrorMessage } from '../../../../../app/actions/index';
-import { getJob } from '../../../../../app/actions/jobActions';
-
 const styles = {
   root: {
     overflowY: 'scroll',
@@ -51,8 +47,6 @@ class JobInfo extends React.PureComponent {
 
       visible: props.job.get('visible') || false,
       processing: false,
-
-      ipgJobType: props.job.get('ipgJobType'),
     };
     this.jobForm = React.createRef();
     this.publicDesc = props.job.get('publicDesc') || '';
@@ -89,7 +83,6 @@ class JobInfo extends React.PureComponent {
 
     let job,
       basicJob = {};
-
     if (this.state.edit === 'editBasic') {
       let errorMessage = this._validateForm(createJobForm, this.props.t);
       if (errorMessage) {
@@ -204,64 +197,15 @@ class JobInfo extends React.PureComponent {
         };
       }
     }
-    console.log(job);
+
     this.setState({ processing: true });
     this.props
       .handleUpdateJob(Object.assign(basicJob, job))
       .then(this.handleCancel)
       .catch(() => this.setState({ processing: false }));
-
-    //create Ipg Job
-    if (createJobForm?.ipgPost?.value === 'true') {
-      let ipgJob = {
-        id: this.props.job.get('id'),
-        title: createJobForm.title.value,
-        jobType: this.state.ipgJobType,
-
-        jobFunctions:
-          createJobForm.jobfunction.value &&
-          JSON.parse(createJobForm.jobfunction.value),
-
-        status: 'OPEN',
-        department: createJobForm.department.value,
-        requiredSkills: JSON.parse(createJobForm.requiredskills.value),
-
-        experienceYearRange: {
-          gte: leastYear,
-          lte: mostYear,
-        },
-
-        minimumDegreeLevel: createJobForm.degreeValue.value
-          ? [createJobForm.degreeValue.value * 1]
-          : null,
-
-        locations:
-          createJobForm.location.value &&
-          JSON.parse(createJobForm.location.value),
-
-        jdUrl: null,
-        jdText: createJobForm.ipgJd.value,
-      };
-
-      apnSDK
-        .upsertJob_Ipg(
-          ipgJob,
-          this.props.job.get('ipgJobStatus'),
-          this.props.job.get('id')
-        )
-        .then(({ response }) => {
-          console.log('upsert Ipgjob: ', response);
-          this.props.dispatch(getJob(this.props.job.get('id')));
-        })
-        .catch((err) => {
-          this.props.dispatch(showErrorMessage(err));
-          throw err;
-        });
-    }
   };
 
   handleCancel = () => {
-    this.props.canceledGetJob();
     this.setState({
       edit: '',
       errorMessage: this.state.errorMessage.clear(),
@@ -369,18 +313,6 @@ class JobInfo extends React.PureComponent {
           t('message:Max must > Min')
         );
       }
-      if (form.maxYears.value && Number(form.maxYears.value) > 99) {
-        errorMessage = errorMessage.set(
-          'Years of Experience',
-          t('message:MaxYears Must < 100')
-        );
-      }
-      if (form.minYears.value && Number(form.minYears.value) > 99) {
-        errorMessage = errorMessage.set(
-          'Years of Experience',
-          t('message:MinYears Must < 100')
-        );
-      }
     }
 
     if (!form.billRateUnitType.value) {
@@ -390,7 +322,7 @@ class JobInfo extends React.PureComponent {
       );
     }
 
-    if (!form.title.value) {
+    if (!form.title.value.trim()) {
       errorMessage = errorMessage.set(
         'title',
         t('message:Job title is required')
@@ -400,6 +332,12 @@ class JobInfo extends React.PureComponent {
       errorMessage = errorMessage.set(
         'title',
         t('message:Job title length should be less than 100')
+      );
+    }
+    if (!form.openings.value) {
+      errorMessage = errorMessage.set(
+        'openings',
+        t('message:Job Openings is required')
       );
     }
     if (form.department.value && form.department.value.length > 100) {
@@ -414,12 +352,7 @@ class JobInfo extends React.PureComponent {
         t('message:JobCode length should be less than 100')
       );
     }
-    if (!form.openings.value) {
-      errorMessage = errorMessage.set(
-        'openings',
-        t('message:Job Openings is required')
-      );
-    }
+
     if (!form.company.value) {
       errorMessage = errorMessage.set(
         'company',
@@ -536,12 +469,6 @@ class JobInfo extends React.PureComponent {
     this.setState({ edit });
   };
 
-  setIpgJobType = (ipgJobType) => {
-    this.setState({
-      ipgJobType,
-    });
-  };
-
   render() {
     console.log('job info');
     const { t, i18n, job, canEdit, classes, jobId, ...props } = this.props;
@@ -567,7 +494,7 @@ class JobInfo extends React.PureComponent {
           {!edit && (
             <div>
               <div
-                className="container-padding vertical-layout "
+                className="container-padding vertical-layout"
                 ref={(el) => (this.basicContentContainer = el)}
               >
                 <SectionHeader
@@ -580,7 +507,6 @@ class JobInfo extends React.PureComponent {
                 />
 
                 <JobBasicForm
-                  canEdit={this.props.canEdit}
                   job={job}
                   t={t}
                   disabled
@@ -632,12 +558,10 @@ class JobInfo extends React.PureComponent {
                     }}
                   >
                     <JobBasicForm
-                      canEdit={this.props.canEdit}
                       job={job}
                       t={t}
                       errorMessage={errorMessage}
                       removeErrorMsgHandler={this.removeErrorMessage}
-                      setIpgJobType={this.setIpgJobType}
                     />
                   </div>
                 )}

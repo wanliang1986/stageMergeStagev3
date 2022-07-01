@@ -6,7 +6,6 @@ import { styles } from '../pages/Reports/params';
 import clsx from 'clsx';
 import { withStyles } from '@material-ui/core/styles';
 import SetChartSize from './SetChartSize';
-import { withTranslation } from 'react-i18next';
 let styles_inside = {
   identiContent: {
     position: 'absolute',
@@ -47,7 +46,7 @@ class BarChart extends PureComponent {
   }
 
   render() {
-    const { Load, classes, t } = this.props;
+    const { Load, classes } = this.props;
     return (
       <div className="examples" style={{ position: 'relative' }}>
         <div className="parent">
@@ -63,11 +62,10 @@ class BarChart extends PureComponent {
         {/* 标识 */}
         <div style={styles_inside.identiContent}>
           <div style={styles_inside.identiItem}>
-            <span style={styles_inside.identIcon1}> </span>{' '}
-            {t('tab:offer accepted')}
+            <span style={styles_inside.identIcon1}> </span> Offer Accepted
           </div>
           <div style={styles_inside.identiItem}>
-            <span style={styles_inside.identIcon2}> </span> {t('tab:on board')}
+            <span style={styles_inside.identIcon2}> </span> On Board
           </div>
         </div>
 
@@ -89,4 +87,4 @@ class BarChart extends PureComponent {
   }
 }
 
-export default withTranslation('tab')(withStyles(styles)(BarChart));
+export default withStyles(styles)(BarChart);

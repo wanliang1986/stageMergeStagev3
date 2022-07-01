@@ -145,11 +145,8 @@ class Resume extends React.PureComponent {
 
   render() {
     const { t, classes, canEdit, resumes, loadingResume } = this.props;
-    const {
-      handleRemoveResume,
-      selectedResumeIndex,
-      uploadedResume,
-    } = this.state;
+    const { handleRemoveResume, selectedResumeIndex, uploadedResume } =
+      this.state;
     return (
       <div className="flex-child-auto flex-container flex-dir-column">
         {canEdit && (

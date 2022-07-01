@@ -6,24 +6,27 @@ const getJobNotes = (state) => state.model.jobNotes;
 const getUsers = (state) => state.model.users;
 
 const getJobNoteList = createSelector(
-    [getJobId, getJobNotes, getUsers],
-    (jobId, notes, users) => {
-        return notes.filter((note) => note.get('jobId') === jobId)
-            .map(note => note.set('user', users.get(note.get('userId').toString())))
-            .sortBy((note) => note.get('createdDate'),
-                (a, b) => {
-                    if (a < b) {
-                        return 1;
-                    }
-                    if (a > b) {
-                        return -1;
-                    }
-                    if (a === b) {
-                        return 0;
-                    }
-                })
-            .toList()
-    }
+  [getJobId, getJobNotes, getUsers],
+  (jobId, notes, users) => {
+    return notes
+      .filter((note) => note.get('jobId') === jobId)
+      .map((note) => note.set('user', users.get(note.get('userId').toString())))
+      .sortBy(
+        (note) => note.get('createdDate'),
+        (a, b) => {
+          if (a < b) {
+            return 1;
+          }
+          if (a > b) {
+            return -1;
+          }
+          if (a === b) {
+            return 0;
+          }
+        }
+      )
+      .toList();
+  }
 );
 
-export default getJobNoteList
+export default getJobNoteList;

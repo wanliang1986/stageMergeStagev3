@@ -339,7 +339,7 @@ function SavedDialog({ show, close, t }) {
         }}
       >
         <DialogTitle className="title" id="responsive-dialog-title">
-          {t('tab:Saved Filters')}
+          {'Saved Filters'}
         </DialogTitle>
         <DialogContent>
           <OutlinedInput
@@ -347,7 +347,7 @@ function SavedDialog({ show, close, t }) {
             className="searchInput"
             size="small"
             variant="outlined"
-            placeholder={t('tab:Search filter name, keywords...')}
+            placeholder="Search filter name, keywords..."
             startAdornment={
               <InputAdornment color="disabled" position="start">
                 <SearchIcon style={{ fontSize: 18 }} />
@@ -370,13 +370,13 @@ function SavedDialog({ show, close, t }) {
                   <Typography>{item.searchName}</Typography>
                   <div className="actions">
                     <span onClick={(e) => handleSearch(e, item)} className="">
-                      {t('tab:Search')}
+                      Search
                     </span>
                     <span
                       onClick={(e) => handleDelete(e, item.id)}
                       className=""
                     >
-                      {t('tab:Delete')}
+                      Delete
                     </span>
                   </div>
                 </AccordionSummary>
@@ -453,7 +453,7 @@ function SavedDialog({ show, close, t }) {
             variant="contained"
             color="primary"
           >
-            {t('tab:Close')}
+            Close
           </Button>
         </DialogActions>
       </Dialog>
@@ -483,6 +483,6 @@ function mapStoreStateToProps(state) {
   return {};
 }
 
-export default withTranslation(['action', 'message', 'field', 'tab'])(
+export default withTranslation(['action', 'message', 'field'])(
   connect(mapStoreStateToProps)(SavedDialog)
 );

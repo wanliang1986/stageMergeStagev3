@@ -25,7 +25,7 @@ import {
 const statusMap = {
   PAID: 'Paid',
   UNPAID: 'Unpaid',
-  OVERDUE: 'Overdue',
+  OVERDUE: 'Expired',
   STARTUP_FEE_PAID_USED: 'Paid - Used',
   STARTUP_FEE_PAID_UNUSED: 'Paid - Unused',
   STARTUP_FEE_UNPAID_UNUSED: 'Unpaid - Unused',
@@ -104,25 +104,6 @@ const columns = [
     colWidth: 150,
     flexGrow: 2,
     col: 'dueAmount',
-    type: 'amount',
-    sortable: true,
-    disableSearch: true,
-  },
-  {
-    colName: 'Received Amount',
-    colWidth: 150,
-    flexGrow: 2,
-    col: 'receivedAmount',
-    type: 'amount',
-    sortable: true,
-    disableSearch: true,
-  },
-  {
-    colName: 'Balance',
-    colWidth: 150,
-    flexGrow: 2,
-    col: 'balance',
-    type: 'amount',
     sortable: true,
     disableSearch: true,
   },
@@ -184,15 +165,12 @@ const InvoiceCell = (props) => {
       </Link>
     );
   }
-  if (column.type === 'amount') {
-    const amount = data.getIn([rowIndex, column.col]);
+  if (column.col === 'dueAmount') {
     return (
       <Cell {...otherprops} style={cellStyle}>
-        {amount
-          ? `${
-              currencyMap[data.getIn([rowIndex, 'currency'])]
-            }${amount.toLocaleString()}`
-          : ''}
+        {`${currencyMap[data.getIn([rowIndex, 'currency'])]}${data
+          .getIn([rowIndex, 'dueAmount'])
+          .toLocaleString()}`}
       </Cell>
     );
   }

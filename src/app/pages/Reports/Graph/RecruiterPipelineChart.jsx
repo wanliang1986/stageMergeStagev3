@@ -7,7 +7,7 @@ const SourcerPipelineChart = () => {
   return (
     <ChartWithTable
       getPipelineData={getPipelineReportByRecruiter}
-      title="tab:User Activities"
+      title="message:User Activities"
     />
   );
 };

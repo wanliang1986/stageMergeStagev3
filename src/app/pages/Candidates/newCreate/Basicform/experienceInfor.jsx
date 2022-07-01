@@ -46,7 +46,7 @@ class ExperienceInfor extends React.Component {
     let arr = [...this.state.experienceList];
     let add = [...this.state.copyExperience];
     arr.push({
-      id: new Date().getTime(),
+      experId: new Date().getTime(),
       current: false,
       startDate: null,
       endDate: null,
@@ -54,7 +54,7 @@ class ExperienceInfor extends React.Component {
       company: '',
     });
     add.push({
-      id: new Date().getTime(),
+      experId: new Date().getTime(),
       current: false,
       startDate: null,
       endDate: null,
@@ -127,7 +127,6 @@ class ExperienceInfor extends React.Component {
       copyExperience: add,
     });
     this.props.removeErrorMessage('experienceInfor');
-    this.props.removeErrorMessage('DurationDateInforst');
   };
 
   handleEndDateChange = (date, index) => {
@@ -140,7 +139,6 @@ class ExperienceInfor extends React.Component {
       copyExperience: add,
     });
     this.props.removeErrorMessage('experienceInfor');
-    this.props.removeErrorMessage('DurationDateInforst');
   };
 
   render() {
@@ -151,12 +149,10 @@ class ExperienceInfor extends React.Component {
       <div>
         {experienceList.length === 0 ? (
           <div className="flex-container align-justify align-middle">
-            <Typography variant="h6">
-              {t('tab:Experience Information')}
-            </Typography>
+            <Typography variant="h6">{'Experience Information'}</Typography>
             <div className={classes.flex} onClick={this.addExperienceList}>
               <AddIcon style={{ color: '#3398dc', fontSize: '21px' }} />
-              <p style={{ color: '#3398dc', marginTop: 0 }}>{t('tab:Add')}</p>
+              <p style={{ color: '#3398dc', marginTop: 0 }}>{'Add'}</p>
             </div>
           </div>
         ) : null}
@@ -167,27 +163,13 @@ class ExperienceInfor extends React.Component {
               <>
                 <div id={`experienceInfor_${index}`}></div>
                 <div
-                  key={item.id}
+                  key={item.experId}
                   style={{ marginBottom: 40, position: 'relative' }}
                 >
                   <div className="flex-container align-justify align-middle">
                     {index === 0 ? (
                       <Typography variant="h6">
-                        {t('tab:Experience Information')}
-                        <div>
-                          {errorMessage.get('DurationDateSe') ? (
-                            <div
-                              style={{
-                                color: '#CC4B37',
-                                fontWeight: 'bold',
-                                fontSize: '0.75rem',
-                                marginBottom: '1rem',
-                              }}
-                            >
-                              {errorMessage.get('DurationDateInforst')}
-                            </div>
-                          ) : null}
-                        </div>
+                        {'Experience Information'}
                       </Typography>
                     ) : (
                       <Typography variant="h6">{''}</Typography>
@@ -212,9 +194,7 @@ class ExperienceInfor extends React.Component {
                             <DeleteOutlineIcon
                               style={{ color: '#e85919', fontSize: '21px' }}
                             />
-                            <p style={{ color: '#e85919' }}>
-                              {t('tab:Delete')}
-                            </p>
+                            <p style={{ color: '#e85919' }}>{'Delete'}</p>
                           </div>
                           <div
                             className={classes.flex}
@@ -224,7 +204,7 @@ class ExperienceInfor extends React.Component {
                               style={{ color: '#3398dc', fontSize: '21px' }}
                             />
                             <p style={{ color: '#3398dc', marginTop: 0 }}>
-                              {t('tab:Add')}
+                              {'Add'}
                             </p>
                           </div>
                         </>
@@ -262,21 +242,9 @@ class ExperienceInfor extends React.Component {
                         onChange={(date) => {
                           this.handleStartDateChange(date, index);
                         }}
+                        maxDate={item.endDate && moment(item.endDate)}
                         placeholderText="mm/dd/yyyy"
                       />
-                      {/* {errorMessage.get('DurationDateSe') &&
-                      errorMessage.get('DurationDateSe').includes(index) ? (
-                        <div
-                          style={{
-                            color: '#CC4B37',
-                            fontWeight: 'bold',
-                            fontSize: '0.75rem',
-                            marginBottom: '1rem',
-                          }}
-                        >
-                          {errorMessage.get('DurationDateInforst')}
-                        </div>
-                      ) : null} */}
                     </div>
                     <div>
                       <div style={{ paddingTop: 21, lineHeight: '32px' }}>
@@ -299,7 +267,6 @@ class ExperienceInfor extends React.Component {
                           minDate={
                             item.startDate ? moment(item.startDate) : null
                           }
-                          maxDate={moment(this.state.endDate)}
                           className={classes.fullWidth}
                           selected={item.endDate ? moment(item.endDate) : null}
                           onChange={(date) => {
@@ -307,19 +274,6 @@ class ExperienceInfor extends React.Component {
                           }}
                           placeholderText="mm/dd/yyyy"
                         />
-                        {errorMessage.get('DurationDate') &&
-                        errorMessage.get('DurationDate').includes(index) ? (
-                          <div
-                            style={{
-                              color: '#CC4B37',
-                              fontWeight: 'bold',
-                              fontSize: '0.75rem',
-                              marginBottom: '1rem',
-                            }}
-                          >
-                            {errorMessage.get('DurationDateInfor')}
-                          </div>
-                        ) : null}
                       </div>
                     )}
 
@@ -351,7 +305,7 @@ class ExperienceInfor extends React.Component {
                     <div className="small-6 columns">
                       <FormInput
                         name="experTitle"
-                        label={t('tab:Title')}
+                        label="Title"
                         value={item.title}
                         onChange={(e) => {
                           this.changeListTitle(e, index);
@@ -365,7 +319,7 @@ class ExperienceInfor extends React.Component {
                     <div className="small-6 columns">
                       <FormInput
                         name="experCompany"
-                        label={t('tab:Company')}
+                        label="Company"
                         value={item.company}
                         onChange={(e) => {
                           this.changeListCompany(e, index);

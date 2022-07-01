@@ -2,7 +2,9 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Immutable from 'immutable';
-import { getMemoFromApplication } from '../../../../utils';
+import { makeCancelable, getMemoFromApplication } from '../../../../utils';
+import { getResumesByTalentId } from '../../../actions/talentActions';
+import talentResumeSelector from '../../../selectors/talentResumeSelector';
 import {
   updateApplication,
   updateDashboardApplStatus,
@@ -19,7 +21,6 @@ import {
   // INTERVIEW_TYPES,
 } from '../../../constants/formOptions';
 import moment from 'moment-timezone';
-import { ADD_SEND_EMAIL_REQUEST } from '../../../constants/actionTypes';
 
 import DatePicker from 'react-datepicker';
 import Select from 'react-select';
@@ -30,16 +31,19 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+import ViewResume from '@material-ui/icons/RemoveRedEye';
 
 import FormInput from '../../particial/FormInput';
 import FormReactSelectContainer from '../../particial/FormReactSelectContainer';
 import PrimaryButton from '../../particial/PrimaryButton';
 import SecondaryButton from '../../particial/SecondaryButton';
+import PotentialButton from '../../particial/PotentialButton';
 import FormTextArea from '../../particial/FormTextArea';
 import ApplicationInfoWithCommissions from '../views/ApplicationInfoWithCommissions';
+import ViewResumeInAddActivity from '../../forms/AddActivity/ViewResumeInAddActivity';
 import Loading from '../../particial/Loading';
+import { ADD_SEND_EMAIL_REQUEST } from '../../../constants/actionTypes';
 import NumberFormat from 'react-number-format';
-import ResumeSelector from './ResumeSelector';
 
 const rateUnitTypeOptions = [
   { label: 'Yearly', value: 'YEARLY' },
@@ -57,7 +61,7 @@ class InterviewFrom extends Component {
   constructor(props) {
     super(props);
 
-    const { application } = props;
+    const { application, resumes } = props;
     this.state = {
       errorMessage: Immutable.Map(),
       interviewDate: moment(),
@@ -66,14 +70,21 @@ class InterviewFrom extends Component {
       timeZoneList: this._assembleTimezonOptionList(moment()),
       // interviewType: INTERVIEW_TYPES.Phone,
 
-      currency: application.getIn(['agreedPayRate', 'currency']) || null,
+      currency: application.getIn(['agreedPayRate', 'currency']) || 'USD',
       rateUnitType:
-        application.getIn(['agreedPayRate', 'rateUnitType']) || null,
+        application.getIn(['agreedPayRate', 'rateUnitType']) || 'HOURLY',
       agreedPayRate:
         application.getIn(['agreedPayRate', 'agreedPayRate']) < 0
           ? ''
           : application.getIn(['agreedPayRate', 'agreedPayRate']),
       note: '',
+      selectedResume: resumes.find(
+        (value) => value.id === application.get('resumeId')
+      ),
+
+      parsing: false,
+      uploading: false,
+      showedResume: false,
       sendEmailToHM: false,
       sendEmailToTalent: false,
 
@@ -81,6 +92,30 @@ class InterviewFrom extends Component {
       fetching: true,
     };
     this.fTimer = setTimeout(() => this.setState({ fetching: false }), 500);
+  }
+
+  componentDidMount() {
+    const { dispatch, activityFromTalent, application } = this.props;
+
+    if (!activityFromTalent) {
+      // load talent resume
+      this.resumetask = makeCancelable(
+        dispatch(getResumesByTalentId(application.get('talentId')))
+      );
+      this.resumetask.promise.then(() => {
+        this.setState({
+          selectedResume: this.props.resumes.find(
+            (value) => value.id === application.get('resumeId')
+          ),
+        });
+      });
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.resumetask) {
+      this.resumetask.cancel();
+    }
   }
 
   handleCommissionsUpdate = (commissions) => {
@@ -97,6 +132,14 @@ class InterviewFrom extends Component {
     });
   };
 
+  showResume = () => {
+    this.setState({ showResume: true });
+  };
+
+  closeViewResume = () => {
+    this.setState({ showResume: false });
+  };
+
   submitAddCandidateActivity = (e) => {
     e.preventDefault();
     const interviewForm = e.target;
@@ -105,10 +148,10 @@ class InterviewFrom extends Component {
       dispatch,
       formType,
       application: oldApplication,
+      passUpSendEmailState,
       cancelAddActivity,
-      canSkipSubmitToAM,
     } = this.props;
-    let errorMessage = this._validateForm(interviewForm, t, canSkipSubmitToAM);
+    let errorMessage = this._validateForm(interviewForm, t);
     if (errorMessage) {
       return this.setState({ errorMessage });
     }
@@ -125,7 +168,7 @@ class InterviewFrom extends Component {
 
     const activity = {
       status: formType,
-      resumeId: interviewForm.resumeId.value || null,
+      resumeId: interviewForm.resumeId.value,
       memo: interviewForm.note.value,
       eventStage: interviewForm.interviewStage.value,
       eventType: interviewForm.interviewType.value,
@@ -137,15 +180,13 @@ class InterviewFrom extends Component {
       interviewForm.interviewTime.value;
     time = moment.tz(time, activity.eventTimeZone).utc().format();
     activity.eventDate = time;
-    if ((agreedPayRate && agreedPayRate !== '') || currency || rateUnitType) {
-      activity.agreedPayRate = {
-        currency,
-        rateUnitType,
-        agreedPayRate: agreedPayRate ? Number(agreedPayRate) : null,
-      };
-    } else {
-      activity.agreedPayRate = null;
-    }
+    // if (currency && rateUnitType && agreedPayRate) {
+    activity.agreedPayRate = {
+      currency,
+      rateUnitType,
+      agreedPayRate: agreedPayRate ? Number(agreedPayRate) : -1,
+    };
+    // }
     this.props
       .dispatch(updateApplication(activity, oldApplication.get('id')))
       .then((newApplication) => {
@@ -191,45 +232,8 @@ class InterviewFrom extends Component {
     });
   };
 
-  _validateForm = (form, t, canSkipSubmitToAM) => {
+  _validateForm = (form, t) => {
     let errorMessage = Immutable.Map();
-    if (
-      form.agreedPayRate.value !== '' &&
-      Number(form.agreedPayRate.value) === 0
-    ) {
-      errorMessage = errorMessage.set(
-        'agreedPayRate',
-        t('message:The amount of agreed pay rate cannot be 0')
-      );
-    }
-    if (
-      (!form.currency.value ||
-        !form.rateUnitType.value ||
-        !form.agreedPayRate.value) &&
-      !(
-        !form.currency.value &&
-        !form.rateUnitType.value &&
-        !form.agreedPayRate.value
-      )
-    ) {
-      errorMessage = errorMessage.set(
-        'agreedPayRate',
-        t('message:The agreed pay rate part is incomplete')
-      );
-    }
-    // check on google, adobe
-    if (
-      canSkipSubmitToAM &&
-      !form.currency.value &&
-      !form.rateUnitType.value &&
-      !form.agreedPayRate.value
-    ) {
-      errorMessage = errorMessage.set(
-        'agreedPayRate',
-        t('message:The agreed pay rate is required')
-      );
-    }
-
     if (!form.interviewDate.value) {
       errorMessage = errorMessage.set(
         'interviewDate',
@@ -298,22 +302,21 @@ class InterviewFrom extends Component {
   };
 
   handleDropDownChange = (key) => (value) => {
-    if (value !== this.state[key]) {
+    if (value && value !== this.state[key]) {
       this.setState({ [key]: value });
-      this._removeErrorMsgHandler('agreedPayRate');
     }
   };
 
   handleNumberChange = (key) => (values) => {
     this.setState({ [key]: values.value });
-    this._removeErrorMsgHandler('agreedPayRate');
   };
 
   render() {
-    const { t, cancelAddActivity, application, formType, canSkipSubmitToAM } =
-      this.props;
+    const { t, cancelAddActivity, resumes, application, formType } = this.props;
 
     const {
+      showResume,
+      selectedResume,
       errorMessage,
       fetching,
       edit,
@@ -332,15 +335,23 @@ class InterviewFrom extends Component {
       processing,
     } = this.state;
 
+    if (showResume) {
+      return (
+        <ViewResumeInAddActivity
+          resume={Immutable.fromJS(selectedResume)}
+          t={t}
+          close={this.closeViewResume}
+        />
+      );
+    }
+
     if (fetching) {
       return <Loading />;
     }
     return (
       <Fragment>
         {/* 标题 */}
-        <DialogTitle>
-          {t(`tab:${getApplicationStatusLabel(formType).toLowerCase()}`)}
-        </DialogTitle>
+        <DialogTitle>{getApplicationStatusLabel(formType)}</DialogTitle>
 
         {/* 表单内容 */}
         <DialogContent>
@@ -356,8 +367,7 @@ class InterviewFrom extends Component {
                 <div className="columns">
                   <FormReactSelectContainer
                     label={t('field:agreedPayRate')}
-                    errorMessage={!!errorMessage.get('agreedPayRate')}
-                    isRequired={canSkipSubmitToAM}
+                    errorMessage={errorMessage.get('agreedPayRate')}
                   />
                 </div>
               </div>
@@ -385,7 +395,7 @@ class InterviewFrom extends Component {
                   <FormReactSelectContainer>
                     <Select
                       labelKey={'label2'}
-                      clearable={true}
+                      clearable={false}
                       // disabled={edit}
                       value={currency}
                       options={currencyOptions}
@@ -399,13 +409,13 @@ class InterviewFrom extends Component {
                 <div className="columns">
                   <FormReactSelectContainer>
                     <Select
-                      clearable={true}
+                      clearable={false}
                       // disabled={edit}
                       value={rateUnitType}
                       simpleValue
                       options={rateUnitTypeOptions}
                       onChange={this.handleDropDownChange('rateUnitType')}
-                      placeholder={t('field:Rate Unit Type')}
+                      placeholder={'Rate Unit Type'}
                     />
                   </FormReactSelectContainer>
                   <input
@@ -415,20 +425,6 @@ class InterviewFrom extends Component {
                   />
                 </div>
               </div>
-              {errorMessage && errorMessage.get('agreedPayRate') ? (
-                <div className="columns">
-                  <div
-                    style={{
-                      color: '#cc4b37',
-                      fontWeight: 'bold',
-                      fontSize: '0.75rem',
-                      transform: `translateY(-8px)`,
-                    }}
-                  >
-                    {errorMessage.get('agreedPayRate')}
-                  </div>
-                </div>
-              ) : null}
 
               {/* 面试表格内容 */}
               <div className="row expanded">
@@ -581,15 +577,57 @@ class InterviewFrom extends Component {
                 </div>
               </div>
               {/* 5.选择简历下拉框 */}
-              <ResumeSelector
-                t={t}
-                isTalentDetail={this.props.activityFromTalent}
-                talentId={application.get('talentId')}
-                resumeId={application.get('resumeId')}
-                errorMessage={errorMessage}
-                removeErrorMessage={this._removeErrorMsgHandler}
-                disabled
-              />
+              <div className="row expanded">
+                <div className="columns">
+                  <FormReactSelectContainer
+                    label={t('field:resume')}
+                    errorMessage={errorMessage.get('resumeId')}
+                    icon={
+                      selectedResume ? (
+                        <ViewResume
+                          onClick={this.showResume}
+                          style={{ cursor: 'pointer' }}
+                        />
+                      ) : null
+                    }
+                  >
+                    <Select
+                      disabled
+                      name="resumeSelect"
+                      valueKey={'id'}
+                      labelKey={'name'}
+                      value={selectedResume}
+                      options={resumes}
+                      searchable={false}
+                      autoBlur={true}
+                      clearable={false}
+                    />
+                  </FormReactSelectContainer>
+                  <input
+                    type="hidden"
+                    name="resumeId"
+                    value={selectedResume ? selectedResume.id : ''}
+                  />
+                </div>
+
+                {/* 6.上传简历的按钮 */}
+                <div style={{ width: 160 }}>
+                  <div className="columns">
+                    {selectedResume && (
+                      <PotentialButton
+                        size="small"
+                        style={{
+                          marginTop: 23,
+                        }}
+                        fullWidth
+                        onClick={this.showResume}
+                      >
+                        {t('action:view')}
+                      </PotentialButton>
+                    )}
+                  </div>
+                </div>
+              </div>
               {/* 7.备注 */}
               <div className="row expanded">
                 <div className="small-12 columns">
@@ -623,7 +661,7 @@ class InterviewFrom extends Component {
                       }
                     />
                   }
-                  label={t('common:Send Email to Candidate')}
+                  label={'Send Email to Candidate'}
                 />
                 <FormControlLabel
                   className="columns"
@@ -637,7 +675,7 @@ class InterviewFrom extends Component {
                       }
                     />
                   }
-                  label={t('common:Send Email to Client Contact')}
+                  label={'Send Email to Client Contact'}
                 />
               </div>
             </section>
@@ -671,13 +709,8 @@ InterviewFrom.propTypes = {
 };
 
 const mapStoreStateToProps = (state, { application }) => {
-  const job = state.model.jobs.get(String(application.get('jobId')));
-  const companyId = job && job.get('companyId');
-  const canSkipSubmitToAM = !!state.model.skimSubmitToAMCompanies.get(
-    String(companyId)
-  );
   return {
-    canSkipSubmitToAM,
+    resumes: talentResumeSelector(state, application.get('talentId')).toJS(),
   };
 };
 

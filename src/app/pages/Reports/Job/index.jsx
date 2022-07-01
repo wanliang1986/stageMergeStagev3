@@ -35,6 +35,23 @@ import { styles, jobDetailColumns as columns } from '../params';
 import { Redirect } from 'react-router-dom';
 import { showErrorMessage } from '../../../actions';
 
+const ranges = [
+  {
+    label: 'This Month',
+    value: [dateFns.startOfMonth(new Date()), dateFns.endOfToday()],
+  },
+  {
+    label: 'Last 3 Months',
+    value: [
+      dateFns.addMonths(dateFns.startOfToday(), -3),
+      dateFns.endOfToday(),
+    ],
+  },
+  {
+    label: 'Year to Date',
+    value: [dateFns.startOfYear(new Date()), dateFns.endOfToday()],
+  },
+];
 const status = {};
 class JobDetails extends React.PureComponent {
   constructor(props) {
@@ -310,7 +327,7 @@ class JobDetails extends React.PureComponent {
         <div>
           <div className={classes.actionsContainer}>
             <Typography variant="h5">
-              {t('tab:Job Analytics Details')}
+              {t('message:Job Analytics Details')}
             </Typography>
             <PotentialButton
               onClick={this.downloadData}
@@ -328,29 +345,7 @@ class JobDetails extends React.PureComponent {
               <FormReactSelectContainer label={t('field:Posting Date')}>
                 <DateRangePicker
                   value={range}
-                  ranges={[
-                    {
-                      label: t('tab:This Month'),
-                      value: [
-                        dateFns.startOfMonth(new Date()),
-                        dateFns.endOfToday(),
-                      ],
-                    },
-                    {
-                      label: t('tab:Last 3 Months'),
-                      value: [
-                        dateFns.addMonths(dateFns.startOfToday(), -3),
-                        dateFns.endOfToday(),
-                      ],
-                    },
-                    {
-                      label: t('tab:Year to Date'),
-                      value: [
-                        dateFns.startOfYear(new Date()),
-                        dateFns.endOfToday(),
-                      ],
-                    },
-                  ]}
+                  ranges={ranges}
                   cleanable={false}
                   toggleComponentClass={CustomToggleButton}
                   size="md"
@@ -364,7 +359,7 @@ class JobDetails extends React.PureComponent {
             </div>
             <div>
               <div style={{ minWidth: 168, height: 53 }}>
-                <FormReactSelectContainer label={t('tab:Job Type')}>
+                <FormReactSelectContainer label={t('field:Job Type')}>
                   <Select
                     value={selectedJobType}
                     options={jobTypeOptions}

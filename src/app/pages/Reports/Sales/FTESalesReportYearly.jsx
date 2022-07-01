@@ -27,7 +27,6 @@ import SaleTypeSelect from './SaleTypeSelect';
 
 import FilterBtn from './FilterBtn';
 import { YearlyInitData, countryObj } from './initData';
-import { withTranslation } from 'react-i18next';
 let newYearlyInitData = [];
 const styles_inside = {
   title: {
@@ -81,7 +80,6 @@ class FteYearly extends Component {
     this.setState({
       Load: false,
       dataList: Immutable.List(),
-      country: country || this.state.country,
     });
     newYearlyInitData = JSON.parse(JSON.stringify(YearlyInitData));
     let { initData1, initData2 } = newYearlyInitData;
@@ -247,11 +245,7 @@ class FteYearly extends Component {
             marker = `<span style="display:inline-block;margin-right:5px; width:20px;height:10px;background-color:${markerColor};border:${markerBorder}"></span>`;
             showHtm += `<p style="height:${Pheight}">
                           ${marker}
-                          ${this.props.t(
-                            `tab:${billTypeObj[
-                              params[i].data.billType
-                            ].toLowerCase()}`
-                          )}:
+                          ${params[i].data.billType}:
                           ${
                             countryObj[country] +
                             params[i].data.value.toLocaleString('en-US')
@@ -302,7 +296,7 @@ class FteYearly extends Component {
           },
           axisLine: {
             lineStyle: {
-              color: '#505050',
+              color: '#aab1b8',
             },
           },
         },
@@ -316,7 +310,7 @@ class FteYearly extends Component {
           axisLine: {
             show: false,
             lineStyle: {
-              color: '#505050',
+              color: '#aab1b8',
             },
           },
         },
@@ -339,7 +333,7 @@ class FteYearly extends Component {
                   '#83e39d',
                   '#83e39d',
                   '#669df6',
-                  '#a894f6',
+                  '#fed949',
                 ];
                 return colorList[params.dataIndex];
               },
@@ -350,7 +344,7 @@ class FteYearly extends Component {
               //   position: "insideTop", //在上方显示
               //   textStyle: {]
               //     //数值样式
-              //     color: "#505050",
+              //     color: "#aab1b8",
               //    fontSize: 9
               //   },
               // },
@@ -388,7 +382,7 @@ class FteYearly extends Component {
                 position: 'top', //在上方显示
                 textStyle: {
                   //数值样式
-                  color: '#505050',
+                  color: '#aab1b8',
                   fontSize: 12,
                 },
                 formatter: function (params) {
@@ -419,7 +413,6 @@ class FteYearly extends Component {
     }
     this.setState({
       loadFormList: false,
-      colSortDirs: { null: 'null' },
     });
     let stackApplicationIdArr = this.findStackChart(detail);
     let applicationIdArr = detail.data.applicationId.split(',');
@@ -657,8 +650,12 @@ class FteYearly extends Component {
         <div className={classes.root}>
           <div style={styles_inside.title}>
             <Typography variant="h4">
-              {this.props.t('tab:General Recruiting Hires Report')}
-              <Typography>{this.props.t('tab:HiresReportTip1')}</Typography>
+              {'General Recruiting Hires Report'}
+              <Typography>
+                {
+                  'We use candidates’ 【On Board】date as reference to build up this report, and this report shows how much GM we generate in each month/quarter/year'
+                }
+              </Typography>
             </Typography>
             {/* 漏斗按钮 */}
             <Button
@@ -746,6 +743,4 @@ const mapStateToProps = (state) => {
   return {};
 };
 
-export default withTranslation('tab')(
-  connect(mapStateToProps)(withStyles(styles)(FteYearly))
-);
+export default connect(mapStateToProps)(withStyles(styles)(FteYearly));

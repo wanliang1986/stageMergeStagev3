@@ -44,12 +44,11 @@ class NewCompanyInfo extends Component {
   };
   getCreate = () => {
     const { tenantDetail } = this.state;
-    const { t } = this.props;
     if (tenantDetail) {
       return (
-        `${t('tab:Created at')}` +
+        'Created at ' +
         moment(tenantDetail.createdDate).format('MM/DD/YYYY') +
-        `${t('tab:By')}` +
+        ' By ' +
         tenantDetail.createdBy
       );
     }
@@ -120,7 +119,7 @@ class NewCompanyInfo extends Component {
                       this.edit();
                     }}
                   >
-                    {t('action:edit')}
+                    {'edit'}
                   </PotentialButton>
                 )}
               </section>

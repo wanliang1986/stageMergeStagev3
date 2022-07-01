@@ -19,7 +19,6 @@ const defaultState = fromJS({
     minimumDegreeLevel: null,
     experienceYearRange: null,
     'Rate/Salary': null,
-    published: null,
   },
   advancedFilter: {},
   loading: true,

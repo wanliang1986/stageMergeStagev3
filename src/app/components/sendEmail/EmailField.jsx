@@ -5,21 +5,21 @@ import FormControl from '@material-ui/core/FormControl';
 import Input from '@material-ui/core/Input';
 import Select from '@material-ui/core/Select';
 
-const styles = theme => ({
+const styles = (theme) => ({
   formControl: {
     flexDirection: 'row',
     alignItems: 'baseline',
     '& > $textFieldContainer': {
       margin: 0,
-      marginBottom: '0.75em'
-    }
+      marginBottom: '0.75em',
+    },
   },
   label: {
     color: theme.palette.primary.main,
     marginRight: 10,
     fontSize: 13,
     minWidth: 60,
-    fontWeight: 500
+    fontWeight: 500,
   },
   textFieldContainer: {},
   textField: {
@@ -30,9 +30,9 @@ const styles = theme => ({
     '&:focus': {
       borderColor: '#8a8a8a',
       boxShadow: '0 0 5px #cacaca',
-      background: 'transparent'
-    }
-  }
+      background: 'transparent',
+    },
+  },
 });
 
 class EmailField extends React.PureComponent {
@@ -45,7 +45,7 @@ class EmailField extends React.PureComponent {
       label,
       placeholder,
       select,
-      children
+      children,
     } = this.props;
     return (
       <FormControl className={classes.formControl}>
@@ -57,7 +57,7 @@ class EmailField extends React.PureComponent {
             id={name}
             name={name}
             value={value}
-            onChange={e => handleChange(name, e.target.value)}
+            onChange={(e) => handleChange(name, e.target.value)}
             placeholder={placeholder}
             classes={{ select: classes.textField }}
             className={classes.textFieldContainer}
@@ -71,7 +71,7 @@ class EmailField extends React.PureComponent {
             id={name}
             name={name}
             value={value}
-            onChange={e => handleChange(name, e.target.value)}
+            onChange={(e) => handleChange(name, e.target.value)}
             classes={{ input: classes.textField }}
             className={classes.textFieldContainer}
             fullWidth

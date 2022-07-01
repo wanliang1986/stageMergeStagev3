@@ -2,9 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Immutable from 'immutable';
+import { searchMyJobList, loadMoreMyJobList } from '../../actions/jobActions';
 
 import { Prompt } from 'react-router';
-import { makeGetJobList } from '../../selectors/jobSelectors';
+import { selectMyJobs, makeGetJobList } from '../../selectors/jobSelectors';
+import { getNewFilters } from '../../../utils';
 
 import Divider from '@material-ui/core/Divider';
 import Typography from '@material-ui/core/Typography';
@@ -13,7 +15,10 @@ import SecondaryButton from '../../components/particial/SecondaryButton';
 import PrimaryButton from '../../components/particial/PrimaryButton';
 import JobTable from '../../components/Tables/JobTable';
 import Loading from '../../components/particial/Loading';
-import { makeCancelable, sortList, getIndexList } from '../../../utils';
+import { makeCancelable, sortList, getIndexList } from '../../../utils/index';
+
+const JOB_COUNT_PER_PAGE = 40;
+const isLoading = {};
 
 const columns = [
   {

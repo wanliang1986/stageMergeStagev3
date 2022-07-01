@@ -236,7 +236,7 @@ class InterviewFrom extends Component {
                     value={agreedPayRate.rateUnitType}
                     simpleValue
                     options={rateUnitTypeOptions}
-                    placeholder={t('field:Rate Unit Type')}
+                    placeholder={'Rate Unit Type'}
                   />
                 </FormReactSelectContainer>
               </div>

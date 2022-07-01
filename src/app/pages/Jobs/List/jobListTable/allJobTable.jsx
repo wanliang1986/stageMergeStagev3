@@ -39,9 +39,6 @@ import StatusCell from './StatusCell';
 import SortCell from './sortCell';
 import LinkCell from './linkCell';
 import JobTypeCell from './jobTypeCell';
-import JobPostingCell from './jopPosting';
-
-import { ipgJobStatusObj } from '../../../../constants/formOptions';
 const styles = {
   root: {
     overflow: 'hidden',
@@ -64,7 +61,6 @@ const frameworkComponents = {
   sortCell: SortCell,
   LinkCell: LinkCell,
   JobTypeCell: JobTypeCell,
-  JobPostingCell: JobPostingCell,
 };
 
 const StatusCellStyle = {
@@ -112,14 +108,14 @@ class jobAllTable extends Component {
     getColumns()
       .then(({ response }) => {
         let { itemSortAll, pageSize } = response;
-        pageSize &&
-          this.props.dispatch({
-            type: 'NEW_SEARCH_JOB_PAGESIZE',
-            payload: {
-              page: pages,
-              size: pageSize,
-            },
-          });
+        // pageSize &&
+        //   this.props.dispatch({
+        //     type: 'NEW_SEARCH_JOB_PAGESIZE',
+        //     payload: {
+        //       page: pages,
+        //       size: pageSize,
+        //     },
+        //   });
         if (itemSortAll) {
           let list = JSON.parse(response.itemSortAll);
           this.setState(
@@ -198,12 +194,6 @@ class jobAllTable extends Component {
   updateStatus = (id, flag) => {
     let rowNode = this.gridApi.getRowNode(id);
     rowNode.setDataValue('status', flag);
-    // 相关联的ipg的job Posting status也需要更新（只处理close）
-    // 条件有2个 1.当ipg job操作类型为close 2.当前的job的published 为true 才可以把published状态变更为false
-    if (ipgJobStatusObj[flag] === 'CLOSE' && rowNode.data.published) {
-      console.log('相关联的ipg的job Posting status也需要更新');
-      rowNode.setDataValue('published', false);
-    }
   };
 
   onFirstDataRendered = (params) => {
@@ -276,11 +266,6 @@ class jobAllTable extends Component {
     let headerList = [...this.state.headerList];
     headerList.map((item) => {
       item.sort = null;
-
-      // 这里因为后端返回的key是jobPostingStatus 但是排序是时候需要传递published 故前端需要重新映射下sort字段
-      if (item.colId === 'jobPostingStatus' && columnKey === 'published') {
-        item.sort = sortDir;
-      }
       if (item.colId === columnKey) {
         item.sort = sortDir;
       }
@@ -383,15 +368,8 @@ class jobAllTable extends Component {
 
   render() {
     const { classes, loading, tableData } = this.props;
-    const {
-      headerList,
-      sortParams,
-      count,
-      page,
-      size,
-      newHeight,
-      NewData,
-    } = this.state;
+    const { headerList, sortParams, count, page, size, newHeight, NewData } =
+      this.state;
     if (loading) {
       return (
         <div
@@ -675,31 +653,6 @@ class jobAllTable extends Component {
                             resizable={true}
                             headerTooltip={item.label}
                             cellRenderer="JobTypeCell"
-                            cellStyle={StatusCellStyle}
-                            headerComponent={'sortCell'}
-                            headerComponentParams={{
-                              params: item,
-                              onChangeSort: this.onChangeSort,
-                            }}
-                          />
-                        );
-                      } else if (
-                        item.colId === 'published' ||
-                        item.colId === 'jobPostingStatus'
-                      ) {
-                        return (
-                          <AgGridColumn
-                            field={'published'}
-                            colId={'published'}
-                            key={item.label}
-                            headerName={item.label}
-                            width={item.width}
-                            hide={!item.showFlag}
-                            sortable={item.sortFlag}
-                            unSortIcon={item.sortFlag}
-                            resizable={true}
-                            headerTooltip={item.label}
-                            cellRenderer="JobPostingCell"
                             cellStyle={StatusCellStyle}
                             headerComponent={'sortCell'}
                             headerComponentParams={{

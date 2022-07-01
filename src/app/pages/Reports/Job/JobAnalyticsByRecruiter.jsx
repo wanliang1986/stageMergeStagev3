@@ -37,6 +37,23 @@ import CustomToggleButton from '../../../components/particial/CustomToggleButton
 import { styles, jobPipielineByRecruiterColumns as columns } from '../params';
 import { showErrorMessage } from '../../../actions';
 
+const ranges = [
+  {
+    label: 'This Month',
+    value: [dateFns.startOfMonth(new Date()), dateFns.endOfToday()],
+  },
+  {
+    label: 'Last 3 Months',
+    value: [
+      dateFns.addMonths(dateFns.startOfToday(), -3),
+      dateFns.endOfToday(),
+    ],
+  },
+  {
+    label: 'Year to Date',
+    value: [dateFns.startOfYear(new Date()), dateFns.endOfToday()],
+  },
+];
 const status = {};
 class Reports extends React.PureComponent {
   constructor(props) {
@@ -168,8 +185,13 @@ class Reports extends React.PureComponent {
   downloadData = () => {
     this.setState({ generating: true });
 
-    const { range, selectedJobCountry, selectedTeam, selectedDivision } =
-      this.state;
+    const {
+      range,
+      selectedJobCountry,
+      selectedTeam,
+      selectedDivision,
+      allOpenJobs,
+    } = this.state;
     const { dispatch } = this.props;
     const fromDate = range[0].toISOString();
     const toDate = range[1].toISOString();
@@ -309,6 +331,7 @@ class Reports extends React.PureComponent {
     if (!this.filteredList.equals(filteredList)) {
       this.filteredList = filteredList;
     }
+
     return (
       <Paper
         className={clsx(
@@ -319,7 +342,7 @@ class Reports extends React.PureComponent {
         <div>
           <div className={classes.actionsContainer}>
             <Typography variant="h5">
-              {t('tab:Job Analytics by User(AM)')}
+              {t('message:Job Analytics by User(AM)')}
             </Typography>
             <PotentialButton
               onClick={this.downloadData}
@@ -337,29 +360,7 @@ class Reports extends React.PureComponent {
               <FormReactSelectContainer label={t('field:Posting Date')}>
                 <DateRangePicker
                   value={range}
-                  ranges={[
-                    {
-                      label: t('tab:This Month'),
-                      value: [
-                        dateFns.startOfMonth(new Date()),
-                        dateFns.endOfToday(),
-                      ],
-                    },
-                    {
-                      label: t('tab:Last 3 Months'),
-                      value: [
-                        dateFns.addMonths(dateFns.startOfToday(), -3),
-                        dateFns.endOfToday(),
-                      ],
-                    },
-                    {
-                      label: t('tab:Year to Date'),
-                      value: [
-                        dateFns.startOfYear(new Date()),
-                        dateFns.endOfToday(),
-                      ],
-                    },
-                  ]}
+                  ranges={ranges}
                   cleanable={false}
                   toggleComponentClass={CustomToggleButton}
                   size="md"

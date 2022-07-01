@@ -119,8 +119,8 @@ class CompanyBasic extends Component {
   };
 
   editCompanyHandler = () => {
-    let { companyId, history, company } = this.props;
-    if (company.get('type') === 'POTENTIAL_CLIENT') {
+    let { companyId, history, company, pageType } = this.props;
+    if (pageType === '1') {
       history.push(`/companies/edit/${companyId}`);
     } else {
       history.push(`/companies/clientEdit/${companyId}`);
@@ -241,7 +241,10 @@ class CompanyBasic extends Component {
     let arr = [];
     let newFormData = lodash.cloneDeep(this.state.formData);
     checkedList.forEach((item, index) => {
-      arr.push(item.id);
+      arr.push({
+        id: item.id,
+        label: item.label,
+      });
     });
     newFormData.serviceType = arr;
     this.setState({
@@ -268,10 +271,51 @@ class CompanyBasic extends Component {
         this.setState({ creating: false });
         return this.setState({ errorMessage });
       }
+      console.log(this.state.formData);
+      let _salesLeadsOwner = this.state.formData.owners.map((item, index) => {
+        return {
+          userId: item.id,
+          fullName: item.fullName,
+          contribution: null,
+          salesLeadRoleType: 'SALES_LEAD_OWNER',
+        };
+      });
+      let _salesLeadClientContacts = this.state.formData.contacts.map(
+        (item, index) => {
+          return {
+            id: item.id,
+            name: item.name,
+            title: item.title,
+            email: item.email,
+            phone: item.phone,
+            wechat: item.wechat,
+            contactCategory: item.contactCategory,
+            department: item.department,
+            remark: item.remark,
+            active: item.active,
+            businessGroup: item.businessGroup,
+            businessUnit: item.businessUnit,
+            companyAddressId: item.companyAddressId,
+            linkedinProfile: item.linkedinProfile,
+            lastContactDate: item.lastModifiedDate,
+            tenantId: item.tenantId,
+          };
+        }
+      );
+      let obj = {
+        accountProgress: this.state.formData.accountProgress,
+        companyId: this.state.formData.companyId,
+        leadSource: this.state.formData.leadSource,
+        estimatedDealTime: this.state.formData.estimatedDealTime,
+        salesLeadStatus: 'PROSPECT',
+        salesLeadClientContacts: _salesLeadClientContacts,
+        salesLeadsOwner: _salesLeadsOwner,
+        companyServiceTypes: this.state.formData.serviceType,
+      };
       this.props
-        .dispatch(addSaleLead(this.state.formData))
+        .dispatch(addSaleLead(obj))
         .then((res) => {
-          if (res && res.response.length === 0) {
+          if (res.response.id) {
             this.setState({
               salesLeadDialog: false,
               creating: false,
@@ -301,7 +345,7 @@ class CompanyBasic extends Component {
           } else {
             let noPhoneContactsName = [];
             res &&
-              res.response.forEach((item, index) => {
+              res.response.salesLeadClientContacts.forEach((item, index) => {
                 if (!item.contactCategory || !item.email) {
                   noPhoneContactsName.push(item.name);
                 }
@@ -326,7 +370,7 @@ class CompanyBasic extends Component {
                 this.setState({
                   updateContact: true,
                   creating: false,
-                  noPhoneContacts: res.response,
+                  noPhoneContacts: res.response.salesLeadClientContacts,
                 });
               }
             }
@@ -347,16 +391,34 @@ class CompanyBasic extends Component {
         this.setState({ creating: false });
         return this.setState({ errorMessage });
       }
-      this.props
-        .dispatch(updateContactPhone(this.state.noPhoneContacts))
-        .then((res) => {
-          if (res.response) {
-            this.setState({
-              creating: false,
-              updateContact: false,
-            });
-          }
-        });
+      let params = this.state.noPhoneContacts.map((item, index) => {
+        return {
+          id: item.id,
+          name: item.name,
+          title: item.title,
+          email: item.email,
+          phone: item.phone,
+          wechat: item.wechat,
+          contactCategory: item.contactCategory,
+          department: item.department,
+          remark: item.remark,
+          active: item.active,
+          businessGroup: item.businessGroup,
+          businessUnit: item.businessUnit,
+          companyAddressId: item.companyAddressId,
+          linkedinProfile: item.linkedinProfile,
+          lastContactDate: item.lastModifiedDate,
+          companyId: this.props.companyId,
+        };
+      });
+      this.props.dispatch(updateContactPhone(params)).then((res) => {
+        if (res.response) {
+          this.setState({
+            creating: false,
+            updateContact: false,
+          });
+        }
+      });
     }
   };
 
@@ -540,18 +602,26 @@ class CompanyBasic extends Component {
     });
   };
 
-  getType = (str) => {
+  // getType = (str) => {
+  //   switch (str) {
+  //
+  //   }
+  // };
+  getType = (str, type) => {
     switch (str) {
-      case 'POTENTIAL_CLIENT':
+      case '0':
+        switch (type) {
+          case 'KEY_ACCOUNT':
+            return 'Client - Key Account';
+          case 'SUPER_KEY_ACCOUNT':
+            return 'Client - Super Key Account';
+          case 'COMMERCIAL_ACCOUNT':
+            return 'Client - Commercial Account';
+          case 'SUN_SET':
+            return 'Client - Sunset ';
+        }
+      case '1':
         return 'Prospect';
-      case 'KEY_ACCOUNT':
-        return 'Client - Key Account';
-      case 'SUPER_KEY_ACCOUNT':
-        return 'Client - Super Key Account';
-      case 'COMMERCIAL_ACCOUNT':
-        return 'Client - Commercial Account';
-      case 'SUN_SET':
-        return 'Client - Sunset ';
     }
   };
 
@@ -564,6 +634,7 @@ class CompanyBasic extends Component {
       isProspect,
       userList,
       userlist,
+      pageType,
       ...props
     } = this.props;
     const {
@@ -612,10 +683,10 @@ class CompanyBasic extends Component {
           )}
           <div style={{ paddingTop: '10px' }}>
             <Typography variant="h5" gutterBottom>
-              {nameFilter(company.get('name'))}
+              {company.get('name')}
               <Chip
                 label={
-                  t(`tab:${this.getType(company.get('type'))}`)
+                  this.getType(pageType, company.get('companyClientLevelType'))
                   // company.get('type') === 'POTENTIAL_CLIENT'
                   //   ? 'Prospect'
                   //   : 'Client - ' + company.get('type')
@@ -628,14 +699,14 @@ class CompanyBasic extends Component {
             <div>
               {isProspect ? (
                 <>
-                  {company.get('prospectAndClient') ? (
+                  {company.get('type') === 'MIXED' ? (
                     <Button
                       color="primary"
                       onClick={() => {
                         this.checkToClient();
                       }}
                     >
-                      {t('tab:Check Other Service Types With This Client')}
+                      Check Other Service Types With This Client
                     </Button>
                   ) : null}
                   <Button
@@ -644,7 +715,7 @@ class CompanyBasic extends Component {
                       this.upgradeClient();
                     }}
                   >
-                    {t('tab:Promote to Client')}
+                    Promote to Client
                   </Button>
                   <Button
                     color="primary"
@@ -652,12 +723,12 @@ class CompanyBasic extends Component {
                       this.AddSalesLead();
                     }}
                   >
-                    {t('tab:Add Sales Lead')}
+                    Add Sales Lead
                   </Button>
                 </>
               ) : (
                 <>
-                  {company.get('prospectAndClient') ? (
+                  {company.get('type') === 'MIXED' ? (
                     <>
                       <Button
                         color="primary"
@@ -665,7 +736,7 @@ class CompanyBasic extends Component {
                           this.checkToProspect();
                         }}
                       >
-                        {t('tab:Check Other Sales Leads With This Client')}
+                        Check Other Sales Leads With This Client
                       </Button>
                       <Button
                         color="primary"
@@ -673,7 +744,7 @@ class CompanyBasic extends Component {
                           this.AddSalesLead();
                         }}
                       >
-                        {t('tab:Add Sales Lead')}
+                        Add Sales Lead
                       </Button>
                     </>
                   ) : (
@@ -683,7 +754,7 @@ class CompanyBasic extends Component {
                         this.AddSalesLead();
                       }}
                     >
-                      {t('tab:Add Sales Lead')}
+                      Add Sales Lead
                     </Button>
                   )}
                 </>
@@ -704,12 +775,12 @@ class CompanyBasic extends Component {
         <MyDialog
           btnShow={true}
           show={clientDialog}
-          modalTitle={t('tab:Upgrade to Client')}
+          modalTitle={`Upgrade to Client`}
           SubmitBtnShow={true}
           SubmitBtnMsg={'Next'}
           SumbitBtnVariant={'contained'}
           CancelBtnShow={true}
-          CancelBtnMsg={t('tab:Cancel')}
+          CancelBtnMsg={'Cancel'}
           CancelBtnVariant={''}
           primary={() => {
             this.next();
@@ -720,10 +791,7 @@ class CompanyBasic extends Component {
             });
           }}
         >
-          <UpgradeClientFirst
-            t={this.props.t}
-            selectdType={(val) => this.selectdType(val)}
-          />
+          <UpgradeClientFirst selectdType={(val) => this.selectdType(val)} />
         </MyDialog>
 
         {/* 2 */}
@@ -731,12 +799,12 @@ class CompanyBasic extends Component {
         <MyDialog
           btnShow={true}
           show={clientDialog2}
-          modalTitle={`${t('tab:Promote to Client')}`}
+          modalTitle={`Promote to Client`}
           SubmitBtnShow={false}
-          SubmitBtnMsg={t('action:submit')}
+          SubmitBtnMsg={'Submit'}
           SumbitBtnVariant={'contained'}
           CancelBtnShow={false}
-          CancelBtnMsg={t('tab:Cancel')}
+          CancelBtnMsg={'Cancel'}
           CancelBtnVariant={''}
           primary={() => {
             this.primary();
@@ -768,12 +836,12 @@ class CompanyBasic extends Component {
           btnShow={true}
           show={salesLeadDialog}
           creating={creating}
-          modalTitle={t('tab:Add Sales Lead')}
+          modalTitle={`Add Sales Lead`}
           SubmitBtnShow={true}
-          SubmitBtnMsg={t('action:submit')}
+          SubmitBtnMsg={'Submit'}
           SumbitBtnVariant={'contained'}
           CancelBtnShow={true}
-          CancelBtnMsg={t('tab:Cancel')}
+          CancelBtnMsg={'Cancel'}
           CancelBtnVariant={''}
           primary={() => {
             this.sumbit();
@@ -843,21 +911,12 @@ class CompanyBasic extends Component {
   }
 }
 
-const mapStoreStateToProps = (state) => {
+const mapStoreStateToProps = (state, { match }) => {
+  const pageType = match.params.type;
+  const companyId = match.params.id;
   const userList = getTenantUserList(state).toJS();
   const userlist = getTenantUserList(state);
-  return { userList, userlist };
-};
-
-const nameFilter = (value) => {
-  let length = value.length;
-  let str;
-  if (length > 40) {
-    str = value.substr(0, 40) + '...';
-  } else {
-    str = value;
-  }
-  return str;
+  return { userList, userlist, pageType, companyId };
 };
 
 export default connect(mapStoreStateToProps)(withStyles(styles)(CompanyBasic));

@@ -44,9 +44,9 @@ const columns = [
   },
 
   {
-    colName: 'Edit Date',
+    colName: 'createdAt',
     colWidth: 120,
-    col: 'lastEditedTime',
+    col: 'createdDate',
     type: 'date',
     sortable: true,
   },
@@ -194,15 +194,8 @@ class HotLists extends React.PureComponent {
   };
 
   render() {
-    const {
-      hotListList,
-      tReady,
-      reportNS,
-      defaultNS,
-      i18nOptions,
-      isAdmin,
-      ...props
-    } = this.props;
+    const { hotListList, tReady, reportNS, defaultNS, i18nOptions, ...props } =
+      this.props;
     const {
       chinese,
       filterOpen,
@@ -251,30 +244,28 @@ class HotLists extends React.PureComponent {
               <FilterIcon />
             </IconButton>
             <div className="flex-child-auto" />
-            {isAdmin && (
-              <div className="horizontal-layout">
-                <div>
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        color="primary"
-                        checked={chinese}
-                        onChange={(e) =>
-                          this.setState({ chinese: e.target.checked })
-                        }
-                      />
-                    }
-                    label={props.t('field:Mandarin Speaking')}
-                    labelPlacement="start"
-                  />
-                </div>
-                <ExportHotlist
-                  chinese={chinese}
-                  hotlistIds={filteredSelected}
-                  {...props}
+            <div className="horizontal-layout">
+              <div>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      color="primary"
+                      checked={chinese}
+                      onChange={(e) =>
+                        this.setState({ chinese: e.target.checked })
+                      }
+                    />
+                  }
+                  label={props.t('Mandarin Speaking')}
+                  labelPlacement="start"
                 />
               </div>
-            )}
+              <ExportHotlist
+                chinese={chinese}
+                hotlistIds={filteredSelected}
+                {...props}
+              />
+            </div>
           </div>
           <Divider component="div" />
         </div>
@@ -323,14 +314,8 @@ HotLists.propTypes = {
 };
 
 function mapStoreStateToProps(state) {
-  const authorities = state.controller.currentUser.get('authorities');
-  const isAdmin =
-    !!authorities &&
-    (authorities.includes(Immutable.Map({ name: 'ROLE_TENANT_ADMIN' })) ||
-      authorities.includes(Immutable.Map({ name: 'ROLE_PRIMARY_RECRUITER' })));
   return {
     hotListList: hotListSelector(state),
-    isAdmin,
   };
 }
 

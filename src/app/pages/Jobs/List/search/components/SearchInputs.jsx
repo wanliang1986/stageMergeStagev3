@@ -10,7 +10,7 @@ import Location from './Location';
 import { isNum, isSymbol } from '../../../../../../utils/search';
 import { getNewSearch } from '../../../../../actions/newSearchJobs';
 import { connect, useSelector, useDispatch } from 'react-redux';
-import { useTranslation } from 'react-i18next';
+
 const style = {
   double: {
     display: 'flex',
@@ -251,7 +251,7 @@ export const DoubleInputNumber = ({
   const handleChangeMax = (event) => {
     setLte(isNum(event.target.value, 2));
   };
-  const [t] = useTranslation();
+
   return (
     <div>
       <div className={classes.doubles}>
@@ -262,7 +262,7 @@ export const DoubleInputNumber = ({
             handleChangeMin(e);
           }}
           value={gte}
-          placeholder={t('tab:Min Year')}
+          placeholder={`Min Year`}
           disabled={disabled}
           errorMessage={errorMessage[0]}
         />
@@ -273,7 +273,7 @@ export const DoubleInputNumber = ({
           onChange={(e) => {
             handleChangeMax(e);
           }}
-          placeholder={t('tab:Max Year')}
+          placeholder={`Max Year`}
           disabled={disabled}
           errorMessage={errorMessage[1]}
         />

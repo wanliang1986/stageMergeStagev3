@@ -8,7 +8,6 @@ import {
   SortIcon,
   SortUpIcon,
 } from '../../../../components/Icons';
-import InfoIcon from '@material-ui/icons/Info';
 const style = {
   tableHeaderCell: {
     position: 'relative',
@@ -25,6 +24,7 @@ const SortTypes = {
 class sortCell extends React.PureComponent {
   constructor(props) {
     super(props);
+
     this.state = {};
   }
   _onSortChange = (e, columnKey) => {
@@ -40,19 +40,11 @@ class sortCell extends React.PureComponent {
     } else {
       sortDir = null;
     }
-    // 这里因为后端返回的key是jobPostingStatus 但是排序是时候需要传递published 故前端需要重新映射下sort字段
-    // 前端重新映射字段 jobPostingStatus =》published
-    this.props.onChangeSort(
-      columnKey === 'jobPostingStatus' ? 'published' : columnKey,
-      sortDir
-    );
+    this.props.onChangeSort(columnKey, sortDir);
   };
 
   render() {
     const { params, displayName, classes } = this.props;
-
-    console.log(params);
-    console.log(SortTypes);
     return (
       <div className={classes.tableHeaderCell}>
         <Typography variant="subtitle2" noWrap>
@@ -63,32 +55,8 @@ class sortCell extends React.PureComponent {
           onClick={(e) => {
             this._onSortChange(e, params.colId);
           }}
-          onMouseEnter={() => {
-            if (document.querySelector('.ag-tooltip')) {
-              document.querySelector('.ag-tooltip').style.opacity = 0;
-            }
-          }}
-          onMouseLeave={() => {
-            if (document.querySelector('.ag-tooltip')) {
-              document.querySelector('.ag-tooltip').style.opacity = 1;
-            }
-          }}
           className="flex-container align-justify align-middle"
         >
-          {displayName === 'Job Posting Status' && (
-            <Tooltip
-              title={
-                <span style={{ whiteSpace: 'pre-line' }}>
-                  Posting Status on IPG Website
-                </span>
-              }
-              arrow
-            >
-              <div style={{ marginRight: 10 }}>
-                <InfoIcon color="disabled" fontSize="small" />
-              </div>
-            </Tooltip>
-          )}
           {params.sortFlag &&
             (params.sort ? (
               params.sort === SortTypes.DESC ? (

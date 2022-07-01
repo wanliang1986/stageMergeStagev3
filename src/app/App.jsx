@@ -22,26 +22,8 @@ const styles = {
   },
 };
 
-let timer = null;
-
 class App extends React.Component {
-  removeIframe = () => {
-    if (timer) clearInterval(timer);
-    timer = setInterval(() => {
-      if (document.querySelector('body > iframe')) {
-        console.log(
-          'bugIframe here::::',
-          document.querySelector('body > iframe')
-        );
-        document.querySelector('body > iframe').remove();
-      }
-    }, 100);
-  };
-
   componentDidMount() {
-    // dev debug remove autoCreact iframe
-    this.removeIframe();
-
     console.timeEnd('app mounted');
     if (window.performance) {
       // Gets the number of milliseconds since page load

@@ -91,7 +91,7 @@ class CreateCandidateButton extends React.Component {
             style={{ display: 'none' }}
           />
           <label htmlFor="contained-button-fileFour">
-            {this.props.t('tab:Upload with Resume')}
+            {'Upload with Resume'}
           </label>
         </Button>
       );
@@ -104,7 +104,7 @@ class CreateCandidateButton extends React.Component {
           style={{ minWidth: 150, borderColor: 'white' }}
           onClick={this.handleSkip}
         >
-          {this.props.t('tab:Create without Resume')}
+          {'Create without Resume'}
         </Button>
       );
     } else if (data === CandidateTpye[2].value) {
@@ -124,7 +124,7 @@ class CreateCandidateButton extends React.Component {
             style={{ display: 'none' }}
           />
           <label htmlFor="contained-button-fileFive">
-            {this.props.t('tab:Bulk Upload Resumes')}
+            {'Bulk Upload Resumes'}
           </label>
         </Button>
       );
@@ -133,12 +133,13 @@ class CreateCandidateButton extends React.Component {
 
   //新上传流程，上传简历只判断状态，parse-records接口只传输uuid，在新页面通过uuid进行查询
   handleUploadResumeV2 = (e) => {
+    console.log(1);
     const { dispatch } = this.props;
     const fileInput = e.target;
     const resumeFile = fileInput.files[0];
     if (resumeFile) {
       this.setState({ parsing: true });
-      dispatch(parseResume(resumeFile, 0))
+      dispatch(parseResume(resumeFile))
         .then((resume) => {
           console.log(resume);
           if (!resume) {
@@ -191,14 +192,14 @@ class CreateCandidateButton extends React.Component {
   handleBulkUploadResumes = (e) => {
     console.log('handleBulkUploadResumes', e);
     const fileInput = e.target;
-    // if (Array.from(fileInput.files).length > 10) {
-    //   this.props.dispatch(
-    //     showErrorMessage(
-    //       'No more than 10 resumes can be uploaded at the same time'
-    //     )
-    //   );
-    //   return;
-    // }
+    if (Array.from(fileInput.files).length > 10) {
+      this.props.dispatch(
+        showErrorMessage(
+          'No more than 10 resumes can be uploaded at the same time'
+        )
+      );
+      return;
+    }
     this.setState(
       {
         openCreate: true,
@@ -270,11 +271,11 @@ class CreateCandidateButton extends React.Component {
                         style={{ display: 'none' }}
                       />
                       <label htmlFor="contained-button-fileTwo">
-                        {this.props.t('tab:Upload with Resume')}
+                        {'Upload with Resume'}
                       </label>
                     </MenuItem>
                     <MenuItem onClick={this.handleSkip}>
-                      {this.props.t('tab:Create without Resume')}
+                      {'Create without Resume'}
                     </MenuItem>
                     <MenuItem>
                       <input
@@ -286,7 +287,7 @@ class CreateCandidateButton extends React.Component {
                         style={{ display: 'none' }}
                       />
                       <label htmlFor="contained-button-fileThree">
-                        {this.props.t('tab:Bulk Upload Resumes')}
+                        {'Bulk Upload Resumes'}
                       </label>
                     </MenuItem>
                   </MenuList>

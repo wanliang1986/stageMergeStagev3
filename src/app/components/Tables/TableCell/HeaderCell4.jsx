@@ -140,16 +140,15 @@ class HeaderCell3 extends React.PureComponent {
             className="flex-container align-justify align-middle"
           >
             <span>
-              {column.type === 'activityCount' && <div>{t('Sum of')}</div>}
+              {column.type === 'activityCount' && <div>Sum of</div>}
               {t(column.colName)}
-              {console.log(column.colName)}
             </span>
             {column.tooltip ? (
               <MyTooltip
                 title={
                   <React.Fragment>
                     <div style={{ fontSize: '14px', marginBottom: '10px' }}>
-                      {t(column.tooltipText)}
+                      {column.tooltipText}
                     </div>
                   </React.Fragment>
                 }

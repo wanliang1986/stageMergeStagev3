@@ -40,7 +40,6 @@ import { connect } from 'react-redux';
 import { createBrowserHistory } from 'history';
 import PrimaryButton from '../../particial/PrimaryButton';
 import lodash from 'lodash';
-import { withTranslation } from 'react-i18next';
 const history = createBrowserHistory();
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -83,20 +82,20 @@ class RadioLabel extends Component {
     this.state = {};
   }
   getLeadOwner = (option) => {
-    let saleLeadOwner = option.saleLeadOwner;
+    let saleLeadOwner = option.salesLeadsOwner;
     let salesLeadOwner = [];
     saleLeadOwner.forEach((item, index) => {
-      let owner = item.firstName + '' + item.lastName;
+      let owner = item.fullName;
       salesLeadOwner.push(owner);
     });
     return salesLeadOwner.join(',');
   };
 
   getServiceType = (option) => {
-    let serviceTypes = option.serviceTypes;
+    let serviceTypes = option.companyServiceTypes;
     let serviceTypeList = [];
     serviceTypes.forEach((item, index) => {
-      let type = item.value;
+      let type = item.label;
       serviceTypeList.push(type);
     });
     return serviceTypeList.join(',');
@@ -106,11 +105,10 @@ class RadioLabel extends Component {
     return (
       <>
         <Typography variant="h7" gutterBottom>
-          {this.props.t('tab:Sales Lead')}
-          {option.index + 1}
+          Sales Lead {option.index + 1}
         </Typography>
         <Typography variant="caption" display="block" gutterBottom>
-          {this.props.t('tab:Estimated Deal Time')}:{' '}
+          Estimated Deal Time:{' '}
           {moment(option.estimatedDealTime).format('YYYY-MM-DD')}
         </Typography>
         <Typography variant="caption" display="block" gutterBottom>
@@ -180,10 +178,9 @@ class UpgradeClientSecond extends Component {
   }
 
   handleChange = (event, option) => {
-    let saleLeadOwner = option.saleLeadOwner.map((item, index) => {
+    let saleLeadOwner = option.salesLeadsOwner.map((item, index) => {
       return {
         ...item,
-        fullName: item.firstName + ' ' + item.lastName,
         percentage: 0,
         userId: item.id,
       };
@@ -191,8 +188,8 @@ class UpgradeClientSecond extends Component {
     let newBdCommission = [];
     newBdCommission.push(saleLeadOwner[0]);
     let selected = [];
-    option.serviceTypes.forEach((item, index) => {
-      selected.push(item.id);
+    option.companyServiceTypes.forEach((item, index) => {
+      selected.push(item);
     });
 
     this.setState({
@@ -202,7 +199,6 @@ class UpgradeClientSecond extends Component {
       ownerCommission: saleLeadOwner,
       serviceTypeSelect: selected,
     });
-    this.removeErrorMessage('salesLead');
   };
 
   setName = (user, filtedData, index, type) => {
@@ -373,7 +369,6 @@ class UpgradeClientSecond extends Component {
       this.fileTask.cancel();
     }
     const file = fileInput.files[0];
-    this.removeErrorMessage('s3key');
     this.setState({ fileName: file.name });
     this.fileTask = makeCancelable(
       getUploadContractUrl().then(({ message }) => {
@@ -399,9 +394,9 @@ class UpgradeClientSecond extends Component {
     );
     this.fileTask.promise
       .then((s3Key) => {
-        // if (this.removeErrorMessage) {
-        //   this.removeErrorMessage('attachement');
-        // }
+        if (this.removeErrorMessage) {
+          this.removeErrorMessage('attachement');
+        }
         console.log('[contract]', s3Key);
         this.setState({ s3Key, uploadingFile: false });
       })
@@ -422,14 +417,10 @@ class UpgradeClientSecond extends Component {
   };
 
   removeFileHandler = (file) => {
-    this.setState({ file: '', s3Key: null });
+    this.setState({ file: '' });
   };
 
   getServiceType = (checkedList) => {
-    let serviceType = [];
-    checkedList.forEach((item, index) => {
-      serviceType.push(item.id);
-    });
     let newServiceTypeSelect = checkedList.map((item, index) => {
       // serviceType.push(item.id);
       return {
@@ -440,7 +431,6 @@ class UpgradeClientSecond extends Component {
     });
     this.setState({
       serviceTypeSelect: newServiceTypeSelect,
-      serviceType: serviceType,
     });
   };
 
@@ -488,18 +478,13 @@ class UpgradeClientSecond extends Component {
     if (!this.state.clientLevel) {
       errorMessage = errorMessage.set('level', t('message:levelIsRequired'));
     }
-    if (!this.state.saleLead) {
-      errorMessage = errorMessage.set(
-        'salesLead',
-        t('message:salesLeadIsRequired')
-      );
-    }
-
-    if (
-      this.state.saleLead &&
-      (!this.state.serviceTypeSelect ||
-        this.state.serviceTypeSelect.length === 0)
-    ) {
+    // if (!this.state.salesLeadId) {
+    //   errorMessage = errorMessage.set(
+    //     'salesLead',
+    //     t('message:salesLeadIsRequired')
+    //   );
+    // }
+    if (!this.state.serviceTypeSelect) {
       errorMessage = errorMessage.set(
         'serviceType',
         t('message:serviceTypeIsRequired')
@@ -514,12 +499,8 @@ class UpgradeClientSecond extends Component {
     if (this.props.upgradeClientType === '1' && !this.state.s3Key) {
       errorMessage = errorMessage.set('s3key', t('message:fileIsRequired'));
     }
-    if (
-      (!this.state.signnes && this.props.upgradeClientType === '1') ||
-      (this.state.signnes &&
-        this.state.signnes.length === 0 &&
-        this.props.upgradeClientType === '1')
-    ) {
+
+    if (!this.state.signnes && this.props.upgradeClientType === '1') {
       errorMessage = errorMessage.set('signee', t('message:SignneIsRequired'));
     }
     if (!this.state.startDate && this.props.upgradeClientType === '1') {
@@ -529,9 +510,9 @@ class UpgradeClientSecond extends Component {
       );
     }
 
-    if (!this.state.note) {
-      errorMessage = errorMessage.set('note', t('message:noteIsRequired'));
-    }
+    // if (!this.state.note) {
+    //   errorMessage = errorMessage.set('note', t('message:noteIsRequired'));
+    // }
 
     if (
       this.state.bdCommission.length !== 0 &&
@@ -621,26 +602,84 @@ class UpgradeClientSecond extends Component {
       this.setState({ creating: false });
       return this.setState({ errorMessage });
     }
-    let obj = {
-      accountManager: this.state.accountManager,
-      clientLevel: this.state.clientLevel,
-      bdCommission: this.state.bdCommission,
-      prospectId: this.props.companyId,
-      salesLeadId: this.state.saleLead.id,
-      ownerCommission: this.state.ownerCommission,
-      serviceType: this.state.serviceType
-        ? this.state.serviceType
-        : this.state.serviceTypeSelect,
-      contract: {
-        endDate: this.state.endDate,
-        fileName: this.state.fileName,
-        name: this.state.name,
-        note: this.state.note,
-        s3Key: this.state.s3Key,
-        startDate: this.state.startDate,
-        signees: this.state.signnes,
-      },
-    };
+    console.log(this.props);
+    console.log(this.state);
+    let _salesLeadsOwner = this.state.ownerCommission.map((item, index) => {
+      return {
+        userId: item.id,
+        fullName: item.fullName,
+        contribution: item.percentage,
+        salesLeadRoleType: 'SALES_LEAD_OWNER',
+      };
+    });
+    let _businessDevelopmentOwner = this.state.bdCommission.map(
+      (item, index) => {
+        return {
+          userId: item.id,
+          fullName: item.fullName,
+          contribution: item.percentage,
+          salesLeadRoleType: 'BUSINESS_DEVELOPMENT',
+        };
+      }
+    );
+    let _accountManagers = this.state.accountManager.map((item, index) => {
+      return {
+        userId: item.id,
+        fullName: item.fullName,
+        salesLeadRoleType: 'ACCOUNT_MANAGER',
+      };
+    });
+    // let arr = []
+    // this.state.serviceTypeSelect.forEach((item,index)=>{
+    //   arr.push(item.id)
+    // })
+    let obj;
+    if (this.props.upgradeClientType === '1') {
+      obj = {
+        company: {
+          id: this.props.companyId,
+          companyClientLevelType: this.state.clientLevel,
+        },
+        salesLeadDetail: {
+          id: this.state.saleLead.id,
+          salesLeadStatus: 'CLIENT',
+          salesLeadsOwner: _salesLeadsOwner,
+          accountManagers: _accountManagers,
+          businessDevelopmentOwner: _businessDevelopmentOwner,
+          companyServiceTypes: this.state.serviceTypeSelect,
+        },
+        contract: {
+          note: this.state.note,
+          name: this.state.name,
+          fileName: this.state.fileName,
+          signers: this.state.selectedSignees.map((item, index) => {
+            return {
+              id: item.id,
+            };
+          }),
+          startDate: this.state.startDate.toJSON(),
+          endDate: this.state.endDate.toJSON(),
+          s3Key: this.state.s3Key,
+          companyId: this.props.companyId,
+        },
+      };
+    } else {
+      obj = {
+        company: {
+          id: this.props.companyId,
+          companyClientLevelType: this.state.clientLevel,
+        },
+        salesLeadDetail: {
+          id: this.state.saleLead.id,
+          salesLeadStatus: 'CLIENT',
+          salesLeadsOwner: _salesLeadsOwner,
+          accountManagers: _accountManagers,
+          businessDevelopmentOwner: _businessDevelopmentOwner,
+          companyServiceTypes: this.state.serviceTypeSelect,
+        },
+      };
+    }
+
     this.props.dispatch(prospectUpgrade(obj)).then((res) => {
       if (res) {
         this.setState({
@@ -658,7 +697,6 @@ class UpgradeClientSecond extends Component {
   };
 
   handleCheck = (user) => {
-    console.log(user);
     let newAccountManager = JSON.parse(
       JSON.stringify(this.state.accountManager)
     );
@@ -850,20 +888,13 @@ class UpgradeClientSecond extends Component {
         {/* 2 row */}
         <div className="row expanded">
           <div className="small-12 columns">
-            <label
-              style={
-                errorMessage && errorMessage.get('salesLead')
-                  ? { fontSize: '12px', color: '#cc4b37' }
-                  : { fontSize: '12px' }
-              }
-            >
-              {t('tab:Sales Lead')} <span style={{ color: '#cc4b37' }}>*</span>
+            <label style={{ fontSize: '12px' }}>
+              Sales Lead <span style={{ color: '#cc4b37' }}>*</span>
             </label>
             <Autocomplete
               id="checkboxes-tags-demo"
               options={salesLead ? salesLead : []}
               disableCloseOnSelect
-              disableClearable
               getOptionLabel={(option) => value}
               renderOption={(option, { selected }) => (
                 <React.Fragment>
@@ -877,14 +908,10 @@ class UpgradeClientSecond extends Component {
                       }}
                     >
                       <FormControlLabel
-                        value={`${t('tab:Sales Lead')} ${option.index + 1}`}
+                        value={`Sales Lead ${option.index + 1}`}
                         control={<Radio color="primary" />}
                         label={
-                          <RadioLabel
-                            option={option}
-                            salesLead={salesLead}
-                            t={this.props.t}
-                          />
+                          <RadioLabel option={option} salesLead={salesLead} />
                         }
                       />
                     </RadioGroup>
@@ -898,14 +925,6 @@ class UpgradeClientSecond extends Component {
                   fullWidth
                   label=""
                   variant="outlined"
-                  style={
-                    errorMessage && errorMessage.get('salesLead')
-                      ? {
-                          border: '1px solid #cc4b37',
-                          backgroundColor: '#faedeb',
-                        }
-                      : {}
-                  }
                 />
               )}
             />
@@ -949,16 +968,6 @@ class UpgradeClientSecond extends Component {
                     this.removeErrorMsgHandler('serviceType');
                     this.getServiceType(checkedList);
                   }}
-                  errorMessage={errorMessage}
-                  salesLeadIndex={0}
-                  serviceTypeError={[
-                    {
-                      salesLeadIndex: 0,
-                      errorMessage: errorMessage.get('serviceType')
-                        ? true
-                        : false,
-                    },
-                  ]}
                   // getMsg={(list, msg) => {
                   //   this.getMsg(list, msg);
                   // }}
@@ -970,7 +979,9 @@ class UpgradeClientSecond extends Component {
                     fontWeight: 'bold',
                   }}
                 >
-                  {errorMessage && errorMessage.get('serviceType')
+                  {!this.state.serviceTypeSelect &&
+                  errorMessage &&
+                  errorMessage.get('serviceType')
                     ? errorMessage.get('serviceType')
                     : null}
                 </span>
@@ -991,9 +1002,9 @@ class UpgradeClientSecond extends Component {
                   label="BD Owner Contribution%"
                   icon={
                     <Tooltip
-                      title={t(
-                        'common:Please make sure all BD Owner Contribution% add up to 50%'
-                      )}
+                      title={
+                        'Please make sure all BD Owner Contribution% add up to 50%'
+                      }
                       arrow
                       placement="top-end"
                     >
@@ -1009,7 +1020,7 @@ class UpgradeClientSecond extends Component {
             <div className="row expanded">
               <div className="small-6 columns">
                 <FormReactSelectContainer
-                  label={this.props.t('tab:Sales Lead Owner')}
+                  label="Sales Lead Owner"
                   isRequired
                 ></FormReactSelectContainer>
               </div>
@@ -1019,9 +1030,9 @@ class UpgradeClientSecond extends Component {
                   label="Sales Lead Owner Contribution%"
                   icon={
                     <Tooltip
-                      title={t(
-                        'common:Please make sure all Sales Lead Owner Contribution% add up to 50%'
-                      )}
+                      title={
+                        'Please make sure all Sales Lead Owner Contribution% add up to 50%'
+                      }
                       arrow
                       placement="top-end"
                     >
@@ -1096,37 +1107,33 @@ class UpgradeClientSecond extends Component {
           <>
             <div className="row expanded">
               <div className="small-12 columns">
-                <FormInput
-                  name="ServiceContractName"
-                  label={t('field:Service Contract Name')}
+                <FormReactSelectContainer
+                  label="Service Contract Name"
                   isRequired
                   errorMessage={
                     errorMessage && errorMessage.get('contractName')
                       ? errorMessage.get('contractName')
                       : null
                   }
-                  value={this.state.name}
-                  onChange={(e) => {
-                    this.setState({ name: e.target.value });
-                  }}
-                  onFocus={() => {
-                    this.removeErrorMsgHandler('contractName');
-                  }}
-                  value={this.state.name}
-                />
+                >
+                  <FormInput
+                    name="ServiceContractName"
+                    value={this.state.name}
+                    onChange={(e) => {
+                      this.setState({ name: e.target.value });
+                    }}
+                    onFocus={() => {
+                      this.removeErrorMsgHandler('contractName');
+                    }}
+                  />
+                </FormReactSelectContainer>
                 <input type="hidden" name="ServiceContractName" value="" />
               </div>
             </div>
 
             <div className="row expanded">
               <div className="small-12 columns">
-                <label
-                  style={
-                    errorMessage && errorMessage.get('s3key')
-                      ? { color: '#cc4b37', fontSize: '12px' }
-                      : { fontSize: '12px' }
-                  }
-                >
+                <label style={{ fontSize: '12px' }}>
                   {'Attach Service Contract'}
                   <span style={{ color: '#cc4b37' }}>*</span>
                 </label>
@@ -1153,13 +1160,7 @@ class UpgradeClientSecond extends Component {
             <div className="row expanded">
               <div className="small-12 columns">
                 {/* <div className="small-12 columns"> */}
-                <label
-                  style={
-                    errorMessage && errorMessage.get('signee')
-                      ? { color: '#cc4b37', fontSize: '12px' }
-                      : { fontSize: '12px' }
-                  }
-                >
+                <label style={{ fontSize: '12px' }}>
                   {t('field:signee')}{' '}
                   <span style={{ color: '#cc4b37' }}>*</span>
                 </label>
@@ -1199,14 +1200,6 @@ class UpgradeClientSecond extends Component {
                       label=""
                       placeholder=""
                       fullWidth
-                      style={
-                        errorMessage && errorMessage.get('signee')
-                          ? {
-                              border: '1px solid #cc4b37',
-                              backgroundColor: '#faedeb',
-                            }
-                          : {}
-                      }
                     />
                   )}
                 />
@@ -1230,7 +1223,6 @@ class UpgradeClientSecond extends Component {
                   selected={
                     this.state.startDate ? moment(this.state.startDate) : ''
                   }
-                  maxDate={moment(this.state.endDate)}
                   customInput={
                     <FormInput
                       label={'Starts From'}
@@ -1240,10 +1232,10 @@ class UpgradeClientSecond extends Component {
                   }
                   onChange={(date) => {
                     this.setState({
-                      startDate: date.toJSON(),
+                      startDate: date,
                     });
-                    this.removeErrorMessage('startDate');
                   }}
+                  maxDate={this.state.endDate}
                   placeholderText="mm/dd/yyyy"
                 />
                 <input type="hidden" name="StartsFrom" value="" />
@@ -1253,7 +1245,7 @@ class UpgradeClientSecond extends Component {
                   selected={
                     this.state.endDate ? moment(this.state.endDate) : ''
                   }
-                  minDate={moment(this.state.startDate)}
+                  minDate={this.state.startDate}
                   customInput={
                     <FormInput
                       label={'Ends On'}
@@ -1262,7 +1254,7 @@ class UpgradeClientSecond extends Component {
                   }
                   onChange={(date) => {
                     this.setState({
-                      endDate: date.toJSON(),
+                      endDate: date,
                     });
                   }}
                   placeholderText="mm/dd/yyyy"
@@ -1279,21 +1271,21 @@ class UpgradeClientSecond extends Component {
         <div className="row expanded">
           <div className="small-12 columns">
             <FormTextArea
-              isRequired
-              label={this.props.t('tab:Fee Type and Note')}
-              errorMessage={
-                errorMessage && errorMessage.get('note')
-                  ? errorMessage.get('note')
-                  : null
-              }
+              // isRequired
+              label={'Fee Type and Note'}
+              // errorMessage={
+              //   errorMessage && errorMessage.get('note')
+              //     ? errorMessage.get('note')
+              //     : null
+              // }
               name="Fee Type and Note"
               value={this.state.note}
               onChange={(e) => {
                 this.setState({ note: e.target.value });
               }}
-              onFocus={() => {
-                this.removeErrorMessage('note');
-              }}
+              // onFocus={() => {
+              //   this.removeErrorMessage('note');
+              // }}
               rows={4}
             />
           </div>
@@ -1306,7 +1298,7 @@ class UpgradeClientSecond extends Component {
               this.props.handleClose();
             }}
           >
-            {t('tab:Cancel')}
+            Cancel
           </Button>
 
           <PrimaryButton
@@ -1318,7 +1310,7 @@ class UpgradeClientSecond extends Component {
               this.Sumbit();
             }}
           >
-            {t('tab:Submit')}
+            Submit
           </PrimaryButton>
           {/* </div> */}
         </div>
@@ -1327,11 +1319,11 @@ class UpgradeClientSecond extends Component {
   }
 }
 
-const mapStoreStateToProps = (state, props) => {
+const mapStoreStateToProps = (state) => {
   const serviceTypeTree = state.model.serviceTypeTree.tree;
   return { serviceTypeTree };
 };
 
-export default withTranslation('tab')(
-  connect(mapStoreStateToProps)(withStyles(styles)(UpgradeClientSecond))
+export default connect(mapStoreStateToProps)(
+  withStyles(styles)(UpgradeClientSecond)
 );

@@ -313,6 +313,7 @@ class MyDBCandidates extends React.Component {
     const { classes, t, i18n, myDBCandidates } = this.props;
 
     const isZH = i18n.language.match('zh');
+
     const { searching, colSortDirs, range, dataShow, recruiter, am, sourcer } =
       this.state;
 
@@ -323,7 +324,7 @@ class MyDBCandidates extends React.Component {
           style={{ marginBottom: 12 }}
         >
           <Typography variant="h6">{t('tab:myCandidates')}</Typography>
-          <Link href="/candidates?tab=my">{t('tab:More')} </Link>
+          <Link href="/candidates?tab=my">More</Link>
         </div>
         <div
           className="flex-container align-middle"
@@ -358,7 +359,7 @@ class MyDBCandidates extends React.Component {
                     color="primary"
                   />
                 }
-                label={t('tab:Recruiter')}
+                label="Recruiter"
               />
               <FormControlLabel
                 control={
@@ -370,7 +371,7 @@ class MyDBCandidates extends React.Component {
                     color="primary"
                   />
                 }
-                label={t('tab:AM')}
+                label="AM"
               />
               <FormControlLabel
                 control={
@@ -382,7 +383,7 @@ class MyDBCandidates extends React.Component {
                     color="primary"
                   />
                 }
-                label={t('tab:Sourcer')}
+                label="Sourcer"
               />
             </div>
           </FormControl>

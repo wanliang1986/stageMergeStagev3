@@ -49,21 +49,16 @@ export const resetPasswordFinish = (key, newPassword) => (dispatch) => {
   return authRequest.resetPasswordFinish(key, newPassword);
 };
 
-export const register = ({
-  email,
-  username,
-  password,
-  firstName,
-  lastName,
-  tenantId,
-}) => (dispatch) => {
-  return authRequest
-    .register(email, username, password, firstName, lastName, tenantId)
-    .then(({ response }) => {
-      gtag('event', 'sign_up', { method: 'password' });
-      return response;
-    });
-};
+export const register =
+  ({ email, username, password, firstName, lastName, tenantId }) =>
+  (dispatch) => {
+    return authRequest
+      .register(email, username, password, firstName, lastName, tenantId)
+      .then(({ response }) => {
+        gtag('event', 'sign_up', { method: 'password' });
+        return response;
+      });
+  };
 
 export const showErrorMessage = (err) => (dispatch) => {
   dispatch({

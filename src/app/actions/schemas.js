@@ -96,6 +96,16 @@ export const start = new schema.Entity(
   }
 );
 
+export const newStart = new schema.Entity(
+  'starts',
+  {},
+  {
+    processStrategy: (value) => {
+      return value;
+    },
+  }
+);
+
 export const esStart = new schema.Entity(
   'starts',
   {},
@@ -219,7 +229,7 @@ export const application = new schema.Entity('applications', {
   job: jobBasic,
   talent: talentBasic,
   resume: talentResume,
-  lastModifiedUser: user,
+  // lastModifiedUser: user,
 });
 
 //utils
@@ -324,14 +334,11 @@ const getTalentBasic = (talent) => {
   if (talent.preferredCurrency) {
     res.preferredCurrency = talent.preferredCurrency;
   }
-  if (talent.addressLine1) {
-    res.addressLine1 = talent.addressLine1;
+  if (talent.additionalInfo) {
+    res.additionalInfo = talent.additionalInfo;
   }
-  if (talent.addressLine2) {
-    res.addressLine2 = talent.addressLine2;
-  }
-  if (talent.zipCode) {
-    res.zipCode = talent.zipCode;
+  if (talent.tenantLabels) {
+    res.tenantLabels = talent.tenantLabels;
   }
 
   return res;
@@ -342,7 +349,6 @@ const getTalentDetail = (talent) => {
   res.certificates = talent.certificates;
   res.educations = talent.educations;
   res.experiences = talent.experiences;
-  // console.log(res);
   return res;
 };
 const getUser = (user) => {
@@ -468,11 +474,6 @@ const getJobBasic = (job) => {
     requiredLanguages: job.requiredLanguages,
     preferredLanguages: job.preferredLanguages,
     preferredSkills: job.preferredSkills,
-
-    //ipg Job Posting Status
-    ipgJobStatus: job.ipgJobStatus,
-    ipgJobType: job.ipgJobType,
-    ipgJobDescription: job.ipgJobDescription,
   };
   if (job.applicationStats) {
     res.applicationStats = job.applicationStats;

@@ -4,7 +4,7 @@ import Loading from '../Loading';
 
 const LoadableContractFrame = Loadable({
   loader: () => import('./index'),
-  loading: Loading
+  loading: Loading,
 });
 
 export default LoadableContractFrame;

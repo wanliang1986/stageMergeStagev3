@@ -55,7 +55,7 @@ class ErrorResumes extends React.Component {
               size="small"
               className={clsx({ [classes.flash]: flashing })}
             >
-              {noContractClientCount} {t('tab:No contract Client')}
+              {noContractClientCount} {'No contract Client'}
             </Button>
           </div>
         }

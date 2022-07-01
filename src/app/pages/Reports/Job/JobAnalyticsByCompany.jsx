@@ -43,6 +43,23 @@ import { showErrorMessage } from '../../../actions';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 
+const ranges = [
+  {
+    label: 'This Month',
+    value: [dateFns.startOfMonth(new Date()), dateFns.endOfToday()],
+  },
+  {
+    label: 'Last 3 Months',
+    value: [
+      dateFns.addMonths(dateFns.startOfToday(), -3),
+      dateFns.endOfToday(),
+    ],
+  },
+  {
+    label: 'Year to Date',
+    value: [dateFns.startOfYear(new Date()), dateFns.endOfToday()],
+  },
+];
 const status = {};
 class Reports extends React.PureComponent {
   constructor(props) {
@@ -346,7 +363,7 @@ class Reports extends React.PureComponent {
         <div>
           <div className={classes.actionsContainer}>
             <Typography variant="h5">
-              {t('tab:Job Analytics by Company')}
+              {t('message:Job Analytics by Company')}
             </Typography>
             <PotentialButton
               onClick={this.downloadData}
@@ -364,29 +381,7 @@ class Reports extends React.PureComponent {
                 <FormReactSelectContainer label={t('field:Posting Date')}>
                   <DateRangePicker
                     value={range}
-                    ranges={[
-                      {
-                        label: t('tab:This Month'),
-                        value: [
-                          dateFns.startOfMonth(new Date()),
-                          dateFns.endOfToday(),
-                        ],
-                      },
-                      {
-                        label: t('tab:Last 3 Months'),
-                        value: [
-                          dateFns.addMonths(dateFns.startOfToday(), -3),
-                          dateFns.endOfToday(),
-                        ],
-                      },
-                      {
-                        label: t('tab:Year to Date'),
-                        value: [
-                          dateFns.startOfYear(new Date()),
-                          dateFns.endOfToday(),
-                        ],
-                      },
-                    ]}
+                    ranges={ranges}
                     cleanable={false}
                     toggleComponentClass={CustomToggleButton}
                     size="md"
@@ -456,7 +451,7 @@ class Reports extends React.PureComponent {
                     color="primary"
                   />
                 }
-                label={t('tab:All Open Jobs')}
+                label={'All Open Jobs'}
               />
             </div>
           </div>

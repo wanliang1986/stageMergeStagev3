@@ -106,7 +106,6 @@ const CandidateSearch = ({
   searchLevel,
   showStr,
   jobId,
-  language,
 }) => {
   console.log('params===========', params);
   const { newCandidateJob, candidateSelect } = useSelector(
@@ -439,7 +438,6 @@ const CandidateSearch = ({
           options={option}
           data={data}
           handleSave={handleChange}
-          language={language}
         />
       );
     } else if (type == 'salary') {
@@ -613,7 +611,6 @@ const mapStateToProps = (state) => {
     requestData,
     showStr,
     searchLevel,
-    language: state.controller.language,
   };
 };
 

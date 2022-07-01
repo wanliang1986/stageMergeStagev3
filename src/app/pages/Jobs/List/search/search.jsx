@@ -36,7 +36,6 @@ import NewJobTree from './components/NewJobTree';
 import {
   jobStatus,
   jobType as newJobType,
-  ipgPostingStatus,
 } from '../../../../constants/formOptions';
 import {
   filterSearch,
@@ -160,8 +159,6 @@ const Search = ({
         arr = newJobType;
       }
       setOption(arr);
-    } else if (data.colName == 'Job Posting Status') {
-      setOption(ipgPostingStatus);
     } else if (data.colName == 'Assigned User') {
       setOption(optionsRedux.allUserOptions);
     } else if (data.colName == 'Job Function') {
@@ -273,16 +270,6 @@ const Search = ({
 
       if (
         data['colName'] == 'Job Types' &&
-        JSON.stringify(data['value']) == '[]'
-      ) {
-        dispatch(getNewSearch({ type: data.field, value: null }));
-        dispatch(getSearchData());
-        handleClose();
-        return;
-      }
-
-      if (
-        data['colName'] == 'Job Posting Status' &&
         JSON.stringify(data['value']) == '[]'
       ) {
         dispatch(getNewSearch({ type: data.field, value: null }));
@@ -522,12 +509,8 @@ const Search = ({
 
 const mapStateToProps = (state) => {
   let { newSearchJobs } = state.controller;
-  let {
-    basicSearch,
-    searchLevel,
-    advancedFilter,
-    allOrMy,
-  } = newSearchJobs.toJS();
+  let { basicSearch, searchLevel, advancedFilter, allOrMy } =
+    newSearchJobs.toJS();
   let { arr, strShow } = filterSearch(basicSearch);
   let { showStr } = getAdvincedFilter(advancedFilter);
   let requestData = requestFilter(arr);

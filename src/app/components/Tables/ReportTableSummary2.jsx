@@ -12,7 +12,7 @@ import HeaderCell from './TableCell/HeaderCell2';
 import LinkButton from './../particial/LinkButton';
 
 import { style, ROW_HEIGHT } from './params';
-import { withTranslation } from 'react-i18next';
+
 const NameLinkCell = ({ rowIndex, data, col, loadMore, ...props }) => {
   const text = data.getIn([rowIndex, col]);
   return (
@@ -266,7 +266,7 @@ class ReportTableSummary extends React.PureComponent {
                   key={index}
                   header={
                     <Cell className={clsx(classes.indexCell, classes.group)}>
-                      {this.props.t(`field:${group.name}`)}
+                      {group.name}
                     </Cell>
                   }
                 >
@@ -317,4 +317,4 @@ ReportTableSummary.propTypes = {
   dataList: PropTypes.instanceOf(Immutable.List).isRequired,
 };
 
-export default withTranslation('field')(withStyles(style)(ReportTableSummary));
+export default withStyles(style)(ReportTableSummary);

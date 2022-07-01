@@ -102,10 +102,11 @@ export const getHotListTalents2 = (hotListId) => (dispatch, getState) => {
     .then(({ response }) => {
       console.log('get hotlist talents', response);
       const normalizedData = normalize(response, [hotListTalent]);
+      console.log('~~~~~~~~~~~!!!!~~~~~~~~~~');
+      console.log(normalizedData);
       dispatch({
         type: ActionTypes.GET_HOT_LIST_TALENTS2,
         normalizedData,
-        hotListId: Number(hotListId),
       });
       return response;
     })
@@ -118,6 +119,14 @@ export const addHotListTalent =
       .addHotListTalent(hotListId, talentId)
       .then(({ response }) => {
         console.log('add hotlist talents', response);
+        const normalizedData = normalize(response, [talentBasic]);
+
+        dispatch({
+          type: ActionTypes.GET_HOT_LIST_TALENTS,
+          hotListId: hotListId.toString(),
+          normalizedData,
+          talentId,
+        });
         return response;
       })
       .catch((err) => {
@@ -134,8 +143,8 @@ export const deleteHotListTalent =
         console.log('delete hotlist talent', response);
         dispatch({
           type: ActionTypes.DELETE_HOT_LIST_TALENT,
-          hotListId: Number(hotListId),
-          talentId: Number(talentId),
+          hotListId: hotListId.toString(),
+          talentId,
         });
         return response;
       })

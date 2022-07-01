@@ -22,8 +22,6 @@ class AddContactTemplate extends Component {
     super(props);
     this.state = {
       name: props.contact ? props.contact.name : null,
-      firstName: props.contact ? props.contact.firstName : null,
-      lastName: props.contact ? props.contact.lastName : null,
       contactCategory: props.contact ? props.contact.contactCategory : null,
       otherCategory: props.contact ? props.contact.otherCategory : null,
       title: props.contact ? props.contact.title : null,
@@ -32,12 +30,11 @@ class AddContactTemplate extends Component {
       businessUnit: props.contact ? props.contact.businessUnit : null,
       email: props.contact ? props.contact.email : null,
       phone: props.contact ? props.contact.phone : null,
-      profile: props.contact ? props.contact.profile : null,
+      linkedinProfile: props.contact ? props.contact.linkedinProfile : null,
       wechat: props.contact ? props.contact.wechat : null,
-      lastContactedDate: props.contact ? props.contact.lastContactedDate : null,
-      comments: props.contact ? props.contact.comments : null,
+      lastContactDate: props.contact ? props.contact.lastContactDate : null,
+      remark: props.contact ? props.contact.remark : null,
       errorMessage: Immutable.Map(),
-      zipCode: props.contact ? props.contact.zipcode : null,
     };
   }
   sendContactForm = () => {
@@ -46,49 +43,29 @@ class AddContactTemplate extends Component {
       return this.setState({ errorMessage });
     }
     let obj = {
-      name: this.state.firstName + this.state.lastName,
-      lastName: this.state.lastName,
-      firstName: this.state.firstName,
+      name: this.state.name,
       contactCategory: this.state.contactCategory,
       otherCategory: this.state.otherCategory,
       title: this.state.title,
-      departmentTier1: this.state.department,
+      department: this.state.department,
       businessGroup: this.state.businessGroup,
       businessUnit: this.state.businessUnit,
       email: this.state.email,
       phone: this.state.phone,
-      profile: this.state.profile,
+      linkedinProfile: this.state.linkedinProfile,
       wechat: this.state.wechat,
-      lastContactDate: this.state.lastContactedDate,
-      comments: this.state.comments,
-      zipcode: this.state.zipCode,
+      lastContactDate: this.state.lastContactDate,
+      remark: this.state.remark,
     };
     this.props.sendContact(obj);
   };
   _validateForm = (t) => {
     let errorMessage = Immutable.Map();
 
-    if (!this.state.firstName) {
-      errorMessage = errorMessage.set(
-        'firstName',
-        t('message:firstNameIsRequired')
-      );
+    if (!this.state.name) {
+      errorMessage = errorMessage.set('name', t('message:fullNameIsRequired'));
     }
-    if (!this.state.lastName) {
-      errorMessage = errorMessage.set(
-        'lastName',
-        t('message:lastNameIsRequired')
-      );
-    }
-    if (!this.state.title) {
-      errorMessage = errorMessage.set('title', t('message:titleIsRequired'));
-    }
-    if (!this.state.zipCode) {
-      errorMessage = errorMessage.set(
-        'zipCode',
-        t('message:zipCodeIsRequired')
-      );
-    }
+
     if (this.state.email && !isEmail(this.state.email.trim())) {
       errorMessage = errorMessage.set('email', t('message:emailIsInvalid'));
     }
@@ -97,21 +74,6 @@ class AddContactTemplate extends Component {
     }
     if (!this.state.phone) {
       errorMessage = errorMessage.set('phone', t('message:phoneIsRequired'));
-    } else {
-      if (this.state.phone.length > 11) {
-        errorMessage = errorMessage.set('phone', t('message:phoneLengthLimit'));
-      }
-      let regName = /^[0-9]+.?[0-9]*$/;
-      if (!regName.test(this.state.phone)) {
-        errorMessage = errorMessage.set('phone', t('message:phoneFormatError'));
-      }
-    }
-
-    if (this.state.phone) {
-      let regName = /^([\d+(-][-\d+\s\/)(*.·]{8,25}(\s*ext\s*\d{3,})?)$/i;
-      if (!regName.test(this.state.phone)) {
-        errorMessage = errorMessage.set('phone', t('message:phoneFormatError'));
-      }
     }
     // else {
     //   if (this.state.phone.length > 11) {
@@ -122,13 +84,6 @@ class AddContactTemplate extends Component {
     //     errorMessage = errorMessage.set('phone', t('message:phoneFormatError'));
     //   }
     // }
-    if (this.state.profile && this.state.profile !== '') {
-      const isLinkedin =
-        /(?:https?:\/\/)?(?:(?:www|[a-z]{2})\.)?linkedin\.com\/(?:in|talent\/profile|public-profile\/in|chatin\/wnc\/in|mwlite\/in)\/([^^/ :?？=—*&!！`$)(）（<>©|}{@#]{3,900})/i;
-      if (!isLinkedin.test(this.state.profile)) {
-        errorMessage = errorMessage.set('profile', t('message:linkedinError'));
-      }
-    }
     if (!this.state.contactCategory) {
       errorMessage = errorMessage.set(
         'contactCategory',
@@ -165,43 +120,24 @@ class AddContactTemplate extends Component {
       lastContactedDate,
       comments,
       errorMessage,
-      lastName,
-      zipCode,
-      firstName,
     } = this.state;
     return (
       <div className={classes.root}>
         <div className="row flex-child-auto">
           <div className="small-6 columns">
             <FormInput
-              name="firstName"
-              label={t('field:firstName')}
+              name="name"
+              label={t('field:name')}
               autoComplete="true"
-              defaultValue={firstName}
+              defaultValue={name}
               isRequired={true}
-              errorMessage={errorMessage ? errorMessage.get('firstName') : null}
+              errorMessage={errorMessage ? errorMessage.get('name') : null}
               onChange={(e) => {
-                this.setState({ firstName: e.target.value });
+                this.setState({ name: e.target.value });
               }}
-              onBlur={() => this.removeErrorMessage('firstName')}
+              onBlur={() => this.removeErrorMessage('name')}
             />
           </div>
-          <div className="small-6 columns">
-            <FormInput
-              name="lastName"
-              label={t('field:lastName')}
-              autoComplete="true"
-              defaultValue={lastName}
-              isRequired={true}
-              errorMessage={errorMessage ? errorMessage.get('lastName') : null}
-              onChange={(e) => {
-                this.setState({ lastName: e.target.value });
-              }}
-              onBlur={() => this.removeErrorMessage('lastName')}
-            />
-          </div>
-        </div>
-        <div className="row flex-child-auto">
           <div className="small-6 columns">
             <FormReactSelectContainer
               label={t('field:Contact Category')}
@@ -238,9 +174,10 @@ class AddContactTemplate extends Component {
               ''
             )}
           </div>
+        </div>
+        <div className="row flex-child-auto">
           <div className="small-6 columns">
             <FormInput
-              isRequired={true}
               name="title"
               label={t('field:title')}
               autoComplete="true"
@@ -248,8 +185,17 @@ class AddContactTemplate extends Component {
                 this.setState({ title: e.target.value });
               }}
               defaultValue={title}
-              errorMessage={errorMessage.get('title')}
-              onBlur={() => this.removeErrorMessage('title')}
+            />
+          </div>
+          <div className="small-6 columns">
+            <FormInput
+              name="department"
+              label={t('field:Department')}
+              autoComplete="true"
+              onChange={(e) => {
+                this.setState({ department: e.target.value });
+              }}
+              defaultValue={department}
             />
           </div>
         </div>
@@ -274,35 +220,6 @@ class AddContactTemplate extends Component {
                 this.setState({ businessUnit: e.target.value });
               }}
               defaultValue={businessUnit}
-            />
-          </div>
-        </div>
-        <div className="row flex-child-auto">
-          <div className="small-6 columns">
-            <FormInput
-              name="department"
-              label={t('field:Department')}
-              autoComplete="true"
-              onChange={(e) => {
-                this.setState({ department: e.target.value });
-              }}
-              defaultValue={department}
-            />
-          </div>
-          <div className="small-6  columns">
-            <FormInput
-              name="LinkedIn Profile"
-              label={t('field:LinkedIn Profile')}
-              autoComplete="true"
-              onChange={(e) => {
-                console.log(e.target.value);
-                this.setState({
-                  profile: e.target.value !== '' ? e.target.value : null,
-                });
-              }}
-              defaultValue={profile}
-              errorMessage={errorMessage ? errorMessage.get('profile') : null}
-              onBlur={() => this.removeErrorMessage('profile')}
             />
           </div>
         </div>
@@ -338,26 +255,24 @@ class AddContactTemplate extends Component {
           </div>
         </div>
         <div className="row flex-child-auto">
-          <div className="small-6 columns">
+          <div className="small-6  columns">
             <FormInput
-              isRequired={true}
-              name="zipCode"
-              label={t('field:ZipCode')}
+              name="LinkedIn Profile"
+              label={t('field:LinkedIn Profile')}
               autoComplete="true"
               onChange={(e) => {
+                console.log(e.target.value);
                 this.setState({
-                  zipCode: e.target.value,
+                  profile: e.target.value !== '' ? e.target.value : null,
                 });
               }}
-              defaultValue={zipCode}
-              errorMessage={errorMessage.get('zipCode')}
-              onBlur={() => this.removeErrorMessage('zipCode')}
+              defaultValue={profile}
             />
           </div>
           <div className="small-6 columns">
             <FormInput
               name="WeChat"
-              label={t('field:wechat')}
+              label={t('field:WeChat')}
               autoComplete="true"
               onChange={(e) => {
                 this.setState({
@@ -403,7 +318,7 @@ class AddContactTemplate extends Component {
               this.props.handleClose();
             }}
           >
-            {t('action:cancel')}
+            Cancel
           </Button>
           <Button
             color="primary"
@@ -413,7 +328,7 @@ class AddContactTemplate extends Component {
               this.sendContactForm();
             }}
           >
-            {t('action:save')}
+            Save
           </Button>
         </div>
       </div>

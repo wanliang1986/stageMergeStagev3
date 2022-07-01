@@ -166,9 +166,8 @@ class HeaderCell extends React.PureComponent {
             className="flex-container align-justify align-middle"
           >
             <span>
-              {column.type === 'activityCount' && <div>{t('Sum of')}</div>}
+              {column.type === 'activityCount' && <div>Sum of</div>}
               {t(column.colName)}
-              {console.log(column.colName)}
             </span>
             {column.tooltip ? this.tooltip(column.colName) : null}
             {onSortChange &&

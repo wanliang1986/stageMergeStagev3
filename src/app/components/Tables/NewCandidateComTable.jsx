@@ -1,13 +1,11 @@
 import { withStyles } from '@material-ui/core';
 import React, { Component } from 'react';
-// import { AgGridColumn, AgGridReact } from 'ag-grid-react';
-import { AgGridReact } from '@ag-grid-community/react';
-import { ViewportRowModelModule } from '@ag-grid-enterprise/viewport-row-model';
+import { AgGridColumn, AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 import { connect } from 'react-redux';
-import Tooltip from '@material-ui/core/Tooltip';
 import { Link } from 'react-router-dom';
+import Tooltip from '@material-ui/core/Tooltip';
 
 const defaultColDef = {
   // width: 150,
@@ -17,18 +15,52 @@ const defaultColDef = {
   resizable: true,
 };
 
+const columns = [
+  {
+    colName: 'Name',
+    column: 'fullName',
+    colWidth: 200,
+    flexGrow: 3,
+    type: 'fullNameCell',
+  },
+  {
+    colName: 'Company',
+    column: 'company',
+    colWidth: 170,
+    flexGrow: 3,
+    type: 'companyCell',
+  },
+  {
+    colName: 'Job Title',
+    column: 'title',
+    colWidth: 160,
+    flexGrow: 3,
+    type: 'jobTitleCell',
+  },
+  {
+    colName: 'Skills',
+    column: 'skills',
+    colWidth: 200,
+    flexGrow: 3,
+    type: 'skillsCell',
+  },
+  // {
+  //   colName: 'AI Score',
+  //   column: 'score',
+  //   colWidth: 90,
+  //   flexGrow: 3,
+  // },
+];
+
 const styles = {
   root: {
     width: '100%',
-    height: '100%',
+    height: '90%',
     padding: '10px',
   },
 };
 
 const CompanyCell = ({ data }) => {
-  if (!data) {
-    return '';
-  }
   let companyList = [];
   let compantTitle = [];
   let filterList = [];
@@ -100,9 +132,6 @@ const CompanyCell = ({ data }) => {
 };
 
 const JobTitleCell = ({ data }) => {
-  if (!data) {
-    return '';
-  }
   let jobToolTipTitle = [];
   let titleList = [];
   let filterList = [];
@@ -172,9 +201,6 @@ const JobTitleCell = ({ data }) => {
 };
 
 const SkillsCell = ({ data }) => {
-  if (!data) {
-    return '';
-  }
   let _skills =
     data.skills &&
     data.skills.map((item, index) => {
@@ -189,91 +215,46 @@ const SkillsCell = ({ data }) => {
 };
 
 const FullNameCell = (props) => {
-  const { data } = props;
-  if (!data) {
-    return '';
-  }
-  if (data.purchased && data.talentId) {
-    return (
-      <Link to={`/candidates/detail/${data.talentId}`}>{data.fullName}</Link>
-    );
-  } else {
-    return (
-      <Link to={`/candidates/commonPoolList/commonPoolDetail?id=${data.esId}`}>
-        {data.fullName}
-      </Link>
-    );
-  }
+  const { fullNameClick, data } = props;
+  return (
+    <div style={{ color: '#1879c4' }} onClick={() => fullNameClick(data)}>
+      {data.fullName}
+    </div>
+  );
 };
 
-const columns = [
-  {
-    headerName: 'Name',
-    field: 'fullName',
-    minWidth: 200,
-    cellRenderer: FullNameCell,
-  },
-  {
-    headerName: 'Company',
-    field: 'company',
-    minWidth: 170,
-    cellRenderer: CompanyCell,
-  },
-  {
-    headerName: 'Job Title',
-    field: 'title',
-    minWidth: 160,
-    cellRenderer: JobTitleCell,
-  },
-  {
-    headerName: 'Skills',
-    field: 'skills',
-    minWidth: 200,
-    cellRenderer: SkillsCell,
-  },
-  // {
-  //   headerName: 'AI Score',
-  //   field: 'score',
-  //   width: 90,
-  // },
-];
+const frameworkComponents = {
+  companyCell: CompanyCell,
+  jobTitleCell: JobTitleCell,
+  skillsCell: SkillsCell,
+  fullNameCell: FullNameCell,
+};
 
 class NewCandidateComTable extends Component {
-  //static modules reference
-  modules = [ViewportRowModelModule];
-
-  //datasource
-  viewportDatasource = {
-    init: (params) => {
-      this.viewportDatasource.params = params;
-      this.viewportDatasource.params.setRowCount(this.props.talentsList.size);
-    },
-    setViewportRange: (firstRow, lastRow) => {
-      // console.log(firstRow, lastRow);
-      const rowData = this.props.talentsList
-        .toJS()
-        .slice(firstRow, lastRow + 1)
-        .reduce((res, value, index) => {
-          res[index + firstRow] = value;
-          return res;
-        }, {});
-      // console.log(rowData);
-      this.viewportDatasource.params.setRowData(rowData);
-    },
-  };
-
-  handleGridReady = (params) => {
-    params.api.setViewportDatasource(this.viewportDatasource);
-  };
-
-  componentDidUpdate(prevProps) {
-    if (prevProps.talentsList !== this.props.talentsList) {
-      this.viewportDatasource.params.setRowCount(this.props.talentsList.size);
+  // 子组件中返回的点击name跳转方法
+  fullNameClick = (data) => {
+    // purchased为true是购买，反之是没购买，talentId存在是已添加到candidates，反之则无
+    if (data.purchased) {
+      if (data.talentId && data.talentId) {
+        this.props.history.push(`/candidates/detail/${data.talentId}`);
+      } else {
+        this.props.history.push(
+          `/candidates/commonPoolList/commonPoolDetail?id=${data.esId}`
+        );
+      }
     }
+    if (!data.purchased) {
+      let dataId = data.esId;
+      this.props.history.push(
+        `/candidates/commonPoolList/commonPoolDetail?id=${dataId}`
+      );
+    }
+  };
+  componentWillMount() {
+    sessionStorage.clear();
   }
-
   render() {
-    const { classes, pageSize } = this.props;
+    const { classes, talentsList } = this.props;
 
     return (
       <div className={classes.root}>
@@ -282,19 +263,78 @@ class NewCandidateComTable extends Component {
           style={{ height: '100%', width: '100%' }}
         >
           <AgGridReact
-            modules={this.modules}
-            columnDefs={columns}
             defaultColDef={defaultColDef}
+            rowData={talentsList && talentsList.toJS()}
+            frameworkComponents={frameworkComponents}
             suppressDragLeaveHidesColumns={true}
-            onGridReady={this.handleGridReady}
+            onGridReady={this.onGridReady}
+            applyColumnDefOrder={true}
             suppressLoadingOverlay={true}
             pagination={true}
-            paginationPageSize={pageSize}
-            rowSelection={'multiple'}
-            rowModelType={'viewport'}
-            viewportRowModelPageSize={1}
-            viewportRowModelBufferSize={0}
-          />
+            paginationPageSize={15}
+            overlayNoRowsTemplate={'<span style="padding: 10px;"></span>'}
+          >
+            {columns.map((item, index) => {
+              if (item.type === 'fullNameCell') {
+                return (
+                  <AgGridColumn
+                    key={index}
+                    field={item.column}
+                    headerName={item.colName}
+                    width={item.colWidth}
+                    minWidth={item.colWidth}
+                    cellRenderer={'fullNameCell'}
+                    cellRendererParams={{
+                      fullNameClick: this.fullNameClick,
+                    }}
+                  />
+                );
+              } else if (item.type === 'companyCell') {
+                return (
+                  <AgGridColumn
+                    key={index}
+                    field={item.column}
+                    headerName={item.colName}
+                    width={item.colWidth}
+                    minWidth={item.colWidth}
+                    // flex={item.flexGrow}
+                    // resizable={true}
+                    cellRenderer={'companyCell'}
+                    cellRendererParams={{}}
+                  />
+                );
+              } else if (item.type === 'jobTitleCell') {
+                return (
+                  <AgGridColumn
+                    key={index}
+                    field={item.column}
+                    headerName={item.colName}
+                    width={item.colWidth}
+                    minWidth={item.colWidth}
+                    // flex={item.flexGrow}
+                    // resizable={true}
+                    cellRenderer={'jobTitleCell'}
+                    cellRendererParams={{}}
+                  />
+                );
+              } else if (item.type === 'skillsCell') {
+                return (
+                  <AgGridColumn
+                    key={index}
+                    field={item.column}
+                    headerName={item.colName}
+                    width={item.colWidth}
+                    minWidth={item.colWidth}
+                    // flex={item.flexGrow}
+                    // resizable={true}
+                    cellRenderer={'skillsCell'}
+                    cellRendererParams={{}}
+                  />
+                );
+              }
+            })}
+            <AgGridColumn suppressMovable={false} flex={1} resizable={false} />
+          </AgGridReact>
         </div>
       </div>
     );

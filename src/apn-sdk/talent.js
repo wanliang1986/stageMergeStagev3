@@ -13,7 +13,7 @@ export const getTalent = (talentId) => {
     headers: {},
   };
 
-  return authRequest.sendV2(`/talents/${talentId}`, config);
+  return authRequest.talentSendV3(`/talents/${talentId}`, config);
 };
 
 // commonPool detail详情数据
@@ -26,7 +26,10 @@ export const getCommonDetail = (detailId) => {
     },
     // body: JSON.stringify(detail),
   };
-  return authRequest.send(`/es-talents/getTalent?id=${detailId}`, config);
+  return authRequest.talentSendV1(
+    `/es-talents/getTalent?id=${detailId}`,
+    config
+  );
 };
 
 // export const getCommonDetail = (commonPoolId) => {
@@ -45,7 +48,7 @@ export const createCandidate = (talent) => {
     },
     body: JSON.stringify(talent),
   };
-  return authRequest.sendV2(`/talents`, config);
+  return authRequest.talentSendV3(`/talents-v2`, config);
 };
 
 export const updateTalentBasic = (talent, talentId) => {
@@ -58,7 +61,7 @@ export const updateTalentBasic = (talent, talentId) => {
     },
     body: JSON.stringify(talent),
   };
-  return authRequest.sendV2(`/talents/${talentId}`, config);
+  return authRequest.talentSendV3(`/talents-v2/${talentId}`, config);
 };
 
 // talent ownerships
@@ -68,7 +71,7 @@ export const getOwnershipsByTalentId = (talentId) => {
     headers: {},
   };
 
-  return authRequest.send(`/talent/${talentId}/ownerships`, config);
+  return authRequest.talentSendV1(`/talent/${talentId}/ownerships`, config);
 };
 
 export const replaceOwnershipsByTalentId = (userIds, talentId) => {
@@ -94,7 +97,7 @@ export const getResumesByTalentId = (talentId) => {
     headers: {},
   };
 
-  return authRequest.send(`/talent-resumes/talent/${talentId}`, config);
+  return authRequest.talentSendV1(`/talent-resumes/talent/${talentId}`, config);
 };
 
 export const addResume = (talentResume) => {
@@ -105,7 +108,7 @@ export const addResume = (talentResume) => {
     },
     body: JSON.stringify(talentResume),
   };
-  return authRequest.send(`/talent-resumes`, config);
+  return authRequest.talentSendV1(`/talent-resumes`, config);
 };
 
 export const removeResume = (talentResumeId) => {
@@ -113,7 +116,7 @@ export const removeResume = (talentResumeId) => {
     method: 'DELETE',
     headers: {},
   };
-  return authRequest.send(`/talent-resumes/${talentResumeId}`, config);
+  return authRequest.talentSendV1(`/talent-resumes/${talentResumeId}`, config);
 };
 
 // parse resume
@@ -144,7 +147,7 @@ export const uploadResumeOnly = (resumeFile, uuid) => {
   //     "status": "FINISHED"
   // }
   return authRequest
-    .sendV2(`/parsers/upload-resume-only`, config)
+    .parserSendV2(`/parse/upload-resume-only`, config)
     .then(({ response }) => {
       if (response.status === 'EDIT') {
         throw new Error('Resume already exists');
@@ -161,29 +164,27 @@ export const uploadResumeOnly = (resumeFile, uuid) => {
 };
 
 // parse resume (upload resume and trigger parsing)
-export const parseResumeAsync = (resumeFile, uuid, priority = 0) => {
+export const parseResumeAsync = (resumeFile, uuid) => {
   const requestBody = new FormData();
   requestBody.append('file', resumeFile);
   requestBody.append('uuid', uuid);
-  requestBody.append('priority', priority);
   const config = {
     method: 'POST',
     headers: {},
     body: requestBody,
   };
-  return authRequest.sendV2(`/parsers/resume/mq`, config);
+  return authRequest.parserSendV2(`/parse/resume`, config);
 };
-export const bulkParseResumeAsync = (resumeFile, uuid, priority = 1) => {
+export const bulkParseResumeAsync = (resumeFile, uuid) => {
   const requestBody = new FormData();
   requestBody.append('file', resumeFile);
   requestBody.append('uuid', uuid);
-  requestBody.append('priority', priority);
   const config = {
     method: 'POST',
     headers: {},
     body: requestBody,
   };
-  return authRequest.sendV2(`/parsers/bulk-resume-only/mq`, config);
+  return authRequest.parserSendV2(`/parse/bulk-resume-only`, config);
 };
 
 // get parse result by uuid
@@ -201,8 +202,8 @@ export const getParserOutputAsync = (uuid) => {
   //     "s3Link": "https://s3-us-west-1.amazonaws.com/apn-cv-staging/42f244f5-23fc-4313-be72-d8618feba96c",
   //     "faceRecognizeStatus": "FINISHED"
   // }
-  return authRequest.sendV2(
-    `/parsers/resume/mq/uuid?uuid=${uuid}&location=${location}`,
+  return authRequest.parserSendV2(
+    `/parse/resume/uuid?uuid=${uuid}&location=${location}`,
     config
   );
 };
@@ -213,7 +214,7 @@ export const getParseData = async (uuid) => {
   }
   let count = 0;
   while (
-    count < 40 &&
+    count < 30 &&
     (parseOutputCache.status === 'PARSING' ||
       parseOutputCache.status === 'STARTED')
   ) {
@@ -233,7 +234,6 @@ export const _handleParseDateStatus = async (parseOutputCache) => {
         s3Link: parseOutputCache.s3Link,
         talentId: parseOutputCache.talentId,
         uuid: parseOutputCache.uuid,
-        status: parseOutputCache.status,
       };
     }
     case 'FINISHED': {
@@ -244,7 +244,6 @@ export const _handleParseDateStatus = async (parseOutputCache) => {
         text: parseOutputCache.data && JSON.parse(parseOutputCache.data).text,
         uuid: parseOutputCache.uuid,
         parserOutput: parseOutputCache.data,
-        status: parseOutputCache.status,
       };
     }
     case 'ERROR':
@@ -265,7 +264,6 @@ export const _handleParseDateStatus = async (parseOutputCache) => {
               parseOutputCache.data && JSON.parse(parseOutputCache.data).text,
             uuid: parseOutputCache.uuid,
             parserOutput: parseOutputCache.data,
-            status: parseOutputCache.status,
           };
         } catch (e) {
           throw new Error('Fail to parse resume!!');
@@ -287,27 +285,27 @@ export const getParserStatusAsync = (uuid) => {
   //     "name": "钱伟-Huawei-技术类-视频云解决方案规划专家.docx",
   //     "s3Link": "https://s3-us-west-1.amazonaws.com/apn-cv-staging/328f7bfd-ee84-4625-9b87-f3f56a7aeb17"
   // }
-  return authRequest.sendV2(`/parse/status/mq/${uuid}`, config);
+  return authRequest.parserSendV2(`/parse/status/${uuid}`, config);
 };
 
 //parse resume and get parsed data
-export const parseResume = async (resumeFile, priority) => {
+export const parseResume = async (resumeFile) => {
   const uuid = await getFileUuid(resumeFile);
   const { response: status } = await getParserStatusAsync(uuid);
   if (!status.status) {
     //check if resume is uploaded before, if not upload
-    await parseResumeAsync(resumeFile, uuid, priority);
+    await parseResumeAsync(resumeFile, uuid);
   }
   return getParseData(uuid);
 };
 
-export const bulkParseResume = async (resumeFile, priority) => {
+export const bulkParseResume = async (resumeFile) => {
   const uuid = await getFileUuid(resumeFile);
   const { response: status } = await getParserStatusAsync(uuid);
   if (!status.status) {
     // check if resume is uploaded before, if not upload
     // upload resume with another api to unblock normal parsing process
-    await bulkParseResumeAsync(resumeFile, uuid, priority);
+    await bulkParseResumeAsync(resumeFile, uuid);
   }
   return getParseData(uuid);
 };
@@ -419,7 +417,7 @@ export const addTalentNote = (talentNote) => {
     },
     body: JSON.stringify(talentNote),
   };
-  return authRequest.sendV2(`/talent-notes`, config);
+  return authRequest.talentSendV2(`/talent-notes`, config);
 };
 
 export const editTalentNote = (talentNote, id) => {
@@ -430,7 +428,7 @@ export const editTalentNote = (talentNote, id) => {
     },
     body: JSON.stringify(talentNote),
   };
-  return authRequest.sendV2(`/talent-notes/${id}`, config);
+  return authRequest.talentSendV2(`/talent-notes/${id}`, config);
 };
 
 // talent resume parse record
@@ -442,7 +440,7 @@ export const sendParseFeedback = (records, recordId = '') => {
     },
     body: JSON.stringify(records),
   };
-  return authRequest.send(`/parse-records/${recordId}`, config);
+  return authRequest.parserSendV1(`/parse-records/${recordId}`, config);
 };
 
 export const getMyParseRecords = () => {
@@ -453,7 +451,16 @@ export const getMyParseRecords = () => {
     },
   };
 
-  return authRequest.send(`/my-parse-records?size=1000`, config);
+  return authRequest.parserSendV1(`/my-parse-records?size=1000`, config);
+};
+
+export const getParseRecord = (recordId) => {
+  const config = {
+    method: 'GET',
+    headers: {},
+  };
+
+  return authRequest.send(`/parse-records/${recordId}`, config);
 };
 
 export const deleteParseRecord = (recordId) => {
@@ -474,7 +481,7 @@ export const searchTalentByContacts = (contacts) => {
     body: JSON.stringify(contacts),
   };
 
-  return authRequest.sendV2(`/talents/search_by_contactlist`, config);
+  return authRequest.talentSendV3(`/talents/search-by-contacts`, config);
 };
 
 export const getApplicationsByTalentId = (talentId) => {
@@ -491,7 +498,7 @@ export const getRecommendedCommonTalentList = (jobId) => {
     method: 'GET',
     headers: {},
   };
-  return authRequest.sendV2(
+  return authRequest.jobSend(
     `/recommend-common-talents/jobId/${jobId}?page=0&size=1000`,
     config
   );
@@ -502,7 +509,7 @@ export const getRecommendedTenantTalentList = (jobId, page, size) => {
     method: 'GET',
     headers: {},
   };
-  return authRequest.sendV2(
+  return authRequest.jobSend(
     `/recommend-tenant-talents/jobId/${jobId}?page=${page || 0}&size=${
       size || 1000
     }`,
@@ -516,7 +523,7 @@ export const getCandidateWorkName = (id) => {
     headers: {},
   };
 
-  return authRequest.sendV2(`/dict/format/92/${id}`, config);
+  return authRequest.jobSend(`/dict/format/92/${id}`, config);
 };
 
 //talent list
@@ -564,5 +571,5 @@ export const getAssignedUserJob = (userId) => {
     module,
     timezone: moment.tz.guess(),
   });
-  return authRequest.sendV2(`/jobs/search`, config);
+  return authRequest.jobSend(`/jobs/search`, config);
 };

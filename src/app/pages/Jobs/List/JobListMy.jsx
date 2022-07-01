@@ -188,7 +188,7 @@ class JobListMy extends React.PureComponent {
                   size="small"
                 />
               }
-              label={t('tab:Only Favorite Jobs')}
+              label="Only Favorite Jobs"
               labelPlacement="start"
               onChange={this.handleSwitch}
             />
@@ -205,7 +205,7 @@ class JobListMy extends React.PureComponent {
                   general: e.target.value,
                 });
               }}
-              placeholder={t('tab:Search Jobs')}
+              placeholder="Search Jobs"
               startAdornment={
                 <InputAdornment color="disabled" position="start">
                   <SearchIcon style={{ fontSize: 18 }} />
@@ -213,9 +213,7 @@ class JobListMy extends React.PureComponent {
               }
             />
             <span onClick={this.handleShow} style={{ ...styles.show }}>
-              {showFilter
-                ? this.props?.t('tab:Hide Filters')
-                : this.props?.t('tab:Show Filters')}
+              {showFilter ? 'Hide Filters' : 'Show Filters'}
             </span>
           </div>
           <Divider />

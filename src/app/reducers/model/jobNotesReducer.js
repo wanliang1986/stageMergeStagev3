@@ -17,6 +17,7 @@ export default function (state = Immutable.OrderedMap(), action = {}) {
       return state.merge(
         Immutable.fromJS(action.normalizedData.entities.jobNotes)
       );
+
     case ActionTypes.LOGOUT:
       return state.clear();
     default:

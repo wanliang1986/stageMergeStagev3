@@ -14,7 +14,7 @@ import School from './School';
 import Major from './Major';
 import Location from './Location';
 import { isNum, isSymbol } from '../../../../../../utils/search';
-import { useTranslation } from 'react-i18next';
+
 const style = {
   double: {
     display: 'flex',
@@ -491,7 +491,6 @@ export const DoubleInputNumber = ({
       setLte('');
     }
   };
-  const [t] = useTranslation();
 
   return (
     <div>
@@ -503,7 +502,7 @@ export const DoubleInputNumber = ({
             handleChangeMin(e);
           }}
           value={gte}
-          placeholder={t('tab:Min Year')}
+          placeholder={`Min Year`}
           disabled={disabled}
           errorMessage={errorMessage[0]}
         />
@@ -513,7 +512,7 @@ export const DoubleInputNumber = ({
           onChange={(e) => {
             handleChangeMax(e);
           }}
-          placeholder={t('tab:Max Year')}
+          placeholder={`Max Year`}
           value={lte}
           disabled={disabled}
           errorMessage={errorMessage[1]}

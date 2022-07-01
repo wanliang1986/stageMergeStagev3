@@ -37,7 +37,7 @@ class CreateProgressNotes extends Component {
         <div className="row expanded">
           <div className="small-12 columns">
             <FormReactSelectContainer
-              label={t('tab:Name')}
+              label={t('field:Name')}
               isRequired={true}
               errorMessage={
                 errorMessage && errorMessage.get('name')
@@ -94,7 +94,7 @@ class CreateProgressNotes extends Component {
           </div>
           <div className="small-12 columns">
             <FormReactSelectContainer
-              label={t('tab:Contact Type')}
+              label={t('field:Contact Type')}
               isRequired={true}
               errorMessage={
                 errorMessage && errorMessage.get('contactType')

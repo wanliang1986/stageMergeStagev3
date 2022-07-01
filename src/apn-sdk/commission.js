@@ -10,7 +10,7 @@ export const searchAllCommissionList = (
 
   const config = {
     method: 'GET',
-    headers: {}
+    headers: {},
   };
 
   return authRequest.send(
@@ -19,10 +19,10 @@ export const searchAllCommissionList = (
   );
 };
 
-export const getCommissionById = commissionId => {
+export const getCommissionById = (commissionId) => {
   const config = {
     method: 'GET',
-    headers: {}
+    headers: {},
   };
 
   return authRequest.send(`/commissions/${commissionId}`, config);
@@ -31,7 +31,7 @@ export const getCommissionById = commissionId => {
 export const getCommissionsByUsers = ({ fromDate = '', toDate = '' }) => {
   const config = {
     method: 'GET',
-    headers: {}
+    headers: {},
   };
 
   return authRequest.send(
@@ -43,7 +43,7 @@ export const getCommissionsByUsers = ({ fromDate = '', toDate = '' }) => {
 export const getCommissionsByUser = (userId, commissionIds) => {
   const config = {
     method: 'GET',
-    headers: {}
+    headers: {},
   };
 
   return authRequest.send(
@@ -52,13 +52,13 @@ export const getCommissionsByUser = (userId, commissionIds) => {
   );
 };
 
-export const createCommission = commission => {
+export const createCommission = (commission) => {
   const config = {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
-    body: JSON.stringify(commission)
+    body: JSON.stringify(commission),
   };
   return authRequest.send(`/commissions`, config);
 };
@@ -67,9 +67,9 @@ export const updateCommission = (commission, commissionId = '') => {
   const config = {
     method: 'PUT',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
-    body: JSON.stringify(commission)
+    body: JSON.stringify(commission),
   };
   return authRequest.send(`/commissions/${commissionId}`, config);
 };

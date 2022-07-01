@@ -127,7 +127,7 @@ const CandidateWorkAuth = ({
       if (language) {
         List = jobFounctionList;
       } else {
-        List = jobFounctionListZh;
+        List = jobFounctionList;
       }
     }
     filterOthers(List);
@@ -165,7 +165,7 @@ const CandidateWorkAuth = ({
       if (language) {
         List2 = jobFounctionList;
       } else {
-        List2 = jobFounctionListZh;
+        List2 = jobFounctionList;
       }
     }
     if (data.length) {
@@ -242,10 +242,10 @@ const CandidateWorkAuth = ({
   // sendServiceType(newSelected, data, index);
 
   const showDialog = () => {
-    setOpen(true);
+    setOpen(!open);
   };
   const closeDialog = () => {
-    setOpen(false);
+    setOpen(!open);
   };
 
   // 回调获取实时选中id
@@ -299,9 +299,9 @@ const CandidateWorkAuth = ({
       ></div>
       <div className={classes.icondown}>
         {open ? (
-          <ArrowDropUpIcon style={{ color: '#999' }} />
+          <ArrowDropUpIcon onClick={showDialog} style={{ color: '#999' }} />
         ) : (
-          <ArrowDropDownIcon style={{ color: '#999' }} />
+          <ArrowDropDownIcon onClick={showDialog} style={{ color: '#999' }} />
         )}
       </div>{' '}
       <div className={open ? classes.dialog : classes.shrinkage}>

@@ -8,7 +8,6 @@ import PieChartIcon from '@material-ui/icons/PieChart';
 
 import { currency as currencyOptions } from '../../../constants/formOptions';
 
-import { useTranslation } from 'react-i18next';
 const currencyLabels = currencyOptions.reduce((res, v) => {
   res[v.value] = v.label;
   return res;
@@ -51,16 +50,16 @@ export default function Piechart({ pieChartData, currency }) {
   };
 
   const open = Boolean(anchorEl);
-  const [t] = useTranslation();
+
   const data = {
     labels: [
-      `${t('tab:Paid')}  -- ${currencyLabels[currency] || ''} ${
+      `Paid -- ${currencyLabels[currency] || ''} ${
         pieChartData.paid && pieChartData.paid.toLocaleString()
       }`,
-      `${t('tab:Unpaid')} -- ${currencyLabels[currency] || ''} ${
+      `Unpaid -- ${currencyLabels[currency] || ''} ${
         pieChartData.unpaid && pieChartData.unpaid.toLocaleString()
       }`,
-      `${t('tab:Overdue')} -- ${currencyLabels[currency] || ''} ${
+      `Overdue -- ${currencyLabels[currency] || ''} ${
         pieChartData.overdue && pieChartData.overdue.toLocaleString()
       }`,
     ],
@@ -87,7 +86,7 @@ export default function Piechart({ pieChartData, currency }) {
         className={classes.origin}
       >
         <PieChartIcon color="primary" style={{ marginRight: '4px' }} />
-        <Typography color="primary">{t(`tab:${currency} Chart`)}</Typography>
+        <Typography color="primary">{currency} Chart</Typography>
       </div>
       <Popover
         id="mouse-over-popover"

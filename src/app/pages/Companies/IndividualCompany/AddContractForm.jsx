@@ -133,7 +133,7 @@ class AddClientContactForm extends Component {
         )[0];
         const userList = props.userList;
         const nowSignees = toEdit
-          .get('signees')
+          .get('signers')
           .toJS()
           .map((ele) => ele.id);
 
@@ -259,6 +259,7 @@ class AddClientContactForm extends Component {
     e.preventDefault();
 
     const contractForm = e.target;
+    console.log();
     const { t, dispatch, companyId } = this.props;
     let errorMessage = this._validateForm(contractForm, t);
     // console.log(errorMessage.toJS())
@@ -270,20 +271,21 @@ class AddClientContactForm extends Component {
       name: contractForm.name.value,
       fileName: this.state.file.name,
       s3Key: this.state.s3Key,
-      signees: this.state.selectedSignees.map((ele) => ele.id),
-      startDate: contractForm.startsFrom.value / 1000,
+      signers: this.state.selectedSignees.map((ele) => {
+        return { id: ele.id };
+      }),
+      startDate: moment(parseInt(contractForm.startsFrom.value)).utc().format(),
       endDate: contractForm.endsOn.value
-        ? contractForm.endsOn.value / 1000
+        ? moment(parseInt(contractForm.endsOn.value)).utc().format()
         : null,
       contractType: this.state.contractType.value,
       status: this.state.status,
       note: contractForm.note.value,
       companyId: Number(companyId),
-      requiredFile: true,
-      renewalContractId: this.state.renewalContractId,
+      // requiredFile: true,
+      previousContractId: this.state.renewalContractId,
     };
     // console.log('contract', contractData, this.props.contract);
-
     this.setState({ creating: true });
     if (this.props.contract) {
       const id = this.props.contract.get('id');
@@ -308,6 +310,7 @@ class AddClientContactForm extends Component {
         this.setState({ creating: false, prevContractId: res.id });
         this.props.onCreateSuccess();
         this.handleClose();
+        this.props.fetchData();
       });
     }
   };
@@ -333,7 +336,7 @@ class AddClientContactForm extends Component {
       errorMessage = errorMessage.set('signee', t('message:signeeIsRequired'));
     }
 
-    if (!contractForm.contractType.value.trim()) {
+    if (!contractForm.contractType) {
       errorMessage = errorMessage.set(
         'contractType',
         t('message:contractTypeIsRequired')
@@ -474,7 +477,7 @@ class AddClientContactForm extends Component {
                       this.removeErrorMessage('name');
                     }
                   }}
-                  placeholder={t('field:Client Name_Service Type_Year')}
+                  placeholder={'Client Name_Service Type_Year'}
                   errorMessage={errorMessage ? errorMessage.get('name') : null}
                 />
               </div>
@@ -483,7 +486,7 @@ class AddClientContactForm extends Component {
             <div className="row flex-child-auto">
               <div className="small-12 columns">
                 <label style={{ fontSize: '12px' }}>
-                  {t('common:Attach Service Contract')}
+                  {'Attach Service Contract'}
                 </label>
                 <Attachment
                   t={t}
@@ -583,7 +586,6 @@ class AddClientContactForm extends Component {
                     />
                   }
                   selected={startsFrom}
-                  maxDate={endsOn}
                   onChange={(startsFrom) => {
                     this.setState({ startsFrom });
                     if (this.removeErrorMessage) {
@@ -634,8 +636,8 @@ class AddClientContactForm extends Component {
                       name="endsOn"
                     />
                   }
-                  minDate={startsFrom}
                   selected={endsOn}
+                  minDate={startsFrom}
                   onChange={(endsOn) => {
                     this.setState({ endsOn });
                     if (this.removeErrorMessage) {
@@ -715,15 +717,6 @@ class AddClientContactForm extends Component {
                     />
                   )}
                 />
-                <span
-                  style={{
-                    color: '#cc4b37',
-                    fontSize: '12px',
-                    fontWeight: 'bold',
-                  }}
-                >
-                  {errorMessage ? errorMessage.get('contractType') : null}
-                </span>
                 {/* <PotentialServiceTypeSelect
                   data={serviceTypeTree}
                   // value={value}

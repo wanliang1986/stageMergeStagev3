@@ -19,7 +19,6 @@ class UpgradeClientFirst extends Component {
   };
   render() {
     const { value } = this.state;
-    const { t } = this.props;
     return (
       <div style={{ width: '475px' }}>
         <RadioGroup
@@ -31,12 +30,12 @@ class UpgradeClientFirst extends Component {
           <FormControlLabel
             value="1"
             control={<Radio color="primary" />}
-            label={t('tab:Upgrade with contract')}
+            label="Upgrade with contract"
           />
           <FormControlLabel
             value="2"
             control={<Radio color="primary" />}
-            label={t('tab:Upgrade without contract')}
+            label="Upgrade without contract"
           />
         </RadioGroup>
       </div>

@@ -50,23 +50,19 @@ class FullTimeForm extends Component {
         rateUnitType:
           (props.application.agreedPayRate &&
             props.application.agreedPayRate.rateUnitType) ||
-          null,
+          'YEARLY',
         currency:
           (props.application.agreedPayRate &&
             props.application.agreedPayRate.currency) ||
-          null,
+          'USD',
       }
     );
-  }
-
-  componentDidMount() {
-    this.computeFullTimeGM();
   }
 
   _getStateFromOffer = (offer) => {
     console.log('offer', offer);
     return {
-      currency: offer.currency || null,
+      currency: offer.currency || 'USD',
       rateUnitType: offer.rateUnitType,
       totalBillAmount: offer.totalBillAmount,
 
@@ -86,7 +82,7 @@ class FullTimeForm extends Component {
   };
 
   handleDateChange = (key, value) => {
-    this.setState({ [key]: value });
+    this.setState({ [key]: value }, this.computeContractGM);
     this.props.removeErrorMsgHandler(key);
   };
 
@@ -152,10 +148,9 @@ class FullTimeForm extends Component {
 
   handleDropDownChange = (key) => (value) => {
     // console.log(key, value);
-    if (value !== this.state[key]) {
-      this.setState({ [key]: value }, this._computeFullTimeGM);
-      this.props.removeErrorMsgHandler(key);
-    }
+    value = value || this.state[key];
+    this.setState({ [key]: value }, this._computeFullTimeGM);
+    this.props.removeErrorMsgHandler(key);
   };
 
   render() {
@@ -188,13 +183,13 @@ class FullTimeForm extends Component {
             <FormInput
               value={positionTitle}
               name="Title"
-              label={t('field:Title')}
+              label={'Title'}
               disabled
             />
           </div>
 
           <div className="small-6 columns">
-            <FormReactSelectContainer label={t('field:Position Type')}>
+            <FormReactSelectContainer label={'Position Type'}>
               <Select
                 name="PositionType"
                 options={jobType}
@@ -283,11 +278,11 @@ class FullTimeForm extends Component {
             <FormReactSelectContainer
               isRequired
               errorMessage={t(errorMessage.get('currency'))}
-              label={t('field:Salary Currency')}
+              label="Salary Currency"
             >
               <Select
                 labelKey={'label2'}
-                clearable={true}
+                clearable={false}
                 disabled={edit}
                 value={currency}
                 simpleValue
@@ -301,10 +296,10 @@ class FullTimeForm extends Component {
             <FormReactSelectContainer
               isRequired
               errorMessage={t(errorMessage.get('rateUnitType'))}
-              label={t('field:Salary Unit Type')}
+              label="Salary Unit Type"
             >
               <Select
-                clearable={true}
+                clearable={false}
                 disabled={edit}
                 value={rateUnitType}
                 simpleValue
@@ -493,7 +488,7 @@ class FullTimeForm extends Component {
           <div className="small-4 columns">
             <FormReactSelectContainer
               errorMessage={t(errorMessage.get('totalBillAmount'))}
-              label={t('field:Total Bill Amount / GM')}
+              label={'Total Bill Amount / GM'}
               isRequired
             >
               <NumberFormat

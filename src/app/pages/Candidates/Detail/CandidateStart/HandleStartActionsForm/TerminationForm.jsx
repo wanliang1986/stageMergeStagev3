@@ -4,7 +4,6 @@ import moment from 'moment-timezone';
 import {
   selectStartToOpen,
   startTermination,
-  OpenOnboarding,
 } from '../../../../../actions/startActions';
 
 import Select from 'react-select';
@@ -23,8 +22,6 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import { showErrorMessage } from '../../../../../actions';
 import { getApplication } from '../../../../../actions/applicationActions';
-
-import { showOnboarding } from '../../../../../../utils/index';
 
 const reasonOpts = [
   {
@@ -79,9 +76,9 @@ class TerminationForm extends React.Component {
       errorMessage: Immutable.Map(),
       processing: false,
 
-      terminationDate: moment.min([
+      terminationDate: moment.max([
         moment(),
-        moment(props.start.get('endDate')),
+        moment(props.start.get('startDate')),
       ]),
       reason: null,
       convertToFteFeeStatus: 'HAS_CONVERSION_FEE',
@@ -117,16 +114,6 @@ class TerminationForm extends React.Component {
     dispatch(startTermination(formData, start.get('id')))
       .then((newStart) => {
         dispatch(selectStartToOpen(Immutable.fromJS(newStart)));
-
-        let hasOnboardingBtn = showOnboarding(Immutable.fromJS(newStart));
-        dispatch(
-          OpenOnboarding(
-            Immutable.fromJS(newStart).get('applicationId'),
-            'openStart',
-            Immutable.fromJS(newStart),
-            hasOnboardingBtn
-          )
-        );
         dispatch(getApplication(start.get('applicationId')));
         onClose(newStart);
       })
@@ -162,7 +149,7 @@ class TerminationForm extends React.Component {
     ) {
       errorMessage = errorMessage.set(
         'terminationDate',
-        t('message:Termination date should not be after End date')
+        t('message:Termination date should be before End date')
       );
     }
     if (!form.reason.value) {

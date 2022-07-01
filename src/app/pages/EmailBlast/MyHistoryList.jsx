@@ -144,13 +144,8 @@ class TemplateList extends React.PureComponent {
 
   render() {
     const { templateList, location, ...props } = this.props;
-    const {
-      filterOpen,
-      colSortDirs,
-      sent,
-      dataShow,
-      firstFetching,
-    } = this.state;
+    const { filterOpen, colSortDirs, sent, dataShow, firstFetching } =
+      this.state;
 
     if (firstFetching) {
       return <Loading />;

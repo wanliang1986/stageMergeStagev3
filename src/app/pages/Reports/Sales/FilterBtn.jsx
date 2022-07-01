@@ -14,7 +14,6 @@ import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import FormReactSelectContainer from '../../../components/particial/FormReactSelectContainer';
 import { currency } from '../../../constants/formOptions';
-import { withTranslation } from 'react-i18next';
 
 const styles = {
   root: {
@@ -83,33 +82,22 @@ class FilterBtn extends Component {
         });
       })
       //改变父组件币种
-      // .then(() => {
-      //   this.props.onchangeCountry(country);
-      // })
+      .then(() => {
+        this.props.onchangeCountry(country);
+      })
       .catch((err) => {
         this.props.dispatch(showErrorMessage(err));
       });
   };
 
   clickSearch = () => {
-    console.log('??');
     const { country, companies } = this.state;
     this.props.setChartData(country, companies);
   };
   render() {
-    const { classes, reportType } = this.props;
+    const { classes } = this.props;
     console.log(classes);
     const { prevFilters, countryOpt, clientCompanyOpt, country } = this.state;
-
-    // mock1 如果是report type是weekly类型即p2 currency需要新增-Global（Non-China）-USD（US$）
-    let _countryOpt = JSON.parse(JSON.stringify(countryOpt));
-    if (reportType === 'Weekly') {
-      _countryOpt.push({
-        value: 'NON_CHINA',
-        label3: 'Global（Non-China）-USD（US$）',
-      });
-    }
-
     return (
       <div
         className={'flex-child-auto item-padding'}
@@ -118,10 +106,10 @@ class FilterBtn extends Component {
         {/* Country */}
         <div className="row expanded" style={{ margin: '10px 21px' }}>
           <div className="small-2 columns">
-            <FormReactSelectContainer label={this.props.t('field:Country')}>
+            <FormReactSelectContainer label="Country">
               <Select
                 labelKey={'label3'}
-                options={_countryOpt}
+                options={countryOpt}
                 style={{ minWidth: 200 }}
                 simpleValue
                 clearable={false}
@@ -135,9 +123,7 @@ class FilterBtn extends Component {
         {/* Company */}
         <div className="row expanded" style={{ margin: '10px 21px' }}>
           <div className="small-2 columns">
-            <label style={{ fontSize: '0.75rem' }}>
-              {this.props.t('field:Client Company')}
-            </label>
+            <label style={{ fontSize: '0.75rem' }}>Client Company</label>
             <Autocomplete
               className={classes.root}
               multiple
@@ -167,7 +153,7 @@ class FilterBtn extends Component {
                   {...params}
                   variant="outlined"
                   label=""
-                  placeholder={this.props.t('tab:select')}
+                  placeholder="Select"
                   size="small"
                 />
               )}
@@ -182,7 +168,7 @@ class FilterBtn extends Component {
             style={{ width: '115px', height: '35px', paddingBottom: '10px' }}
             onClick={this.clickSearch}
           >
-            {this.props.t('tab:Search')}
+            {'Search'}
           </Button>
         </div>
       </div>
@@ -194,6 +180,4 @@ const mapStateToProps = (state) => {
   return {};
 };
 
-export default withTranslation('tab')(
-  connect(mapStateToProps)(withStyles(styles)(FilterBtn))
-);
+export default connect(mapStateToProps)(withStyles(styles)(FilterBtn));

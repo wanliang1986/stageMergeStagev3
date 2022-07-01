@@ -52,14 +52,8 @@ const styles = {
 
 class Attachment extends React.PureComponent {
   render() {
-    const {
-      t,
-      classes,
-      file,
-      handleChange,
-      handleDelete,
-      uploading,
-    } = this.props;
+    const { t, classes, file, handleChange, handleDelete, uploading } =
+      this.props;
     // console.log('attach', file);
     return (
       <React.Fragment>

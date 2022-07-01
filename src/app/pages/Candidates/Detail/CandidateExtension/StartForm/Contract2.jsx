@@ -323,7 +323,7 @@ class Contract extends React.Component {
             </div>
 
             <div className="small-6 columns">
-              <FormReactSelectContainer label={t('field:MSP Rate')} isRequired>
+              <FormReactSelectContainer label="MSP Rate" isRequired>
                 <Select
                   valueKey={'code'}
                   labelKey={'description'}
@@ -339,10 +339,7 @@ class Contract extends React.Component {
           {/* 5 row */}
           <div className="row expanded">
             <div className="small-6 columns">
-              <FormReactSelectContainer
-                label={t('field:Immigration Cost')}
-                isRequired
-              >
+              <FormReactSelectContainer label="Immigration Cost" isRequired>
                 <Select
                   valueKey={'code'}
                   labelKey={'description'}

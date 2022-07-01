@@ -207,9 +207,9 @@ class PotentialServiceTypeSelect extends Component {
                 }
               : { width: this.props.width }
           }
-          value={selectMsg}
+          value={value ? value : selectMsg}
           renderValue={() => {
-            return selectMsg;
+            return value ? value : selectMsg;
           }}
         >
           {data ? (

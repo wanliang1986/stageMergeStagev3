@@ -13,7 +13,7 @@ import {
   style,
   HEADER_HEIGHT,
   ROW_HEIGHT,
-  HEADER_WITHFILTER_HEIGHT
+  HEADER_WITHFILTER_HEIGHT,
 } from './params';
 import LinkButton from '../particial/LinkButton';
 
@@ -24,17 +24,17 @@ const statusMap = {
   STARTUP_FEE_PAID_USED: 'Paid - Used',
   STARTUP_FEE_PAID_UNUSED: 'Paid - Unused',
   STARTUP_FEE_UNPAID_UNUSED: 'Unpaid - Unused',
-  VOID: 'Void'
+  VOID: 'Void',
 };
 const invoiceTypeMap = {
   FTE: 'FTE',
-  STARTUP_FEE: 'Startup Fee'
+  STARTUP_FEE: 'Startup Fee',
 };
 const currencyMap = {
   USD: '$',
   CNY: '¥',
   null: '',
-  undefined: ''
+  undefined: '',
 };
 
 const columns = [
@@ -43,69 +43,69 @@ const columns = [
     colWidth: 200,
     flexGrow: 3,
     col: 'talentName',
-    fixed: true
+    fixed: true,
   },
   {
     colName: 'company',
     colWidth: 160,
     flexGrow: 3,
-    col: 'company'
+    col: 'company',
   },
 
   {
     colName: 'positionType',
     colWidth: 130,
     flexGrow: 1,
-    col: 'positionType'
+    col: 'positionType',
   },
   {
     colName: 'receivedAmount',
     colWidth: 150,
     flexGrow: 2,
     col: 'receivedAmount',
-    type: 'number'
+    type: 'number',
   },
   {
     colName: 'commission',
     colWidth: 150,
     flexGrow: 2,
     col: 'commission',
-    type: 'number'
+    type: 'number',
   },
   {
     colName: 'rolePercentage',
     colWidth: 280,
     flexGrow: 2,
-    col: 'rolePercentage'
+    col: 'rolePercentage',
   },
   {
     colName: 'otherTeamMembers',
     colWidth: 200,
     flexGrow: 2,
-    col: 'otherTeamMembers'
+    col: 'otherTeamMembers',
   },
   {
     colName: 'startDate',
     colWidth: 160,
     flexGrow: 1,
-    col: 'startDate'
+    col: 'startDate',
   },
   {
     colName: 'jobTitle',
     colWidth: 340,
     flexGrow: 1,
-    col: 'jobTitle'
-  }
+    col: 'jobTitle',
+  },
 ];
 
 const cellStyle = {
   fontSize: 15,
   color: '#505050',
   textTransform: 'capitalize',
-  paddingLeft: 4
+  paddingLeft: 4,
 };
 
-const CommissionCell2 = props => {
+const CommissionCell2 = (props) => {
   const {
     data,
     rowIndex,
@@ -160,7 +160,7 @@ class InvoiceTable extends React.PureComponent {
           return columnWidths;
         },
         {}
-      )
+      ),
     };
   }
 
@@ -172,8 +172,8 @@ class InvoiceTable extends React.PureComponent {
     this.setState(({ columnWidths }) => ({
       columnWidths: {
         ...columnWidths,
-        [columnKey]: newColumnWidth
-      }
+        [columnKey]: newColumnWidth,
+      },
     }));
   };
 
@@ -191,7 +191,7 @@ class InvoiceTable extends React.PureComponent {
       scrollTop,
       filters,
       ownColumns,
-      onClickCommissionIds
+      onClickCommissionIds,
     } = this.props;
 
     // console.log('[Invoice Table Data]', invoiceList.toJS());
@@ -265,7 +265,7 @@ class InvoiceTable extends React.PureComponent {
 }
 
 InvoiceTable.propTypes = {
-  dataList: PropTypes.instanceOf(Immutable.List).isRequired
+  dataList: PropTypes.instanceOf(Immutable.List).isRequired,
 };
 
 export default withStyles(style)(InvoiceTable);

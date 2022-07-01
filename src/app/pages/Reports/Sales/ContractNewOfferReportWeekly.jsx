@@ -29,7 +29,6 @@ import FilterBtn from './FilterBtn';
 import { WeeklyInitData, countryObj } from './initData';
 import moment from 'moment-timezone';
 import { withRouter } from 'react-router-dom';
-import { withTranslation } from 'react-i18next';
 const styles_inside = {
   title: {
     margin: 10,
@@ -78,9 +77,6 @@ class ContractWeekly extends Component {
       averageLineColor: '#fdb88e',
       targetLineColor: '#a0a3fa',
       chartPakage: {},
-
-      // 柱状图下面 是否激活target的状态
-      targetLineActive: true,
     };
     this.filteredList = Immutable.List();
   }
@@ -89,18 +85,12 @@ class ContractWeekly extends Component {
   }
 
   setChartData = (country, companies) => {
-    const { jobType, targetLineActive } = this.state;
+    const { jobType } = this.state;
     this.setState({
       Load: false,
       dataList: Immutable.List(),
       country,
       companies,
-
-      // mock3 country为test时（Global（Non-China）-USD（US$）） 才默认显示 tartget线
-      targetLineColor:
-        country === 'NON_CHINA' && targetLineActive
-          ? '#a0a3fa'
-          : 'rgba(0,0,0,0)',
     });
     let { initData1 } = WeeklyInitData;
     let newXAxisData = [];
@@ -187,7 +177,7 @@ class ContractWeekly extends Component {
             marker = `<span style="display:inline-block;margin-right:5px; width:20px;height:10px;background-color:${markerColor};border:${markerBorder}"></span>`;
             showHtm += `<p style="height:${Pheight};">
                           ${marker}
-                          ${this.props.t('tab:Total GM')}:                    
+                          Total GM:
                           ${
                             countryObj[country] +
                             params[i].data.value.toLocaleString('en-US')
@@ -289,20 +279,19 @@ class ContractWeekly extends Component {
               {
                 type: 'average',
                 // name: "平均值",
-                yAxis: this.getAverage(data1),
                 lineStyle: {
                   color: averageLineColor,
                   // color: 'rgba(0,0,0,0)',
                 },
               },
 
-              {
-                name: 'target',
-                yAxis: 250000,
-                lineStyle: {
-                  color: targetLineColor,
-                },
-              },
+              // {
+              //   name: 'target',
+              //   yAxis: 600000,
+              //   lineStyle: {
+              //     color: targetLineColor,
+              //   },
+              // },
             ],
           },
         },
@@ -314,15 +303,6 @@ class ContractWeekly extends Component {
     });
   };
 
-  getAverage = (data) => {
-    let _data = data.slice(data.length - 11, data.length - 1);
-    let num = 0;
-    _data.forEach((item, index) => {
-      num += item.value;
-    });
-    return (num / 10).toFixed(2);
-  };
-
   // bar 柱子点击
   onChartClick = (detail) => {
     if (!detail.data.applicationId) {
@@ -330,17 +310,13 @@ class ContractWeekly extends Component {
     }
     this.setState({
       loadFormList: false,
-      colSortDirs: { null: 'null' },
     });
     let applicationIdArr = detail.data.applicationId.split(',');
     let params = {
       jobType: 'CONTRACT',
       applicationIds: applicationIdArr,
       type: '1',
-      country: this.state.country === 'NON_CHINA' ? 'NON_CHINA' : undefined,
     };
-
-    console.log(params);
     return getSalesDetalis(params)
       .then(({ response }) => {
         let finalyResponse = this.filterResponse(response);
@@ -438,8 +414,6 @@ class ContractWeekly extends Component {
       jobType: 'CONTRACT',
       applicationIds: applicationIdArr,
       type: '1',
-
-      country: this.state.country === 'NON_CHINA' ? 'NON_CHINA' : undefined,
     };
     return downLoadSales(params).catch((err) => {
       this.dispatch.showErrorMessage(err);
@@ -455,15 +429,9 @@ class ContractWeekly extends Component {
 
   // 改变chart markLine颜色
   setChartLineColor = (stateKey, color) => {
-    // if (stateKey === 'targetLineColor') {
-    // }
     this.setState(
       {
         [stateKey]: color,
-        targetLineActive:
-          stateKey === 'targetLineColor'
-            ? !this.state.targetLineActive
-            : this.state.targetLineActive,
       },
       () => {
         // 改变charts配置
@@ -486,10 +454,9 @@ class ContractWeekly extends Component {
       serviceType,
       jobType,
       chartPakage,
-      country,
     } = this.state;
 
-    const { classes, t } = this.props;
+    const { classes } = this.props;
     if (dataList.size > 0) {
       const filteredList = filteredIndex.map((index) => dataList.get(index));
       if (!this.filteredList.equals(filteredList)) {
@@ -501,8 +468,12 @@ class ContractWeekly extends Component {
         <div className={classes.root}>
           <div style={styles_inside.title}>
             <Typography variant="h4">
-              {t('tab:Weekly New Offers Report General Staffing')}
-              <Typography>{t('tab:HiresReportTip2')}</Typography>
+              {'Weekly New Offers Report General Staffing'}
+              <Typography>
+                {
+                  'we use candidates’【Offer Accepted】date as reference to build up this report, and this report shows how many new offers we generate in each week'
+                }
+              </Typography>
             </Typography>
 
             {/* 漏斗按钮 */}
@@ -543,7 +514,7 @@ class ContractWeekly extends Component {
         <div style={styles_inside.typeBlock2}>
           <FormReactSelectContainer
             style={{ color: '#aab1b8' }}
-            label={t('tab:Service Type') + ':'}
+            label="Service Type:"
           >
             <Select
               value={jobType}
@@ -563,7 +534,6 @@ class ContractWeekly extends Component {
             onChartClick={this.onChartClick}
             getOption={chartPakage}
             Load={Load}
-            country={country}
             {...this.props}
           />
         </div>
@@ -605,6 +575,6 @@ const mapStateToProps = (state) => {
   return {};
 };
 
-export default withTranslation('tab')(
-  withRouter(connect(mapStateToProps)(withStyles(styles)(ContractWeekly)))
+export default withRouter(
+  connect(mapStateToProps)(withStyles(styles)(ContractWeekly))
 );

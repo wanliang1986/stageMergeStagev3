@@ -191,7 +191,7 @@ class BulkUpdateStatus extends React.Component {
                         key={option.label}
                         onClick={() => this.handleSelect(option)}
                       >
-                        {t(`tab:${option.label.toLowerCase()}`)}
+                        {option.label}
                       </MenuItem>
                     ))}
                   </MenuList>
@@ -261,7 +261,7 @@ class BulkUpdateStatus extends React.Component {
                         key={option.label}
                         onClick={() => this.bulkUpdateStatus(option)}
                       >
-                        {t(`tab:${option.label.toLowerCase()}`)}
+                        {option.label}
                       </MenuItem>
                     ))}
                   </MenuList>
@@ -276,7 +276,7 @@ class BulkUpdateStatus extends React.Component {
         >
           {selected.size > 0 ? (
             <Typography variant="subtitle1" color="primary" noWrap>
-              {t(`tab:Selecteds`)}:
+              Selected:
               {selectedGroup.keySeq().map((status, index) => {
                 return (
                   <span>
@@ -289,7 +289,7 @@ class BulkUpdateStatus extends React.Component {
             </Typography>
           ) : (
             <Typography variant="subtitle1" noWrap>
-              {t('tab:Total Count')}: {data.size}
+              Total Count: {data.size}
             </Typography>
           )}
         </div>

@@ -14,7 +14,6 @@ import {
 } from '../../../../actions/newCandidate';
 import Typography from '@material-ui/core/Typography';
 import SearchIcon from '@material-ui/icons/Search';
-import { withTranslation } from 'react-i18next';
 const styles = {
   root: {
     overflow: 'hidden',
@@ -121,7 +120,7 @@ class SearchBox extends Component {
     return (
       <div className={clsx('ag-theme-alpine', classes.root)}>
         <Typography variant={'subtitle2'} gutterBottom>
-          {this.props.t('tab:Select a job to apply')}
+          {'Select a job to apply'}
         </Typography>
         <Autocomplete
           style={{ width: '100%', height: 32 }}
@@ -169,6 +168,4 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default withTranslation('tab')(
-  connect(mapStateToProps)(withStyles(styles)(SearchBox))
-);
+export default connect(mapStateToProps)(withStyles(styles)(SearchBox));

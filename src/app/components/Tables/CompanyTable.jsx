@@ -31,7 +31,8 @@ import { getPotentialServiceType } from '../../actions/clientActions';
 import { connect } from 'react-redux';
 
 const enums = {
-  type: levelList,
+  companyClientLevelType: levelList,
+  industryType: industryList,
   industry: industryList,
 };
 
@@ -75,7 +76,7 @@ class LinkCell extends React.Component {
         let days = parseInt(
           (new Date(item.endDate).getTime() / 1000 - newDate) / 24 / 60 / 60
         );
-        // console.log(days);
+        console.log(days);
         if (days < 0) {
           contractMsg.push(item);
         }
@@ -90,10 +91,6 @@ class LinkCell extends React.Component {
     const id = data.getIn([rowIndex, 'id']);
     const text = data.getIn([rowIndex, col]);
     const type = data.getIn([rowIndex, 'type']);
-    // let companyType = '0';
-    // if (type === 'POTENTIAL_CLIENT') {
-    //   companyType = '1';
-    // }
     const expiredContract = data.getIn([rowIndex, 'expiredContract']);
     let contractList;
     let expiredcontractList;
@@ -118,7 +115,6 @@ class LinkCell extends React.Component {
               {text}{' '}
             </Link>
           )}
-
           {contractList && contractList.length > 0 ? (
             <MyTooltip
               title={<TemporaryContract contractList={contractList} type={1} />}
@@ -222,7 +218,16 @@ class DealTimeCell extends React.Component {
   render() {
     const { rowIndex, data, col, ...props } = this.props;
     // console.log(data.toJS())
-    const dealTime = data.getIn([rowIndex, col]);
+    const salesLead = data.getIn([rowIndex, 'salesLeads']);
+    let estimatedDealTime;
+    if (salesLead) {
+      estimatedDealTime = salesLead
+        .map((item, index) => {
+          return moment(item.get('estimatedDealTime')).format('YYYY-MM-DD');
+        })
+        .join(',');
+    }
+
     // return salesLead.map((item, index) => {
     return (
       <Cell {...props}>
@@ -234,7 +239,7 @@ class DealTimeCell extends React.Component {
           }}
         >
           {/* {item.get('estimatedDealTime') ? item.get('estimatedDealTime') : ''} */}
-          {dealTime}
+          {estimatedDealTime}
         </div>
       </Cell>
     );
@@ -254,7 +259,16 @@ class ProgressCell extends React.Component {
   render() {
     const { rowIndex, data, col, ...props } = this.props;
     // console.log(data.toJS())
-    const accountProgress = data.getIn([rowIndex, col]);
+    const salesLead = data.getIn([rowIndex, col]);
+    let accountProgress;
+    if (salesLead) {
+      accountProgress = salesLead
+        .map((item, index) => {
+          return item.get('accountProgress') * 100 + '%';
+        })
+        .join(',');
+    }
+
     return (
       // salesLead &&
       // salesLead.map((item, index) => {
@@ -279,6 +293,57 @@ class ProgressCell extends React.Component {
   }
 }
 
+class ServiceTypeCell extends React.Component {
+  // shouldComponentUpdate(nextProps) {
+  //   return this._getValue(nextProps) !== this._getValue(this.props);
+  // }
+
+  // _getValue = ({ rowIndex, data }) => {
+  //   return data.getIn([rowIndex, 'saleLead']);
+  // };
+
+  render() {
+    const { rowIndex, data, col, ...props } = this.props;
+    const salesLead =
+      data.getIn([rowIndex, 'salesLeadDetails']) ||
+      data.getIn([rowIndex, 'salesLeads']);
+    let serviceType;
+    if (salesLead) {
+      let companyServiceTypes =
+        salesLead &&
+        salesLead.map((item, index) => {
+          let arr = item.get('companyServiceTypes').map((_item, _index) => {
+            return _item.get('label');
+          });
+          return arr.join(',');
+        });
+      serviceType = companyServiceTypes && companyServiceTypes.join(',');
+    } else {
+      let companyServiceTypes =
+        data &&
+        data.getIn([rowIndex, 'companyServiceTypes']).map((item, index) => {
+          return item.get('label');
+        });
+      serviceType = companyServiceTypes && companyServiceTypes.join(',');
+    }
+    return (
+      <MyTooltip title={serviceType}>
+        <Cell {...props}>
+          <div
+            className="overflow_ellipsis_1"
+            style={{
+              width: props.width - 26,
+              textTransform: 'none',
+            }}
+          >
+            {serviceType}
+          </div>
+        </Cell>
+      </MyTooltip>
+    );
+  }
+}
+
 class LeadOwnerCell extends React.Component {
   // shouldComponentUpdate(nextProps) {
   //   return this._getValue(nextProps) !== this._getValue(this.props);
@@ -290,7 +355,17 @@ class LeadOwnerCell extends React.Component {
 
   render() {
     const { rowIndex, data, col, ...props } = this.props;
-    let LeadOwner = data.getIn([rowIndex, col]);
+    let salesLeadOwners = data.getIn([rowIndex, col]);
+    console.log(salesLeadOwners.toJS());
+    let LeadOwner = null;
+    if (salesLeadOwners && salesLeadOwners.size > 0) {
+      LeadOwner = salesLeadOwners
+        .map((item, index) => {
+          return item.get('fullName');
+        })
+        .join(',');
+    }
+
     return (
       <Cell {...props}>
         <div
@@ -304,6 +379,60 @@ class LeadOwnerCell extends React.Component {
             {...this.props}
             LeadOwner={LeadOwner}
           ></CompanyTooltip>
+        </div>
+      </Cell>
+    );
+    // return salesLead.forEach((item, index) => {
+    //   if (item.get('saleLeadOwner').size !== 0) {
+    //     item.get('saleLeadOwner').map((val, index) => {
+    //       return (
+    //         <Cell {...props}>
+    //           <div
+    //             className="overflow_ellipsis_1"
+    //             style={{
+    //               width: props.width - 26,
+    //               textTransform: 'none',
+    //             }}
+    //           >
+    //             <CompanyTooltip {...props}>
+    //               test!
+    //               {/* {val.get('firstName') + '' + val.get('lastName')} */}
+    //             </CompanyTooltip>
+    //           </div>
+    //         </Cell>
+    //       );
+    //     });
+    //   }
+    // });
+  }
+}
+
+class AccountManager extends React.Component {
+  // shouldComponentUpdate(nextProps) {
+  //   return this._getValue(nextProps) !== this._getValue(this.props);
+  // }
+
+  // _getValue = ({ rowIndex, data }) => {
+  //   return data.getIn([rowIndex, 'saleLead']);
+  // };
+
+  render() {
+    const { rowIndex, data, col, ...props } = this.props;
+    console.log(data.toJS());
+    let AM = data.getIn([rowIndex, 'accountManager']);
+    return (
+      <Cell {...props}>
+        <div
+          className="overflow_ellipsis_1"
+          style={{
+            width: props.width - 26,
+            textTransform: 'none',
+          }}
+        >
+          {/* <CompanyTooltip
+            {...this.props}
+            LeadOwner={AM}
+          ></CompanyTooltip> */}
         </div>
       </Cell>
     );
@@ -348,10 +477,12 @@ const CompanyCell = ({ type, ...props }) => {
       return <DealTimeCell {...props} />;
     case 'progress':
       return <ProgressCell {...props} />;
-    // case 'serviceType':
-    //   return <ServiceTypeCell {...props}/>
+    case 'companyServiceTypes':
+      return <ServiceTypeCell {...props} />;
     case 'salesLeadOwner':
       return <LeadOwnerCell {...props} />;
+    // case 'accountManager':
+    //   return <AccountManager {...props}/>
     default:
       return <TextCell {...props} />;
   }
@@ -371,7 +502,7 @@ const columns = [
     colName: 'Open Jobs',
     colWidth: 120,
     flexGrow: 2,
-    col: 'numOfOpenJobs',
+    col: 'openJobAmount',
     type: 'num',
     sortable: true,
     disableSearch: true,
@@ -387,7 +518,7 @@ const columns = [
     colName: 'Contacts',
     colWidth: 100,
     flexGrow: 2,
-    col: 'numOfContacts',
+    col: 'contactAmount',
     sortable: true,
     disableSearch: true,
   },
@@ -395,7 +526,7 @@ const columns = [
     colName: 'Level',
     colWidth: 180,
     flexGrow: 2,
-    col: 'type',
+    col: 'companyClientLevelType',
     type: 'enum',
     sortable: true,
   },
@@ -403,10 +534,10 @@ const columns = [
     colName: 'Service Type',
     colWidth: 420,
     flexGrow: 1,
-    col: 'serviceTypes',
-    type: 'serviceTypes',
+    type: 'companyServiceTypes',
+    col: 'companyServiceTypes',
     // disableSearch: true,
-    // sortable: true,
+    sortable: false,
   },
   {
     colName: 'Status',
@@ -419,7 +550,7 @@ const columns = [
     colName: 'Industry',
     colWidth: 240,
     flexGrow: 2,
-    col: 'industry',
+    col: 'industryType',
     type: 'enum',
     sortable: true,
   },
@@ -427,7 +558,7 @@ const columns = [
     colName: 'Country',
     colWidth: 180,
     flexGrow: 2,
-    col: 'addresses',
+    col: 'country',
     sortable: true,
   },
   // {
@@ -493,7 +624,7 @@ const columns2 = [
     colName: 'Level',
     colWidth: 180,
     flexGrow: 2,
-    col: 'type',
+    col: 'companyClientLevelType',
     type: 'enum',
     sortable: true,
   },
@@ -501,10 +632,10 @@ const columns2 = [
     colName: 'Service Type',
     colWidth: 420,
     flexGrow: 1,
-    col: 'serviceTypes',
-    type: 'serviceTypes',
+    type: 'companyServiceTypes',
+    col: 'companyServiceTypes',
     // disableSearch: true,
-    // sortable: true,
+    sortable: false,
   },
   {
     colName: 'Status',
@@ -517,7 +648,7 @@ const columns2 = [
     colName: 'Industry',
     colWidth: 240,
     flexGrow: 2,
-    col: 'industry',
+    col: 'industryType',
     type: 'enum',
     sortable: true,
   },

@@ -12,7 +12,7 @@ export const uploadAvatar = (file) => {
     body: requestBody,
   };
 
-  return authRequest.send(`/files/upload-avatar`, config);
+  return authRequest.companySend(`/company/upload-avatar`, config);
 };
 
 export const getUuid = (file) => {

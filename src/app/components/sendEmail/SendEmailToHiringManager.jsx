@@ -8,7 +8,7 @@ import Mustache from 'mustache';
 import { tenantTemplateList } from '../../actions/templateAction';
 import templateSelector from '../../selectors/templateSelector';
 import { getResume } from '../../../apn-sdk';
-import { getAgreedPayRateLabel, getLocationLabel } from '../../../utils';
+import { getAgreedPayRateLabel } from '../../../utils';
 
 import Typography from '@material-ui/core/Typography';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -123,10 +123,18 @@ class SendEmail extends React.PureComponent {
     const talentSchool = talent.getIn(['educations', 0, 'collegeName']) || ' ';
     const talentCompany = talent.getIn(['experiences', 0, 'company']) || ' ';
     const talentTitle = talent.getIn(['experiences', 0, 'title']) || ' ';
-    const location = talent.get('currentLocation');
-    const talentCity = location && location.get('city');
-    const talentProvince = location && location.get('province');
-    const talentLocation = getLocationLabel(location);
+    const location =
+      talent.get('currentLocation') || talent.getIn(['preferredLocations', 0]);
+    const talentCity = location
+      ? location.get('city') ||
+        location.get('location') ||
+        location.get('addressLine')
+      : ' ';
+    const talentProvince = location
+      ? location.get('province') ||
+        location.get('location') ||
+        location.get('addressLine')
+      : ' ';
     const view = {
       COMPANYNAME: job.get('companyName') || job.getIn(['company', 'name']),
       JOBTITLE: job.get('title'),
@@ -137,17 +145,17 @@ class SendEmail extends React.PureComponent {
       CANDIDATESCHOOL: talentSchool,
       CANDIDATECOMPANY: talentCompany,
       CANDIDATETITLE: talentTitle,
-      CANDIDATECITY: talentCity || ' ',
-      CANDIDATESTATE: talentProvince || ' ',
-      CANDIDATELOCATION: talentLocation || ' ',
+      CANDIDATECITY: talentCity,
+      CANDIDATESTATE: talentProvince,
       USERFIRSTNAME: user.get('firstName') || ' ',
       USERLASTNAME: user.get('lastName') || ' ',
       AGREEDPAYRATE: getAgreedPayRateLabel(application['agreedPayRate']),
       MONTHDURATION:
         job.get('endDate') && job.get('startDate')
-          ? moment(job.get('endDate').split('T')[0])
-              .add(1, 'days')
-              .diff(moment(job.get('startDate').split('T')[0]), 'months')
+          ? moment(job.get('endDate')).diff(
+              moment(job.get('startDate')),
+              'months'
+            )
           : null,
       // JOBOWNER: formatUserName(owner)
     };

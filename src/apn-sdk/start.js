@@ -169,7 +169,7 @@ export const getStartByTalentId = (talentId) => {
     headers: {},
   };
 
-  return authRequest.send(`/starts/talentId/${talentId}`, config);
+  return authRequest.financeSendV1(`/starts/talentId/${talentId}`, config);
 };
 
 export const searchStart = (from = 0, size = 1000, sort, query = {}) => {

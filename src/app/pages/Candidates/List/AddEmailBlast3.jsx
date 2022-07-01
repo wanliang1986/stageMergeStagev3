@@ -58,12 +58,10 @@ class AddEmailBlast3 extends React.Component {
   };
 
   handleCreateEmailBlast = () => {
-    const { dispatch, t } = this.props;
+    const { dispatch } = this.props;
     const { name } = this.state;
     if (!name.trim()) {
-      return dispatch(
-        showErrorMessage({ message: t('message:groupNameIsRequired') })
-      );
+      return dispatch(showErrorMessage({ message: 'groupNameIsRequired' }));
     }
 
     dispatch(upsertEmailBlast({ name, description: name })).then((res) => {

@@ -3,7 +3,12 @@ import PropTypes from 'prop-types';
 import { Trans } from 'react-i18next';
 import Immutable from 'immutable';
 import { addApplication } from '../../../../actions/applicationActions';
-import { getTalent } from '../../../../actions/talentActions';
+import {
+  getResumesByTalentId,
+  addResume,
+  uploadResumeOnly,
+  getTalent,
+} from '../../../../actions/talentActions';
 import { showErrorMessage } from '../../../../actions';
 import { makeCancelable } from '../../../../../utils';
 import { newGetJobApplications } from '../../../../actions/jobActions';
@@ -29,12 +34,12 @@ import Slider from '@material-ui/core/Slider';
 import Delete from '@material-ui/icons/Delete';
 import Add from '@material-ui/icons/Add';
 
+import PotentialButton from '../../../particial/PotentialButton';
 import FormInput from '../../../particial/FormInput';
 import FormTextArea from '../../../particial/FormTextArea';
 import FormReactSelectContainer from '../../../particial/FormReactSelectContainer';
 import Loading from '../../../particial/Loading';
 import NumberFormat from 'react-number-format';
-import ResumeSelector from '../ResumeSelector';
 
 const rateUnitTypeOptions = [
   { label: 'Yearly', value: 'YEARLY' },
@@ -54,15 +59,15 @@ class AddApplicationForm extends React.PureComponent {
 
     this.state = {
       errorMessage: Immutable.Map(),
+      selectedResume: this._getResume(props),
       sendEmail: true,
       applicationCommissions: this._getApplicationCommissions(props),
 
-      currency: null,
-      rateUnitType: null,
+      currency: 'USD',
+      rateUnitType: 'HOURLY',
       agreedPayRate: '',
       customScore: 60,
       uploading: false,
-      fetching: !props.isTalentDetail,
     };
   }
 
@@ -74,8 +79,14 @@ class AddApplicationForm extends React.PureComponent {
       this.talentTask.promise.then(() => {
         this.setState({
           applicationCommissions: this._getApplicationCommissions(this.props),
-          fetching: false,
         });
+      });
+
+      this.resumeTask = makeCancelable(
+        dispatch(getResumesByTalentId(talentId))
+      );
+      this.resumeTask.promise.then(() => {
+        this.setState({ selectedResume: this._getResume(this.props) });
       });
     }
   }
@@ -85,6 +96,9 @@ class AddApplicationForm extends React.PureComponent {
   }
 
   componentWillUnmount() {
+    if (this.resumeTask) {
+      this.resumeTask.cancel();
+    }
     if (this.talentTask) {
       this.talentTask.cancel();
     }
@@ -105,7 +119,6 @@ class AddApplicationForm extends React.PureComponent {
       acList,
       type,
     } = this.props;
-
     const {
       applicationCommissions,
       sendEmail,
@@ -140,8 +153,7 @@ class AddApplicationForm extends React.PureComponent {
     let errorMessage = this._validateForm(
       applicationForm,
       t,
-      filteredApplicationCommissions,
-      this.props.canSkipSubmitToAM
+      filteredApplicationCommissions
     );
     if (errorMessage) {
       return this.setState({ errorMessage });
@@ -157,17 +169,14 @@ class AddApplicationForm extends React.PureComponent {
       customScore: customScore,
       applicationCommissions: filteredApplicationCommissions,
     };
-    if ((agreedPayRate && agreedPayRate !== '') || currency || rateUnitType) {
+    if (currency && rateUnitType) {
       newApplication.agreedPayRate = {
         currency,
         rateUnitType,
-        agreedPayRate: agreedPayRate ? Number(agreedPayRate) : null,
+        agreedPayRate: agreedPayRate ? Number(agreedPayRate) : -1,
       };
-    } else {
-      newApplication.agreedPayRate = null;
     }
     this.props.onSubmit();
-
     dispatch(addApplication(newApplication))
       .then((newApplication) => {
         dispatch({
@@ -207,7 +216,36 @@ class AddApplicationForm extends React.PureComponent {
       });
   };
 
-  _validateForm(form, t, commissions, canSkipSubmitToAM) {
+  openResume = (value, event) => {
+    window.open(value.s3Link);
+  };
+
+  handleResumeUpload = (e) => {
+    const fileInput = e.target;
+    const resumeFile = fileInput.files[0];
+    this.removeErrorMessage('resume');
+    const { dispatch, talentId } = this.props;
+    if (resumeFile) {
+      fileInput.value = '';
+      this.setState({ uploading: true });
+      dispatch(uploadResumeOnly(resumeFile))
+        .then((response) => {
+          response.talentId = talentId;
+          return dispatch(addResume(response));
+        })
+        .then(() => {
+          this.setState({
+            selectedResume: this.props.resumeList[0],
+          });
+        })
+        .catch((err) => dispatch(showErrorMessage(err)))
+        .finally(() => {
+          this.setState({ uploading: false });
+        });
+    }
+  };
+
+  _validateForm(form, t, commissions) {
     let errorMessage = Immutable.Map();
 
     //validate commissions
@@ -224,44 +262,6 @@ class AddApplicationForm extends React.PureComponent {
         t('message:There are duplicate commissions')
       );
     }
-    if (
-      form.agreedPayRate.value !== '' &&
-      Number(form.agreedPayRate.value) === 0
-    ) {
-      errorMessage = errorMessage.set(
-        'agreedPayRate',
-        t('message:The amount of agreed pay rate cannot be 0')
-      );
-    }
-
-    if (
-      (!form.currency.value ||
-        !form.rateUnitType.value ||
-        !form.agreedPayRate.value) &&
-      !(
-        !form.currency.value &&
-        !form.rateUnitType.value &&
-        !form.agreedPayRate.value
-      )
-    ) {
-      errorMessage = errorMessage.set(
-        'agreedPayRate',
-        t('message:The agreed pay rate part is incomplete')
-      );
-    }
-
-    // check on google, adobe
-    if (
-      canSkipSubmitToAM &&
-      !form.currency.value &&
-      !form.rateUnitType.value &&
-      !form.agreedPayRate.value
-    ) {
-      errorMessage = errorMessage.set(
-        'agreedPayRate',
-        t('message:The agreed pay rate is required')
-      );
-    }
 
     //validate application
     // if (!form.email.value) {
@@ -272,10 +272,7 @@ class AddApplicationForm extends React.PureComponent {
     // }
 
     if (!form.resumeId.value) {
-      errorMessage = errorMessage.set(
-        'resumeId',
-        t('message:resumeIsRequired')
-      );
+      errorMessage = errorMessage.set('resume', t('message:resumeIsRequired'));
     }
 
     if (!form.memo.value) {
@@ -298,6 +295,12 @@ class AddApplicationForm extends React.PureComponent {
     this.setState({
       errorMessage: this.state.errorMessage.delete(key),
     });
+  };
+
+  handleResumeChange = (newValue) => {
+    this.setState(({ selectedResume }) => ({
+      selectedResume: newValue || selectedResume,
+    }));
   };
 
   renderCommission = (commission, userRole) => {
@@ -403,6 +406,11 @@ class AddApplicationForm extends React.PureComponent {
     );
   };
 
+  _getResume = ({ resumeId, resumeList }) => {
+    return resumeId
+      ? resumeList.find((value) => value.id === resumeId)
+      : resumeList[0];
+  };
   _getApplicationCommissions = ({ recruiterList, currentUserId, talent }) => {
     const am = recruiterList.find(
       (value) => value.permission === JOB_USER_ROLES.AccountManager
@@ -426,38 +434,33 @@ class AddApplicationForm extends React.PureComponent {
   };
 
   handleDropDownChange = (key) => (value) => {
-    if (value !== this.state[key]) {
+    if (value && value !== this.state[key]) {
       this.setState({ [key]: value });
-      this.removeErrorMessage('agreedPayRate');
     }
   };
 
   handleNumberChange = (key) => (values) => {
     this.setState({ [key]: values.value });
-    this.removeErrorMessage('agreedPayRate');
   };
 
   render() {
     const {
       t,
-      isTalentDetail,
       talent,
-      talentId,
       job,
-      resumeId,
+      resumeList,
       initialMemo,
       recruiterList,
       highlightedExperience,
-      canSkipSubmitToAM,
     } = this.props;
     const {
+      selectedResume,
       errorMessage,
       applicationCommissions,
       sendEmail,
       currency,
       rateUnitType,
       agreedPayRate,
-      fetching,
     } = this.state;
 
     const { recruiter, sales, sourcer, dm, ac } = applicationCommissions.reduce(
@@ -502,7 +505,7 @@ class AddApplicationForm extends React.PureComponent {
       .filter((c) => c)
       .map((c) => c.fullName)
       .join();
-    if (!job || !talent || fetching) {
+    if (!job || !talent) {
       return <Loading />;
     }
     return (
@@ -524,16 +527,67 @@ class AddApplicationForm extends React.PureComponent {
                 readOnly
               />
             </div>
-            <ResumeSelector
-              // key={talentId}
-              t={t}
-              isRequired
-              talentId={talentId}
-              resumeId={resumeId}
-              isTalentDetail={isTalentDetail}
-              errorMessage={errorMessage}
-              removeErrorMessage={this.removeErrorMessage}
-            />
+            <div className="small-12">
+              <div className="row">
+                <div className="columns">
+                  <FormReactSelectContainer
+                    label={t('field:resume')}
+                    isRequired={true}
+                    errorMessage={errorMessage.get('resume')}
+                  >
+                    <Select
+                      valueKey={'id'}
+                      labelKey={'name'}
+                      clearable={false}
+                      options={resumeList}
+                      value={selectedResume}
+                      onChange={this.handleResumeChange}
+                      onBlur={() => this.removeErrorMessage('resume')}
+                      onValueClick={this.openResume}
+                      className="capitalize-dropdown"
+                      autoBlur={true}
+                      openOnFocus={true}
+                      placeholder={
+                        resumeList.length
+                          ? t('message:selectResume')
+                          : t('message:noResumeUploaded')
+                      }
+                    />
+                  </FormReactSelectContainer>
+                  <input
+                    type="hidden"
+                    name="resumeId"
+                    value={
+                      this.state.selectedResume
+                        ? this.state.selectedResume.id
+                        : ''
+                    }
+                  />
+                </div>
+                <div className="columns" style={{ flex: 'inherit' }}>
+                  <PotentialButton
+                    component="label"
+                    style={{
+                      width: 160,
+                      marginTop: 21,
+                      marginLeft: 8,
+                    }}
+                    processing={this.state.uploading}
+                    size="small"
+                    disabled={this.state.uploading}
+                    onChange={this.handleResumeUpload}
+                  >
+                    {t('action:uploadResume')}
+
+                    <input
+                      key="resume"
+                      type="file"
+                      style={{ display: 'none' }}
+                    />
+                  </PotentialButton>
+                </div>
+              </div>
+            </div>
 
             <div className="small-12 columns">
               <FormInput
@@ -557,8 +611,7 @@ class AddApplicationForm extends React.PureComponent {
               <div className="columns">
                 <FormReactSelectContainer
                   label={t('field:agreedPayRate')}
-                  errorMessage={!!errorMessage.get('agreedPayRate')}
-                  isRequired={canSkipSubmitToAM}
+                  errorMessage={errorMessage.get('agreedPayRate')}
                 />
               </div>
             </div>
@@ -572,7 +625,7 @@ class AddApplicationForm extends React.PureComponent {
                     value={agreedPayRate}
                     onValueChange={this.handleNumberChange('agreedPayRate')}
                     allowNegative={false}
-                    placeholder={t('field:Amount')}
+                    placeholder={'Amount'}
                   />
                 </FormReactSelectContainer>
                 <input
@@ -586,13 +639,13 @@ class AddApplicationForm extends React.PureComponent {
                 <FormReactSelectContainer>
                   <Select
                     labelKey={'label2'}
-                    clearable={true}
+                    clearable={false}
                     // disabled={edit}
                     value={currency}
                     options={currencyOptions}
                     onChange={this.handleDropDownChange('currency')}
                     simpleValue
-                    placeholder={t('field:Currency')}
+                    placeholder={'Currency'}
                   />
                 </FormReactSelectContainer>
                 <input type="hidden" name="currency" value={currency || ''} />
@@ -600,13 +653,13 @@ class AddApplicationForm extends React.PureComponent {
               <div className="columns">
                 <FormReactSelectContainer>
                   <Select
-                    clearable={true}
+                    clearable={false}
                     // disabled={edit}
                     value={rateUnitType}
                     simpleValue
                     options={rateUnitTypeOptions}
                     onChange={this.handleDropDownChange('rateUnitType')}
-                    placeholder={t('field:Rate Unit Type')}
+                    placeholder={'Rate Unit Type'}
                   />
                 </FormReactSelectContainer>
                 <input
@@ -616,21 +669,7 @@ class AddApplicationForm extends React.PureComponent {
                 />
               </div>
             </div>
-            {errorMessage && errorMessage.get('agreedPayRate') ? (
-              <div className="columns">
-                <div
-                  style={{
-                    color: '#cc4b37',
-                    fontWeight: 'bold',
-                    fontSize: '0.75rem',
-                  }}
-                >
-                  {errorMessage.get('agreedPayRate')}
-                </div>
-              </div>
-            ) : null}
           </div>
-
           <div className="small-offset-1" />
           <div className="small-6">
             <div className="row expanded">
@@ -725,7 +764,7 @@ class AddApplicationForm extends React.PureComponent {
                     }
                   />
                 }
-                label={`${t('tab:Send email to AM')}(${salesNames})`}
+                label={`Send email to AM (${salesNames})`}
               />
             </div>
           </div>

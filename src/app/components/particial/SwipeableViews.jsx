@@ -537,9 +537,8 @@ class SwipeableViews extends Component {
 
     const touch = applyRotationMatrix(event.touches[0], axis);
 
-    this.viewLength = this.rootNode.getBoundingClientRect()[
-      axisProperties.length[axis]
-    ];
+    this.viewLength =
+      this.rootNode.getBoundingClientRect()[axisProperties.length[axis]];
     this.startX = touch.pageX;
     this.lastX = touch.pageX;
     this.vx = 0;
@@ -594,13 +593,8 @@ class SwipeableViews extends Component {
       return;
     }
 
-    const {
-      axis,
-      children,
-      ignoreNativeScroll,
-      onSwitching,
-      resistance,
-    } = this.props;
+    const { axis, children, ignoreNativeScroll, onSwitching, resistance } =
+      this.props;
 
     const touch = applyRotationMatrix(event.touches[0], axis);
 

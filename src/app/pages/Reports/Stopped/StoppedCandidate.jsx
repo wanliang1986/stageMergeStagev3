@@ -376,7 +376,7 @@ class StoppedCandidate extends React.PureComponent {
       >
         <div>
           <Typography variant="h6" style={{ margin: '10px' }}>
-            {t('tab:Inactive Candidate Status Monitor')}
+            Inactive Candidate Status Monitor
           </Typography>
         </div>
         <Divider />
@@ -385,7 +385,7 @@ class StoppedCandidate extends React.PureComponent {
         >
           <div>
             <div style={{ minWidth: 228, height: 53 }}>
-              <FormReactSelectContainer label={t('field:Division')}>
+              <FormReactSelectContainer label={'Division'}>
                 {/* t('field:Office') */}
                 <Select
                   value={selectedDivision}
@@ -446,14 +446,10 @@ class StoppedCandidate extends React.PureComponent {
           indicatorColor="primary"
           textColor="primary"
         >
-          <Tab label={`${t('tab:submitted to am')} (${submittedToAMCount})`} />
-          <Tab label={`${t('tab:qualified by am')} (${qualifiedByAMCount})`} />
-          <Tab
-            label={`${t(
-              'tab:submitted to client'
-            )} (${submittedToClientCount})`}
-          />
-          <Tab label={`${t('tab:interview')} (${interviewCount})`} />
+          <Tab label={`Submitted to AM (${submittedToAMCount})`} />
+          <Tab label={`Qualified by AM (${qualifiedByAMCount})`} />
+          <Tab label={`Submitted to Client (${submittedToClientCount})`} />
+          <Tab label={`Interview (${interviewCount})`} />
         </Tabs>
 
         <SwipeableViews

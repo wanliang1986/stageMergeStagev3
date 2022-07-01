@@ -3,7 +3,6 @@ import * as ActionTypes from '../constants/actionTypes';
 import { normalize } from 'normalizr';
 import { showErrorMessage } from './index';
 import { invoice } from './schemas';
-import { APPLY_CREDIT_INVOICE } from '../constants/actionTypes';
 
 export const searchAllInvoiceList =
   (page, size, search, sort, advancedSearch) => (dispatch, getState) => {
@@ -26,7 +25,6 @@ export const searchAllInvoiceList =
           normalizedData,
           total: parseInt(headers.get('pagination-count'), 10),
         });
-        return response;
       })
       .catch((err) => {
         dispatch({
@@ -56,7 +54,6 @@ export const loadMoreAllInvoiceList =
           ids: normalizedData.result,
           normalizedData,
         });
-        return response;
       })
       .catch((err) => {
         dispatch({
@@ -82,39 +79,6 @@ export const voidInvoice = (voidRecord) => (dispatch) => {
       throw err;
     });
 };
-//This invoice already paid. You can't void an invoice already paid.
-export const voidInvoice2 = (invoiceNo, reason) => (dispatch, getState) => {
-  // console.log(invoiceNo);
-  const invoiceIds = getState()
-    .relationModel.invoices.filter((i) => i.get('invoiceNo') === invoiceNo)
-    .map((i) => i.get('id'))
-    .toList()
-    .toArray();
-  const paidActivities = getState().relationModel.invoiceActivities.filter(
-    (i) =>
-      invoiceIds.includes(i.get('invoiceId')) &&
-      i.get('invoiceActivityType') === 'PAYMENT'
-  );
-  if (paidActivities.size > 0) {
-    dispatch(
-      showErrorMessage(
-        new Error(
-          "This invoice already paid. You can't void an invoice already paid."
-        )
-      )
-    );
-    return Promise.reject(
-      new Error(
-        "This invoice already paid. You can't void an invoice already paid."
-      )
-    );
-  }
-  return Promise.all(
-    invoiceIds.map((invoiceId) => {
-      return dispatch(voidInvoice({ invoiceId, reason }));
-    })
-  );
-};
 
 //record payment
 export const recordInvoicePayment = (paymentRecord) => (dispatch) => {
@@ -124,21 +88,6 @@ export const recordInvoicePayment = (paymentRecord) => (dispatch) => {
       dispatch({
         type: ActionTypes.PAID_INVOICE,
         invoiceActivity: Object.assign(response, paymentRecord),
-      });
-    })
-    .catch((err) => {
-      dispatch(showErrorMessage(err));
-      throw err;
-    });
-};
-
-export const recordApplyCredit = (creditRecord) => (dispatch) => {
-  return apnSDK
-    .recordApplyCredit(creditRecord)
-    .then(({ response }) => {
-      dispatch({
-        type: ActionTypes.APPLY_CREDIT_INVOICE,
-        invoiceActivity: Object.assign(response, creditRecord),
       });
     })
     .catch((err) => {

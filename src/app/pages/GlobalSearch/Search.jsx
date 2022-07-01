@@ -183,7 +183,7 @@ class GlobalSearch extends Component {
                     color="primary"
                   />
                 }
-                label={t('field:Mandarin Speaking')}
+                label="Mandarin Speaking"
               />
               <Filter
                 collapsed={this.state['nameCollapsed']}
@@ -212,7 +212,7 @@ class GlobalSearch extends Component {
                 collapsed={this.state['locationCollapsed']}
                 toggleCollapse={this.onFilterCollapsed}
                 filterType="location"
-                label={t('field:location')}
+                label={t('field:Location')}
                 filter={this.state.filters.location}
                 onChange={this.onFilterValueChanged}
                 onAdd={this.addFilterInput}

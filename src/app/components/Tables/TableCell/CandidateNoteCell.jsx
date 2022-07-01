@@ -88,7 +88,6 @@ class CandidateNoteCell extends Component {
             </Grid>
           </div>
         </div>
-
         <MyDialog
           show={NotesDialogShow}
           modalTitle={`Candidate Notes`}

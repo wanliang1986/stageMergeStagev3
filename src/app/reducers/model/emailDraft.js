@@ -1,7 +1,7 @@
 import * as ActionTypes from '../../constants/actionTypes';
 import Immutable from 'immutable';
 
-export default function(state = Immutable.Map(), action = {}) {
+export default function (state = Immutable.Map(), action = {}) {
   let newState;
   switch (action.type) {
     case ActionTypes.LOGOUT:

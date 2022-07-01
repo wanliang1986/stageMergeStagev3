@@ -163,26 +163,24 @@ class Skills extends React.Component {
     return (
       <div>
         <div className="flex-container align-justify align-middle">
-          <Typography variant="h6"> {t('tab:Skills')}</Typography>
+          <Typography variant="h6">{'Skills'}</Typography>
           {skillFlag ? (
             <div className={classes.flex} onClick={this.deleteSkills}>
               <DeleteOutlineIcon
                 style={{ color: '#e85919', fontSize: '21px' }}
               />
-              <p style={{ color: '#e85919', marginTop: 0 }}>
-                {t('tab:Delete')}
-              </p>
+              <p style={{ color: '#e85919', marginTop: 0 }}>{'Delete'}</p>
             </div>
           ) : (
             <div className={classes.flex} onClick={this.addSkills}>
               <AddIcon style={{ color: '#3398dc', fontSize: '21px' }} />
-              <p style={{ color: '#3398dc', marginTop: 0 }}>{t('tab:Add')}</p>
+              <p style={{ color: '#3398dc', marginTop: 0 }}>{'Add'}</p>
             </div>
           )}
         </div>
         {skillFlag ? (
           <div className={clsx('small-12 columns', classes.requiredSkill)}>
-            <FormReactSelectContainer label={t('tab:Skills')}>
+            <FormReactSelectContainer label={t('field:Skills')}>
               <SortableSelect
                 styles={customSelectStyles}
                 useDragHandle
@@ -209,7 +207,7 @@ class Skills extends React.Component {
                   MultiValueLabel: SortableMultiValueLabel,
                   DropdownIndicator: null,
                 }}
-                placeholder={t('tab:Add Skills')}
+                placeholder={'Add Skills'}
               />
             </FormReactSelectContainer>
           </div>

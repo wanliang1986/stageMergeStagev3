@@ -122,13 +122,13 @@ class HeaderCell extends React.PureComponent {
             title={
               <React.Fragment>
                 <div style={{ fontSize: '14px', marginBottom: '10px' }}>
-                  {this.props.t('tab:AgingDaysTip1')}
+                  If the current status of the candidate is [Interview]: Aging
+                  Days=Today-the latest interview date (if this date is later
+                  than Today, Aging Days will not be displayed);
                 </div>
                 <div style={{ fontSize: '14px', marginBottom: '10px' }}>
-                  {this.props.t('tab:AgingDaysTip2')}
-                </div>
-                <div style={{ fontSize: '14px', marginBottom: '10px' }}>
-                  {this.props.t('tab:AgingDaysTip3')}
+                  If the current status of the candidate is not [Interview ]:
+                  Aging Days=Today-the latest status update date
                 </div>
               </React.Fragment>
             }
@@ -166,7 +166,7 @@ class HeaderCell extends React.PureComponent {
             className="flex-container align-justify align-middle"
           >
             <span>
-              {column.type === 'activityCount' && <div>{t('Sum of')}</div>}
+              {column.type === 'activityCount' && <div>Sum of</div>}
               {t(column.colName)}
             </span>
             {column.tooltip ? this.tooltip(column.colName) : null}

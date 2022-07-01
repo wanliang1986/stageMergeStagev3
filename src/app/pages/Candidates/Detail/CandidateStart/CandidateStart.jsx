@@ -11,7 +11,6 @@ import {
   selectStartToOpen,
   selectExtensionToOpen,
   startCancelTermination,
-  OpenOnboarding,
 } from '../../../../actions/startActions';
 import { getApplication } from '../../../../actions/applicationActions';
 import { showErrorMessage } from '../../../../actions';
@@ -36,16 +35,12 @@ import SecondaryButton from '../../../../components/particial/SecondaryButton';
 import PotentialButton from '../../../../components/particial/PotentialButton';
 import AlertDialog from '../../../../components/particial/AlertDialog';
 
-import * as ActionTypes from '../../../../constants/actionTypes';
-
-import { showOnboarding } from '../../../../../utils/index';
-
 class CandidateStart extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      edit: props.start && !props.start.get('id'),
+      edit: !props.start.get('id'),
       processing: false,
 
       openFailedWarranty: false,
@@ -84,20 +79,6 @@ class CandidateStart extends React.Component {
               this.props.start.merge(Immutable.fromJS(newStart))
             )
           );
-
-          let hasOnboardingBtn = showOnboarding(
-            this.props.start.merge(Immutable.fromJS(newStart))
-          );
-          dispatch(
-            OpenOnboarding(
-              this.props.start
-                .merge(Immutable.fromJS(newStart))
-                .get('applicationId'),
-              'openStart',
-              this.props.start.merge(Immutable.fromJS(newStart)),
-              hasOnboardingBtn
-            )
-          );
         })
         .then(this.handleCancel)
         .catch((err) => {
@@ -110,19 +91,6 @@ class CandidateStart extends React.Component {
         newStart.id = normalizedData.result;
         dispatch(
           selectStartToOpen(this.props.start.merge(Immutable.fromJS(newStart)))
-        );
-        let hasOnboardingBtn = showOnboarding(
-          this.props.start.merge(Immutable.fromJS(newStart))
-        );
-        dispatch(
-          OpenOnboarding(
-            this.props.start
-              .merge(Immutable.fromJS(newStart))
-              .get('applicationId'),
-            'openStart',
-            this.props.start.merge(Immutable.fromJS(newStart)),
-            hasOnboardingBtn
-          )
         );
         dispatch(getApplication(newStart.applicationId));
       })
@@ -144,11 +112,9 @@ class CandidateStart extends React.Component {
       onCloseStartTab(() => {
         console.log('handleCloseStartTab');
         dispatch(selectStartToOpen(null));
-        dispatch(OpenOnboarding(null));
       });
     } else {
       dispatch(selectStartToOpen(null));
-      dispatch(OpenOnboarding(null));
     }
   };
 
@@ -173,16 +139,6 @@ class CandidateStart extends React.Component {
         dispatch(startCancelTermination(start.get('id')))
           .then((newStart) => {
             dispatch(selectStartToOpen(Immutable.fromJS(newStart)));
-
-            let hasOnboardingBtn = showOnboarding(Immutable.fromJS(newStart));
-            dispatch(
-              OpenOnboarding(
-                start.get('applicationId'),
-                'openStart',
-                start,
-                hasOnboardingBtn
-              )
-            );
             dispatch(getApplication(start.get('applicationId')));
           })
           .catch((err) => {
@@ -229,20 +185,6 @@ class CandidateStart extends React.Component {
         ])
       );
     dispatch(selectExtensionToOpen(extension));
-
-    let hasOnboardingBtn = showOnboarding(start);
-    dispatch(
-      OpenOnboarding(
-        start.get('applicationId'),
-        'openStart',
-        start,
-        hasOnboardingBtn
-      )
-    );
-    dispatch({
-      type: ActionTypes.TAB_SELECT,
-      selectedTab: 'extension',
-    });
   };
 
   handleRateChange = () => {
@@ -293,7 +235,7 @@ class CandidateStart extends React.Component {
               ? edit
                 ? `Edit Current Start`
                 : 'Start' + `${getStatusLabel(status)}`
-              : `${props.t('action:Schedule a Start')}`}
+              : `Schedule a Start`}
           </Typography>
           {isAm &&
             startId &&
@@ -467,10 +409,10 @@ CandidateStart.propTypes = {
   t: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = (state) => {
+const mapStateToProps = (state, { start }) => {
   const currentUserId = state.controller.currentUser.get('id');
   const authorities = state.controller.currentUser.get('authorities');
-  const start = state.controller.currentStart.get('start');
+
   const isAdmin =
     authorities &&
     authorities.includes(Immutable.Map({ name: 'ROLE_TENANT_ADMIN' }));
@@ -478,7 +420,6 @@ const mapStateToProps = (state) => {
     isAdmin,
     isAm: checkAM(start, currentUserId) || isAdmin,
     currentUserId,
-    start,
   };
 };
 
@@ -503,12 +444,9 @@ const getMenuItems = (positionType, status, endDate) => {
       : [
           {
             action: 'failedWarranty',
-            label: 'common:Failed Warranty',
+            label: 'action:Failed Warranty',
           },
         ];
-  }
-  if (status === 'CONTRACT_TERMINATED') {
-    return [];
   }
 
   if (status !== 'ACTIVE' && !moment().isAfter(moment(endDate))) {

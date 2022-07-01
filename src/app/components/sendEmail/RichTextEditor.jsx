@@ -107,7 +107,7 @@ const editorConfig = {
     'fontselect fontsizeselect | bold italic underline | forecolor backcolor | numlist bullist outdent indent | alignleft aligncenter alignright alignjustify | removeformat',
   setup: (editor) => {
     editor.on('ResizeEditor', function (e) {
-      editorConfig.height = editor.getContainer().clientHeight;
+      editorConfig.height = editor.getContentAreaContainer().clientHeight;
       localStorage.setItem('emailContentHeight', editorConfig.height);
     });
   },

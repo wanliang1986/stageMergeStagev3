@@ -11,7 +11,7 @@ const DateCell = ({ rowIndex, data, col, ...props }) => {
         <div
           className="overflow_ellipsis_1"
           style={{
-            width: props.width - 26
+            width: props.width - 26,
           }}
         >
           {text ? jobDateFormat(text) : 'N/A'}

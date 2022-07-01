@@ -11,7 +11,7 @@ import withTheme from '@material-ui/core/styles/withTheme';
 import { duration } from '@material-ui/core/styles/transitions';
 import {
   reflow,
-  getTransitionProps
+  getTransitionProps,
 } from '@material-ui/core/transitions/utils';
 
 const GUTTER = 24;
@@ -39,10 +39,7 @@ function getTranslateValue(props, node) {
   let offsetY = 0;
 
   if (transform && transform !== 'none' && typeof transform === 'string') {
-    const transformValues = transform
-      .split('(')[1]
-      .split(')')[0]
-      .split(',');
+    const transformValues = transform.split('(')[1].split(')')[0].split(',');
     // console.log('transformValues', transformValues);
     offsetX = parseInt(transformValues[4], 10);
     offsetY = parseInt(transformValues[5], 10);
@@ -127,7 +124,7 @@ class Slide extends React.Component {
     this.handleResize.clear();
   }
 
-  handleEnter = node => {
+  handleEnter = (node) => {
     if (node.offsetParent) {
       node.offsetParent.scrollLeft = 0;
       node.offsetParent.scrollTop = 0;
@@ -136,7 +133,7 @@ class Slide extends React.Component {
     setTranslateValue(this.props, node);
   };
 
-  handleEntering = node => {
+  handleEntering = (node) => {
     if (node.offsetParent) {
       node.offsetParent.scrollLeft = 0;
       node.offsetParent.scrollTop = 0;
@@ -145,7 +142,7 @@ class Slide extends React.Component {
     const { theme } = this.props;
 
     const transitionProps = getTransitionProps(this.props, {
-      mode: 'enter'
+      mode: 'enter',
     });
 
     // console.log('transitionProps', transitionProps);
@@ -154,33 +151,33 @@ class Slide extends React.Component {
       '-webkit-transform',
       {
         ...transitionProps,
-        easing: theme.transitions.easing.easeOut
+        easing: theme.transitions.easing.easeOut,
       }
     );
     node.style.transition = theme.transitions.create('transform', {
       ...transitionProps,
-      easing: theme.transitions.easing.easeOut
+      easing: theme.transitions.easing.easeOut,
     });
     node.style.webkitTransform = 'translate(0, 0)';
     node.style.transform = 'translate(0, 0)';
   };
 
-  handleExit = node => {
+  handleExit = (node) => {
     const { theme } = this.props;
 
     const transitionProps = getTransitionProps(this.props, {
-      mode: 'exit'
+      mode: 'exit',
     });
     node.style.webkitTransition = theme.transitions.create(
       '-webkit-transform',
       {
         ...transitionProps,
-        easing: theme.transitions.easing.sharp
+        easing: theme.transitions.easing.sharp,
       }
     );
     node.style.transition = theme.transitions.create('transform', {
       ...transitionProps,
-      easing: theme.transitions.easing.sharp
+      easing: theme.transitions.easing.sharp,
     });
     setTranslateValue(this.props, node);
 
@@ -189,7 +186,7 @@ class Slide extends React.Component {
     }
   };
 
-  handleExited = node => {
+  handleExited = (node) => {
     // No need for transitions when the component is hidden
     node.style.webkitTransition = '';
     node.style.transition = '';
@@ -230,7 +227,7 @@ class Slide extends React.Component {
     style = {
       ...style,
       ...styleProp,
-      ...(React.isValidElement(children) ? children.props.style : {})
+      ...(React.isValidElement(children) ? children.props.style : {}),
     };
 
     return (
@@ -242,7 +239,7 @@ class Slide extends React.Component {
           onExited={this.handleExited}
           appear
           style={style}
-          ref={ref => {
+          ref={(ref) => {
             this.transitionRef = ReactDOM.findDOMNode(ref);
           }}
           {...other}
@@ -297,16 +294,16 @@ Slide.propTypes = {
    */
   timeout: PropTypes.oneOfType([
     PropTypes.number,
-    PropTypes.shape({ enter: PropTypes.number, exit: PropTypes.number })
-  ])
+    PropTypes.shape({ enter: PropTypes.number, exit: PropTypes.number }),
+  ]),
 };
 
 Slide.defaultProps = {
   direction: 'down',
   timeout: {
     enter: duration.enteringScreen,
-    exit: duration.leavingScreen
-  }
+    exit: duration.leavingScreen,
+  },
 };
 
 export default withTheme(Slide);

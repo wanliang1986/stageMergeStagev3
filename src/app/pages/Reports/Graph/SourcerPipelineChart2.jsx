@@ -141,6 +141,23 @@ const userRoleOptions = [
     label: 'Account Manager',
   },
 ];
+const ranges = [
+  {
+    label: 'This Month',
+    value: [dateFns.startOfMonth(new Date()), dateFns.endOfToday()],
+  },
+  {
+    label: 'Last 3 Months',
+    value: [
+      dateFns.addMonths(dateFns.startOfToday(), -3),
+      dateFns.endOfToday(),
+    ],
+  },
+  {
+    label: 'Year to Date',
+    value: [dateFns.startOfYear(new Date()), dateFns.endOfToday()],
+  },
+];
 
 const styles = {
   root: {
@@ -367,9 +384,7 @@ class ChartWithTable extends React.Component {
   getChartData = (data, type) => {
     return data
       ? {
-          labels: statusOptions.map((status) =>
-            this.props.t(`tab:${status.label.toLowerCase()}`)
-          ),
+          labels: statusOptions.map((status) => status.label),
           datasets: [
             {
               data: statusOptions.map(
@@ -536,10 +551,10 @@ class ChartWithTable extends React.Component {
         <div>
           <div className={classes.actionsContainer}>
             <Typography variant="h5">
-              {t('tab:Pipeline Analytics per Submittal Perspective')}
+              {t('message:Pipeline Analytics per Submittal Perspective')}
             </Typography>
             <PotentialButton component="a" onClick={this.downloadCanvas}>
-              {t('tab:Download as image')}
+              Download as image
             </PotentialButton>
           </div>
           <Divider />
@@ -555,29 +570,7 @@ class ChartWithTable extends React.Component {
               <FormReactSelectContainer label={t('field:Sourced Date')}>
                 <DateRangePicker
                   value={range}
-                  ranges={[
-                    {
-                      label: t('tab:This Month'),
-                      value: [
-                        dateFns.startOfMonth(new Date()),
-                        dateFns.endOfToday(),
-                      ],
-                    },
-                    {
-                      label: t('tab:Last 3 Months'),
-                      value: [
-                        dateFns.addMonths(dateFns.startOfToday(), -3),
-                        dateFns.endOfToday(),
-                      ],
-                    },
-                    {
-                      label: t('tab:Year to Date'),
-                      value: [
-                        dateFns.startOfYear(new Date()),
-                        dateFns.endOfToday(),
-                      ],
-                    },
-                  ]}
+                  ranges={ranges}
                   cleanable={false}
                   toggleComponentClass={CustomToggleButton}
                   size="md"
@@ -635,7 +628,7 @@ class ChartWithTable extends React.Component {
                         disabled={!selectedUser}
                       />
                     }
-                    label={t('tab:Recruiter')}
+                    label="Recruiter"
                   />
                   <FormControlLabel
                     control={
@@ -647,7 +640,7 @@ class ChartWithTable extends React.Component {
                         disabled={!selectedUser}
                       />
                     }
-                    label={t('tab:AM')}
+                    label="AM"
                   />
                   <FormControlLabel
                     control={
@@ -659,7 +652,7 @@ class ChartWithTable extends React.Component {
                         disabled={!selectedUser}
                       />
                     }
-                    label={t('tab:Sourcer')}
+                    label="Sourcer"
                   />
                 </div>
               </FormControl>
@@ -674,7 +667,7 @@ class ChartWithTable extends React.Component {
                     color="primary"
                   />
                 }
-                label={t('tab:Show All Status')}
+                label={'Show All Status'}
               />
             </div>
           </div>

@@ -4,7 +4,7 @@ import Divider from '@material-ui/core/Divider';
 import PotentialButton from '../../../components/particial/PotentialButton';
 import PrimaryButton from '../../../components/particial/PrimaryButton';
 
-const Step3 = props => {
+const Step3 = (props) => {
   const { credit, cancelPurchase } = props;
   console.log('popsssss', props);
   return (
@@ -29,7 +29,7 @@ const Step3 = props => {
           bottom: '20px',
           left: 0,
           right: 0,
-          textAlign: 'right'
+          textAlign: 'right',
         }}
       >
         <Divider style={{ marginBottom: 20 }} />

@@ -9,7 +9,7 @@ import Tab from '@material-ui/core/Tab';
 import JobListAll from './JobListAll';
 import JobListMy from './JobListMy';
 
-import { distSelect, distSelectZh } from '../../../../apn-sdk/newSearch';
+import { distSelect } from '../../../../apn-sdk/newSearch';
 import { getNewOptions } from '../../../actions/newSearchOptions';
 import { resetSearch } from '../../../actions/newSearchJobs';
 
@@ -39,7 +39,7 @@ class JobTabs extends React.PureComponent {
 
   componentDidMount() {
     console.timeEnd('job tab');
-    // this.getDate();
+    this.getDate();
   }
 
   componentDidUpdate() {
@@ -52,24 +52,15 @@ class JobTabs extends React.PureComponent {
     this.props.history.replace(tabs[tabIndex], this.props.location.state);
   };
 
-  // getDate = () => {
-  //   Promise.all([
-  //     distSelect(38),
-  //     distSelect(65),
-  //     distSelect(1),
-  //     distSelectZh(1),
-  //   ]).then((res) => {
-  //     let briefUsers = this.props.briefUsers;
-  //     console.log('test1234', briefUsers)
-  //     this.props.dispatch(getNewOptions(['languagesOptions', res[0].response]));
-  //     this.props.dispatch(getNewOptions(['degreeOptions', res[1].response]));
-  //     this.props.dispatch(getNewOptions(['functionOptions', res[2].response]));
-  //     this.props.dispatch(getNewOptions(['allUserOptions', briefUsers]));
-  //     this.props.dispatch(
-  //       getNewOptions(['functionOptionsZh', res[3].response])
-  //     );
-  //   });
-  // };
+  getDate = () => {
+    Promise.all([distSelect(38), distSelect(65), distSelect(1)]).then((res) => {
+      let briefUsers = this.props.briefUsers;
+      this.props.dispatch(getNewOptions(['languagesOptions', res[0].response]));
+      this.props.dispatch(getNewOptions(['degreeOptions', res[1].response]));
+      this.props.dispatch(getNewOptions(['functionOptions', res[2].response]));
+      this.props.dispatch(getNewOptions(['allUserOptions', briefUsers]));
+    });
+  };
 
   handleSearch = (tab) => (search) => {
     const { history, location } = this.props;

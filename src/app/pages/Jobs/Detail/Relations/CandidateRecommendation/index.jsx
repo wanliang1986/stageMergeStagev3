@@ -9,7 +9,7 @@ import Divider from '@material-ui/core/Divider';
 
 import TalentPool from './TalentPool';
 import CommonSearch from './CommonSearch';
-import { withTranslation } from 'react-i18next';
+
 class CandidateRecommendation extends React.Component {
   constructor(props) {
     super(props);
@@ -34,9 +34,7 @@ class CandidateRecommendation extends React.Component {
             className="flex-container align-middle item-padding"
             style={{ minHeight: 56 }}
           >
-            <Typography style={{ marginRight: 20 }}>
-              {this.props.t('tab:Source')}:
-            </Typography>
+            <Typography style={{ marginRight: 20 }}>{'Source'}:</Typography>
             <RadioGroup
               row
               value={source}
@@ -45,12 +43,12 @@ class CandidateRecommendation extends React.Component {
               <FormControlLabel
                 value="talentPool"
                 control={<Radio color="primary" />}
-                label={this.props.t('tab:Talent Pool')}
+                label={'Talent Pool'}
               />
               <FormControlLabel
                 value="commonSearch"
                 control={<Radio color="primary" />}
-                label={this.props.t('tab:Common Search')}
+                label={'Common Search'}
               />
             </RadioGroup>
             <div className="flex-child-auto" />
@@ -71,4 +69,4 @@ class CandidateRecommendation extends React.Component {
   }
 }
 
-export default withTranslation('tab')(connect()(CandidateRecommendation));
+export default connect()(CandidateRecommendation);

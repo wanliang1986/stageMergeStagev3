@@ -15,11 +15,7 @@ import Typography from '@material-ui/core/Typography';
 
 import ApplicationStart from '../ApplcationStart';
 import * as Colors from '../../../../styles/Colors';
-import {
-  makeGetStartByApplicationId,
-  makeGetPreStartByApplicationId,
-  getActiveStartListByTalent,
-} from '../../../../selectors/startSelector';
+
 const styles = {
   root: {
     color: Colors.TEXT,
@@ -53,11 +49,7 @@ const ApplicationContent = withStyles(styles)(({ application, t, classes }) => {
         <Typography variant="subtitle2" className={classes.listItemTitle}>
           {moment().isBefore(moment(eventDate)) && isTerminate
             ? `Will Terminate at ${eventDate}`
-            : t(
-                `tab:${getApplicationStatusLabel(
-                  application.get('status')
-                ).toLowerCase()}`
-              )}
+            : getApplicationStatusLabel(application.get('status'))}
         </Typography>
 
         {/* 动态的时间和相关的用户 */}
@@ -86,7 +78,6 @@ const ApplicationContent = withStyles(styles)(({ application, t, classes }) => {
 
       <ApplicationStart
         t={t}
-        application={application}
         applicationId={application.get('id')}
         candidateId={application.get('talentId')}
       />
@@ -125,23 +116,12 @@ class Application extends React.PureComponent {
 }
 
 const mapStateToProps = (state, { application, isAdmin, currentUserId }) => {
-  const getStartByApplicationId = makeGetStartByApplicationId();
-  const getPreStartByApplicationId = makeGetPreStartByApplicationId();
   const applicationCommissions = getApplicationCommissionsByApplicationId(
     state,
     application.get('id')
   );
   const assignedUsers = getAssignedUsers(state, application.get('jobId'));
   // console.log('applicationCommissions',applicationCommissions.toJS(),assignedUsers.toJS())
-  // let isCompanyClientAM =
-  //   application.get('company') &&
-  //   Boolean(application.get('company').toJS().isAm);
-  // let isJobAM =
-  //   assignedUsers &&
-  //   assignedUsers.length > 0 &&
-  //   assignedUsers.some((item) => {
-  //     return currentUserId == item.userId && item.permission == 'AM';
-  //   });
   return {
     disabled:
       !isAdmin &&

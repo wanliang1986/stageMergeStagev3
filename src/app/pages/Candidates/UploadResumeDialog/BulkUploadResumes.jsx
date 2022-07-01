@@ -63,8 +63,8 @@ class BulkUploadResumes extends React.Component {
   }
 
   componentWillUnmount() {
-    this.unmounted = true;
     this.bulkTask && this.bulkTask.cancel();
+    this.unmounted = true;
     this.tasks.forEach((task) => task.cancel());
   }
 
@@ -90,12 +90,11 @@ class BulkUploadResumes extends React.Component {
           currentFileName: fileName,
         });
 
-        const taskPromise = dispatch(bulkParseResume(resumeFile, 1))
+        const taskPromise = dispatch(bulkParseResume(resumeFile))
           .then((resume) => {
             console.log('resume:', resume);
             //{
             //         name: parseOutputCache.name,
-            //         talentId: parseOutputCache.talentId, // duplicated resume
             //         s3Link: parseOutputCache.s3Link,
             //         photoUrl: parseOutputCache.photoUrl,
             //         text: parseOutputCache.data && JSON.parse(parseOutputCache.data).text,
@@ -240,7 +239,7 @@ class BulkUploadResumes extends React.Component {
     return (
       <div className="vertical-layout" style={{ padding: 24, width: 500 }}>
         <Typography variant="h6" gutterBottom>
-          {t('tab:Processing Resumes')} {`(${resumeFiles.length} resumes)`}
+          Processing Resumes {`(${resumeFiles.length} resumes)`}
         </Typography>
 
         <div>
@@ -266,7 +265,7 @@ class BulkUploadResumes extends React.Component {
                 <Typography variant="subtitle2" color="secondary">
                   {this.state.error.length + this.state.error2.length} &nbsp;
                 </Typography>
-                <Typography variant="subtitle2"> {t('tab:Error')}</Typography>
+                <Typography variant="subtitle2">Error</Typography>
               </div>
             )}
           </div>
@@ -278,9 +277,7 @@ class BulkUploadResumes extends React.Component {
             this.state.canceled.length > 0) && (
             <div className={classes.messageContainer}>
               <div className={classes.messageTitle}>
-                <Typography variant="subtitle2">
-                  {t('tab:Exception Details')}
-                </Typography>
+                <Typography variant="subtitle2">Exception Details</Typography>
                 <PotentialButton
                   onClick={this.handleExportExceptionDetails}
                   size="small"
@@ -316,7 +313,7 @@ class BulkUploadResumes extends React.Component {
                   <div className={classes.message}>
                     <div className="flex-container align-center align-justify">
                       <Typography variant="subtitle2" gutterBottom>
-                        {t('tab:Failed to create talent')}(
+                        Failed to create talent (
                         {this.state.error2.length.toLocaleString()})
                       </Typography>
                     </div>
@@ -327,7 +324,8 @@ class BulkUploadResumes extends React.Component {
                       </Typography>
                     ))}
                     <Typography variant="body2" color="textSecondary">
-                      {t('tab:ErrorResumes')}
+                      On "Error Resumes" page, click on each pending resume to
+                      edit the profile and finish creating candidates.
                     </Typography>
                   </div>
                 )}

@@ -6,7 +6,6 @@ import ArrowRightIcon from '@material-ui/icons/ArrowRight';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import TextField from '@material-ui/core/TextField';
 import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
-import { useTranslation } from 'react-i18next';
 const styles = {
   root: {
     position: 'relative',
@@ -202,13 +201,13 @@ const JobTree = (props) => {
   const closeDialog = () => {
     setOpen(false);
   };
-  const [t] = useTranslation();
+
   return (
     <div className={classes.root}>
       <TextField
         value={value && value.join(', ')}
         variant="outlined"
-        placeholder={t('tab:select')}
+        placeholder="Select"
         fullWidth
         style={{ width: '100%', height: 34 }}
         InputProps={{

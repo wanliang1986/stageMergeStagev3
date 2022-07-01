@@ -1,20 +1,20 @@
 import { createSelector } from 'reselect';
 // import Immutable from 'immutable';
 
-const getTemplates = state => state.model.templates;
+const getTemplates = (state) => state.model.templates;
 const getTemplateType = (_, type) => type;
-const getCurrentUserId = state => state.controller.currentUser.get('id');
+const getCurrentUserId = (state) => state.controller.currentUser.get('id');
 
 const getTemplateList = createSelector(
   [getTemplates, getTemplateType],
   (templates, type) => {
     return templates
       .filter(
-        template =>
+        (template) =>
           template.get('isRichText') && (!type || template.get('type') === type)
       )
       .sortBy(
-        template => template.get('id'),
+        (template) => template.get('id'),
         (a, b) => {
           if (a < b) {
             return 1;
@@ -37,7 +37,7 @@ export const getMyDraftList = createSelector(
   [getTemplates, getCurrentUserId],
   (templates, currentUser) => {
     return templates
-      .filter(template => {
+      .filter((template) => {
         // const createdBy = template.get('userId');
         // console.log('elector', createdBy, currentUser)
         return (
@@ -47,7 +47,7 @@ export const getMyDraftList = createSelector(
         );
       })
       .sortBy(
-        template => template.get('id'),
+        (template) => template.get('id'),
         (a, b) => {
           if (a < b) {
             return 1;

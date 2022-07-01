@@ -6,10 +6,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import FormTextArea from '../../../../../components/particial/FormTextArea';
 import PrimaryButton from '../../../../../components/particial/PrimaryButton';
 import SecondaryButton from '../../../../../components/particial/SecondaryButton';
-import {
-  voidInvoice,
-  voidInvoice2,
-} from '../../../../../actions/invoiceActions';
+import { voidInvoice } from '../../../../../actions/invoiceActions';
 
 class VoidForm extends React.Component {
   constructor(props) {
@@ -22,21 +19,16 @@ class VoidForm extends React.Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    const { t, onClose, dispatch, invoiceNo } = this.props;
+    const { t, onClose, dispatch, invoiceId } = this.props;
     console.log(e.target.reason.value);
     const reason = e.target.reason.value;
     if (!reason) {
       return this.setState({
-        errorMessage: 'message:Void Reason is required.',
-      });
-    }
-    if (reason.length > 2000) {
-      return this.setState({
-        errorMessage: 'message:The length of Void Reason is More than 2000.',
+        errorMessage: t('message:Void Reason is required.'),
       });
     }
     this.setState({ processing: true, errorMessage: '' });
-    dispatch(voidInvoice2(invoiceNo, reason))
+    dispatch(voidInvoice({ invoiceId, reason }))
       .then(onClose)
       .catch(() => this.setState({ processing: false }));
   };
@@ -46,13 +38,13 @@ class VoidForm extends React.Component {
     const { t, onClose } = this.props;
     return (
       <>
-        <DialogTitle>{t('tab:Void Invoice')}</DialogTitle>
+        <DialogTitle>{t('Void Invoice')}</DialogTitle>
         <DialogContent>
           <form onSubmit={this.handleSubmit} id={'invoiceVoidForm'}>
             <FormTextArea
               isRequired
               label={t('field:reason')}
-              errorMessage={t(errorMessage)}
+              errorMessage={errorMessage}
               rows={4}
               name={'reason'}
             />

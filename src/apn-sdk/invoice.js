@@ -141,25 +141,3 @@ export const recordInvoicePayment = (paymentRecord) => {
   };
   return authRequest.send(`/invoice-payment-records`, config);
 };
-
-export const recordApplyCredit = (creditRecord) => {
-  const config = {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(creditRecord),
-  };
-  return authRequest.send(`/invoice-client-credits/apply`, config);
-};
-
-export const getClientCredits = (companyId) => {
-  const config = {
-    method: 'GET',
-    headers: {},
-  };
-  return authRequest.send(
-    `/invoice-client-credits/companyId/${companyId}`,
-    config
-  );
-};

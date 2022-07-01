@@ -4,7 +4,7 @@ import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import { withStyles } from '@material-ui/core';
 import moment from 'moment-timezone';
-import { externalUrl } from '../../../../../utils';
+
 const styles = {
   title: {
     overflow: 'hidden',
@@ -88,22 +88,25 @@ class ProspectOverView extends Component {
   };
   getClientContact = (arr) => {};
   getServiceType = (arr) => {
-    return arr.toJS().map((item, index) => {
-      return item.potentialService;
+    let a = arr.toJS().map((item, index) => {
+      return item.label;
     });
+
+    return a.join(', ');
   };
 
   getAddress = (company) => {
     let address = [];
-    company.get('additionalAddress') &&
-      company.get('additionalAddress').forEach((item, index) => {
-        if (item.get('city') || item.get('province') || item.get('country')) {
+    company.get('companyAddresses') &&
+      company.get('companyAddresses').forEach((item, index) => {
+        if (
+          item.get('geoInfoEN').get('city') ||
+          item.get('geoInfoEN').get('province') ||
+          item.get('geoInfoEN').get('country')
+        ) {
           address.push(item);
         }
       });
-    if (company.get('primaryAddress')) {
-      address.unshift(company.get('primaryAddress'));
-    }
     return address;
   };
   getAddressMsg = (item) => {
@@ -158,7 +161,7 @@ class ProspectOverView extends Component {
   getTeam = (team) => {
     let msg = [];
     team.forEach((item, index) => {
-      let name = item.get('firstName') + ' ' + item.get('lastName');
+      let name = item.get('fullName');
       msg.push(name);
     });
     return msg.join(', ');
@@ -167,7 +170,7 @@ class ProspectOverView extends Component {
     let names = [];
     if (item && item.size > 0) {
       item.forEach((name, index) => {
-        names.push(name.get('firstName') + ' ' + name.get('lastName'));
+        names.push(name.get('fullName'));
       });
     }
     if (names.size === 1) {
@@ -190,16 +193,16 @@ class ProspectOverView extends Component {
     }
   };
 
-  // openWindow = (str) => {
-  //   if (!/^(f|ht)tps?:\/\//i.test(str)) {
-  //     let url = 'http://' + str;
-  //     let w = window.open('about:_blank');
-  //     w.location.href = url;
-  //   } else {
-  //     let w = window.open('about:_blank');
-  //     w.location.href = str;
-  //   }
-  // };
+  openWindow = (str) => {
+    if (!/^(f|ht)tps?:\/\//i.test(str)) {
+      let url = 'http://' + str;
+      let w = window.open('about:_blank');
+      w.location.href = url;
+    } else {
+      let w = window.open('about:_blank');
+      w.location.href = str;
+    }
+  };
 
   render() {
     const { classes, t, company } = this.props;
@@ -210,23 +213,22 @@ class ProspectOverView extends Component {
         <Paper className={classes.paper} elevation={0}>
           <Grid container spacing={3}>
             <Grid item xs={3}>
-              <div className={classes.title}>{t('tab:Company Name')} </div>
+              <div className={classes.title}>Company Name</div>
               <div className={classes.msg}>{company.get('name')}</div>
             </Grid>
             <Grid item xs={3}>
-              <div className={classes.title}>{t('tab:Industry')}</div>
+              <div className={classes.title}>Industry</div>
               <div className={classes.msg}>{company.get('industry')}</div>
             </Grid>
           </Grid>
           <Grid container spacing={3}>
             <Grid item xs={3}>
-              <div className={classes.title}>{t('tab:Company Website')}</div>
+              <div className={classes.title}>Company Website</div>
               <div className={classes.msg}>
                 <a
-                  // onClick={() => {
-                  //   this.openWindow(company.get('website'));
-                  // }}
-                  href={externalUrl(company.get('website'))}
+                  onClick={() => {
+                    this.openWindow(company.get('website'));
+                  }}
                   target="_blank"
                   rel="noopener noreferer"
                 >
@@ -235,13 +237,13 @@ class ProspectOverView extends Component {
               </div>
             </Grid>
             <Grid item xs={3}>
-              <div className={classes.title}>{t('tab:Fortune Ranking')}</div>
+              <div className={classes.title}>Fortune Ranking</div>
               <div className={classes.msg}>{company.get('fortuneRank')}</div>
             </Grid>
           </Grid>
           <Grid container spacing={3}>
             <Grid item xs={3}>
-              <div className={classes.title}>{t('tab:Address')}</div>
+              <div className={classes.title}>Address</div>
               {address
                 ? address.map((item, index) => {
                     return (
@@ -254,12 +256,12 @@ class ProspectOverView extends Component {
               {/* <div>{company.get('addresses')}</div> */}
             </Grid>
             <Grid item xs={3}>
-              <div className={classes.title}>{t('tab:City/State/Country')}</div>
+              <div className={classes.title}>City/State/Country</div>
               {address
                 ? address.map((item, index) => {
                     return (
                       <div key={index} className={classes.msg}>
-                        {this.getAddressMsg(item)}
+                        {this.getAddressMsg(item.get('geoInfoEN'))}
                       </div>
                     );
                   })
@@ -270,11 +272,9 @@ class ProspectOverView extends Component {
         <Paper className={classes.paper} elevation={0}>
           <Grid container spacing={3}>
             <Grid item xs={2}>
-              <div className={classes.title}>
-                {this.props.t('tab:Sales Lead Owner')}
-              </div>
-              {company.get('salesLead')
-                ? company.get('salesLead').map((item, index) => {
+              <div className={classes.title}>Sales Lead Owner</div>
+              {company.get('salesLeadDetails')
+                ? company.get('salesLeadDetails').map((item, index) => {
                     // return item.get('owners') && item.get('owners').size > 0
                     //   ? item.get('owners').map((owner, index) => {
                     //       return (
@@ -288,30 +288,28 @@ class ProspectOverView extends Component {
                     //   : null;
                     return (
                       <div key={index} className={classes.msg}>
-                        {this.getOwners(item.get('owners'))}
+                        {this.getOwners(item.get('salesLeadsOwner'))}
                       </div>
                     );
                   })
                 : null}
             </Grid>
             <Grid item xs={2}>
-              <div className={classes.title}>{t('tab:Client Contact')}</div>
-              {company.get('salesLead')
-                ? company.get('salesLead').map((item, index) => {
+              <div className={classes.title}>Client Contact</div>
+              {company.get('salesLeadDetails')
+                ? company.get('salesLeadDetails').map((item, index) => {
                     return (
                       <div key={index} className={classes.msg}>
-                        {this.getContacts(item.get('contacts'))}
+                        {this.getContacts(item.get('salesLeadClientContacts'))}
                       </div>
                     );
                   })
                 : null}
             </Grid>
             <Grid item xs={2}>
-              <div className={classes.title}>
-                {t('tab:Estimated Deal Time')}{' '}
-              </div>
-              {company.get('salesLead')
-                ? company.get('salesLead').map((item, index) => {
+              <div className={classes.title}>Estimated Deal Time </div>
+              {company.get('salesLeadDetails')
+                ? company.get('salesLeadDetails').map((item, index) => {
                     return (
                       <div key={index} className={classes.msg}>
                         {moment(item.get('estimatedDealTime')).format(
@@ -323,9 +321,9 @@ class ProspectOverView extends Component {
                 : null}
             </Grid>
             <Grid item xs={2}>
-              <div className={classes.title}>{t('tab:Account Progress')}</div>
-              {company.get('salesLead')
-                ? company.get('salesLead').map((item, index) => {
+              <div className={classes.title}>Account Progress</div>
+              {company.get('salesLeadDetails')
+                ? company.get('salesLeadDetails').map((item, index) => {
                     return (
                       <div key={index} className={classes.msg}>
                         {item.get('accountProgress') * 100 + '%'}
@@ -335,21 +333,22 @@ class ProspectOverView extends Component {
                 : null}
             </Grid>
             <Grid item xs={2}>
-              <div className={classes.title}>{t('tab:Service Type')}</div>
-              {company.get('salesLead')
-                ? company.get('salesLead').map((item, index) => {
-                    return item.get('serviceTypeNames').size > 0 ? (
+              <div className={classes.title}>Service Type</div>
+              {company.get('salesLeadDetails')
+                ? company.get('salesLeadDetails').map((item, index) => {
+                    return item.get('companyServiceTypes').size > 0 ? (
                       <div key={index} className={classes.msg}>
-                        {item.get('serviceTypeNames').join(', ')}
+                        {/* {item.get('companyServiceTypes').join(', ')} */}
+                        {this.getServiceType(item.get('companyServiceTypes'))}
                       </div>
                     ) : null;
                   })
                 : null}
             </Grid>
             <Grid item xs={2}>
-              <div className={classes.title}>{t('tab:Lead Source')}</div>
-              {company.get('salesLead')
-                ? company.get('salesLead').map((item, index) => {
+              <div className={classes.title}>Lead Source</div>
+              {company.get('salesLeadDetails')
+                ? company.get('salesLeadDetails').map((item, index) => {
                     return (
                       <div key={index} className={classes.msg}>
                         {item.get('leadSource')}
@@ -363,9 +362,9 @@ class ProspectOverView extends Component {
         <Paper className={classes.paper} elevation={0}>
           <Grid container spacing={3}>
             <Grid item xs={3}>
-              <div className={classes.title}>{t('field:AssignTeamMember')}</div>
-              {company.get('teamNumbers') &&
-              company.get('teamNumbers').size > 0 ? (
+              <div className={classes.title}>Assign Team Member</div>
+              {company.get('companyAssignTeamMembers') &&
+              company.get('companyAssignTeamMembers').size > 0 ? (
                 // ? company.get('teamNumbers').map((item, index) => {
                 //     return (
                 //       <div className={classes.msg}>
@@ -374,7 +373,7 @@ class ProspectOverView extends Component {
                 //     );
                 //   })
                 <div className={classes.msg}>
-                  {this.getTeam(company.get('teamNumbers'))}
+                  {this.getTeam(company.get('companyAssignTeamMembers'))}
                 </div>
               ) : null}
             </Grid>
@@ -383,29 +382,25 @@ class ProspectOverView extends Component {
         <Paper className={classes.paper} elevation={0}>
           <Grid container spacing={3}>
             <Grid item xs={3}>
-              <div className={classes.title}>{t('tab:Staff Size')}</div>
+              <div className={classes.title}>Staff Size</div>
               <div className={classes.msg}>{company.get('staffSizeType')}</div>
             </Grid>
             <Grid item xs={3}>
-              <div className={classes.title}>{t('tab:Business Revenue')}</div>
+              <div className={classes.title}>Business Revenue</div>
               <div className={classes.msg}>
                 {company.get('businessRevenue')}
               </div>
             </Grid>
 
             <Grid item xs={3}>
-              <div className={classes.title}>
-                {t('tab:LinkedIn Company Profile')}
-              </div>
+              <div className={classes.title}>LinkedIn Company Profile</div>
               <div className={classes.msg}>
                 {company.get('linkedinCompanyProfile')}
               </div>
             </Grid>
 
             <Grid item xs={3}>
-              <div className={classes.title}>
-                {t('tab:Crunchbase Company Profile')}
-              </div>
+              <div className={classes.title}>Crunchbase Company Profile</div>
               <div className={classes.msg}>
                 {company.get('crunchbaseCompanyProfile')}
               </div>

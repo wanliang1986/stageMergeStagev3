@@ -16,7 +16,7 @@ class SelectionCell extends React.Component {
 
     this.state = {
       selected: isSelected(id),
-      id
+      id,
     };
   }
 
@@ -25,7 +25,7 @@ class SelectionCell extends React.Component {
 
     this.setState({
       selected: isSelected(id),
-      id
+      id,
     });
   }
 
@@ -37,14 +37,8 @@ class SelectionCell extends React.Component {
   }
 
   render() {
-    const {
-      rowIndex,
-      isSelected,
-      onSelect,
-      dataList,
-      classes,
-      ...props
-    } = this.props;
+    const { rowIndex, isSelected, onSelect, dataList, classes, ...props } =
+      this.props;
     const { selected, id } = this.state;
     // console.log(id, selected);
 

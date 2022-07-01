@@ -4,7 +4,7 @@ import { getTalentsSubmitToClient } from '../../../actions/talentActions';
 import {
   makeCancelable,
   getIndexList,
-  sortList
+  sortList,
 } from '../../../../utils/index';
 import { getTalentsSubmitted } from '../../../selectors/talentSelector';
 
@@ -25,26 +25,26 @@ const columns = [
     flexGrow,
     fixed: true,
     sortable: true,
-    type: 'talentNameNewPageLink'
+    type: 'talentNameNewPageLink',
   },
   {
     colName: 'email',
     col: 'email',
     colWidth: 200,
     flexGrow,
-    sortable: true
+    sortable: true,
   },
   {
     colName: 'phone',
     col: 'phone',
     colWidth: 150,
-    flexGrow
+    flexGrow,
   },
   {
     colName: 'status',
     col: 'currentStatus',
     colWidth: 200,
-    sortable: true
+    sortable: true,
   },
 
   {
@@ -52,14 +52,14 @@ const columns = [
     col: 'jobTitle',
     colWidth: 180,
     flexGrow,
-    sortable: true
+    sortable: true,
   },
   {
     colName: 'submittedBy',
     col: 'submittedBy',
     colWidth: 160,
     flexGrow,
-    sortable: true
+    sortable: true,
   },
   {
     colName: 'submittedAt',
@@ -67,15 +67,15 @@ const columns = [
     colWidth: 155,
     flexGrow,
     type: 'date',
-    sortable: true
+    sortable: true,
   },
   {
     colName: 'resume',
     col: 'resume',
     colWidth: 155,
     flexGrow,
-    type: 'resume'
-  }
+    type: 'resume',
+  },
 ];
 
 class CandidateListInClient extends React.PureComponent {
@@ -85,7 +85,7 @@ class CandidateListInClient extends React.PureComponent {
     this.state = {
       loading: true,
       indexList: getIndexList(props.talentList),
-      colSortDirs: {}
+      colSortDirs: {},
     };
   }
 
@@ -94,7 +94,7 @@ class CandidateListInClient extends React.PureComponent {
     let name = client.get('name');
     let company = client.get('company');
     let { loading, indexList, colSortDirs } = this.state;
-    talentList = indexList.map(index => talentList.get(index));
+    talentList = indexList.map((index) => talentList.get(index));
 
     return (
       <div
@@ -153,8 +153,8 @@ class CandidateListInClient extends React.PureComponent {
     this.setState({
       indexList: filteredIndex,
       colSortDirs: {
-        [columnKey]: sortDir
-      }
+        [columnKey]: sortDir,
+      },
     });
   };
 
@@ -189,7 +189,7 @@ class CandidateListInClient extends React.PureComponent {
       .then(() => {
         blockTimerPromise.then(() => this.setState({ loading: false }));
       })
-      .catch(reason => {
+      .catch((reason) => {
         if (!reason.isCanceled) {
           this.setState({ loading: false });
         }
@@ -197,7 +197,7 @@ class CandidateListInClient extends React.PureComponent {
   };
 
   _blockTimer = (time = 400) => {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       this.bTimer = setTimeout(resolve, time);
     });
   };
@@ -205,12 +205,12 @@ class CandidateListInClient extends React.PureComponent {
 
 const mapStateToProps = (state, props) => {
   return {
-    talentList: getTalentsSubmitted(state)
+    talentList: getTalentsSubmitted(state),
   };
 };
 
 const mapDispatchToProps = {
-  fetchList: getTalentsSubmitToClient
+  fetchList: getTalentsSubmitToClient,
 };
 
 export default connect(

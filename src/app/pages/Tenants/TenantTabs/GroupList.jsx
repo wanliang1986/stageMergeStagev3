@@ -260,9 +260,10 @@ class GroupList extends React.PureComponent {
           onOK={handleDelete}
           onCancel={this.handleCancelDelete}
           title={props.t('common:deleteGroup')}
-          content={props.t('message:deleteTip1')}
+          content={
+            'Deleting this Group List will unassign its users. Are you sure you want to delete it?'
+          }
           okLabel={props.t('action:delete')}
-          cancelLabel={props.t('action:cancel')}
         />
       </div>
     );

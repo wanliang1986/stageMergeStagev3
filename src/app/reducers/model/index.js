@@ -26,6 +26,8 @@ import parseRecords from './parseRecords';
 //notifications
 import notifications from './notificationsReducer';
 import templates from './templates';
+import invoice from './invoiceReducer';
+import invoiceDetailList from './invoiceDetailReducer';
 import divisions from './divisions';
 import purchasedCandidate from './purchasedCandidate';
 import dashboard from './dashboard';
@@ -39,7 +41,6 @@ import tenantCredit from './tenantCredit';
 import jobTalentPool from './jobTalentPool';
 import companiesOptions from './companiesOptions';
 import internalReport from './internalReport';
-import skimSubmitToAMCompanies from './skimSubmitToAMCompanies';
 
 export default combineReducers({
   users,
@@ -57,6 +58,8 @@ export default combineReducers({
   parseRecords,
   templates,
   talentsSubmitToClient,
+  invoice,
+  invoiceDetailList,
   divisions,
   purchasedCandidate,
   contracts,
@@ -71,5 +74,4 @@ export default combineReducers({
   jobTalentPool,
   companiesOptions,
   internalReport,
-  skimSubmitToAMCompanies,
 });

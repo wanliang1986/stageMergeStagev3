@@ -14,7 +14,7 @@ import ActionDelete from '@material-ui/icons/Delete';
 import HeaderCell from './TableCell/HeaderCell';
 import TextCell from './TableCell/TextCell';
 import DateCell from './TableCell/DateCell';
-import { withTranslation } from 'react-i18next';
+
 import {
   style,
   HEADER_HEIGHT,
@@ -173,7 +173,6 @@ class TemplateTable extends React.PureComponent {
       selected,
       onSelect,
       openSendEmailForm,
-      t,
     } = this.props;
 
     return (
@@ -246,8 +245,8 @@ class TemplateTable extends React.PureComponent {
               <Column
                 header={
                   <Cell style={style.headerCell}>
-                    <div style={style.headerText} style={{ padding: 0 }}>
-                      {t('tab:Action')}
+                    <div style={style.headerText}>
+                      Action
                       {filterOpen && <br />}
                     </div>
                   </Cell>
@@ -298,4 +297,4 @@ TemplateTable.propTypes = {
   onDelete: PropTypes.func,
 };
 
-export default withTranslation('tab')(withStyles(style)(TemplateTable));
+export default withStyles(style)(TemplateTable);

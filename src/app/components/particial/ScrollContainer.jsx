@@ -10,7 +10,7 @@ class ScrollContainer extends React.Component {
     this.shadowBottom = React.createRef();
   }
 
-  handleShadow = div => {
+  handleShadow = (div) => {
     if (div && this.shadowTop.current && this.shadowBottom.current) {
       const shadowTopOpacity = (1 / 40) * Math.min(div.scrollTop, 20);
       const bottomScrollTop = div.scrollHeight - div.clientHeight;
@@ -23,7 +23,7 @@ class ScrollContainer extends React.Component {
     }
   };
 
-  handleScroll = e => {
+  handleScroll = (e) => {
     let div = e.target;
     this.handleShadow(div);
     const { onScroll } = this.props;
@@ -36,7 +36,7 @@ class ScrollContainer extends React.Component {
       <>
         <div
           className={clsx(className, classes.scrollContainer)}
-          ref={div => this.handleShadow(div)}
+          ref={(div) => this.handleShadow(div)}
           onScroll={this.handleScroll}
         >
           {children}

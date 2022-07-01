@@ -46,6 +46,7 @@ class SelectionCell extends React.Component {
     const { rowIndex, isSelected, onSelect, dataList, classes, ...props } =
       this.props;
     const { selected, id } = this.state;
+    // console.log(id, selected);
 
     return (
       <Cell {...props}>

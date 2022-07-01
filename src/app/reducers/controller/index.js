@@ -25,11 +25,7 @@ import myPipelineFilter from './myPipelineFilterReducer';
 import pipelineTemplate from './pipelineTemplateReducer';
 import pipelineTemplateList from './pipelineTemplateList';
 import pipelineMainFilter from './myPipelineMainFilterReducer';
-import assignment from './assignmentReducer';
-import documentView from './documentView';
-import openOnboarding from './openOnboarding';
 import language from './language';
-import selectTab from './tabSelect';
 export default combineReducers({
   loginChecked,
   currentUser,
@@ -54,9 +50,5 @@ export default combineReducers({
   pipelineTemplate,
   pipelineTemplateList,
   pipelineMainFilter,
-  assignment,
-  documentView,
-  openOnboarding,
   language,
-  selectTab,
 });

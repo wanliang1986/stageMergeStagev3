@@ -223,9 +223,7 @@ class NewTemplateList extends React.Component {
           onOK={handleDeleteTemplate}
           onCancel={this.handleCancelDelete}
           title={props.t('common:Delete Design')}
-          content={props.t(
-            'common:Are you sure you wish to delete this design?'
-          )}
+          content={'Are you sure you wish to delete this design?'}
           okLabel={props.t('action:delete')}
           cancelLabel={props.t('action:cancel')}
         />

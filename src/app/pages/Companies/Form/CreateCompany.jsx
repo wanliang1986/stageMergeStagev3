@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withTranslation } from 'react-i18next';
 import { getPotentialServiceType } from '../../../actions/clientActions';
-import { getProCompanyById } from '../../../../apn-sdk/client';
+import { getProspectDetail } from '../../../../apn-sdk/client';
 import { getTenantUserList } from '../../../selectors/userSelector';
 import Immutable from 'immutable';
 
@@ -13,6 +13,7 @@ import BasicInfo from './BasicInfo';
 import Loading from '../../../components/particial/Loading';
 import { replace } from 'connected-react-router';
 import { showErrorMessage } from '../../../actions/index';
+
 class CompanyCreation extends Component {
   constructor(props) {
     super(props);
@@ -34,29 +35,80 @@ class CompanyCreation extends Component {
     this.props.dispatch(getPotentialServiceType());
   }
 
+  setCompanyInfo = (company) => {
+    console.log(company);
+    let _salesLead = company.salesLeadDetails.map((item, index) => {
+      return {
+        accountProgress: item.accountProgress,
+        contacts: item.salesLeadClientContacts,
+        estimatedDealTime: item.estimatedDealTime,
+        leadSource: item.leadSource,
+        otherSource: item.otherSource,
+        owners: item.salesLeadsOwner,
+        salesLeadStatus: item.salesLeadStatus,
+        serviceType: item.companyServiceTypes,
+      };
+    });
+    let primary = company.companyAddresses.filter((item, index) => {
+      return item.companyAddressType === 'PRIMARY';
+    });
+    let _primaryAddress = primary.map((item, index) => {
+      return {
+        address: item.address,
+        address2: item.address2,
+        addressType: item.companyAddressType,
+        city: item.geoInfoEN.city,
+        country: item.geoInfoEN.country,
+        province: item.geoInfoEN.province,
+        cityId: item.geoInfoEN.cityId,
+        companyAddressType: item.companyAddressType,
+        similarity: 'city',
+      };
+    });
+    let additional = company.companyAddresses.filter((item, index) => {
+      return item.companyAddressType === 'OTHER';
+    });
+    let _additionalAddress = additional.map((item, index) => {
+      return {
+        address: item.address,
+        address2: item.address2,
+        addressType: item.companyAddressType,
+        city: item.geoInfoEN.city,
+        country: item.geoInfoEN.country,
+        province: item.geoInfoEN.province,
+        cityId: item.geoInfoEN.cityId,
+        companyAddressType: item.companyAddressType,
+        similarity: 'city',
+      };
+    });
+    let companyInfo = {
+      logo: company.logo,
+      name: company.name,
+      industry: company.industry,
+      website: company.website,
+      fortuneRank: company.fortuneRank,
+      sourceLink: company.sourceLink,
+      primaryAddress: _primaryAddress[0],
+      additionalAddress: _additionalAddress,
+      salesLead: _salesLead,
+      teamNumbers: company.companyAssignTeamMembers,
+      businessRevenue: company.businessRevenue,
+      staffSizeType: company.staffSizeType,
+      linkedinCompanyProfile: company.linkedinCompanyProfile,
+      crunchbaseCompanyProfile: company.crunchbaseCompanyProfile,
+    };
+    return companyInfo;
+  };
+
   fetchProspectInfo = () => {
     const { companyId } = this.props;
     if (companyId) {
-      getProCompanyById(this.props.match.params.id, 1)
+      getProspectDetail(this.props.match.params.id, 1)
         .then((res) => {
-          let obj = res.response;
-          if (obj.additionalAddress.length === 0) {
-            obj.additionalAddress = [
-              {
-                address: null,
-                address2: null,
-                addressType: 'COMPANY',
-                city: null,
-                cityId: null,
-                companyAddressType: 'OTHER',
-                companyId: null,
-                country: null,
-                language: null,
-                province: null,
-              },
-            ];
-          }
-          this.setState({ companyInfo: obj });
+          console.log(res);
+          let _companyInfo = this.setCompanyInfo(res.response);
+          console.log(_companyInfo);
+          this.setState({ companyInfo: _companyInfo });
         })
         .catch((err) => {
           if (err.status === 404) {
@@ -66,9 +118,41 @@ class CompanyCreation extends Component {
           }
         });
     } else {
+      // companyInfo = {
+      //   logo:null,
+      //   name:null,
+      //   industry:null,
+      //   website:null,
+      //   fortuneRank:null,
+      //   sourceLink:null,
+      //   businessRevenue:null,
+      //   staffSizeType:null,
+      //   linkedinCompanyProfile:null,
+      //   crunchbaseCompanyProfile:null,
+      //   salesLeadDetails:[
+      //     {
+      //       accountProgress: 0,
+      //       salesLeadClientContacts: [{}],
+      //       estimatedDealTime: null,
+      //       leadSource: null,
+      //       otherSource: null,
+      //       salesLeadsOwner: [{}],
+      //       salesLeadStatus: 'UN_ASSIGN',
+      //       companyServiceTypes:[]
+      //     },
+      //   ],
+      //   companyAssignTeamMembers:[],
+      //   companyAddresses:[{
+      //     address:null,
+      //     companyAddressType:"",
+      //     geoInfoEN:{
+      //       cityId:"",
+      //     }
+      //   }]
+      // }
       this.setState({
         companyInfo: {
-          logo: '',
+          logo: null,
           name: null,
           industry: null,
           website: null,
@@ -103,7 +187,7 @@ class CompanyCreation extends Component {
               leadSource: null,
               otherSource: null,
               owners: [{}],
-              salesLeadStatus: 'UN_ASSIGN',
+              salesLeadStatus: 'PROSPECT',
             },
           ],
           teamNumbers: [],
@@ -175,9 +259,9 @@ class CompanyCreation extends Component {
     return (
       <Paper style={{ padding: '10px' }}>
         {this.props.match.params.id ? (
-          <Typography>{t('tab:Edit Prospect')}</Typography>
+          <Typography>Edit Prospect</Typography>
         ) : (
-          <Typography>{t('tab:Create Prospect')}</Typography>
+          <Typography>Create Prospect</Typography>
         )}
         <div style={{ padding: '20px' }}>
           <BasicInfo
@@ -206,6 +290,6 @@ const mapStateToProps = (state, { match }) => {
   };
 };
 
-export default withTranslation(['action', 'message', 'field', 'tab'])(
+export default withTranslation(['action', 'message', 'field'])(
   connect(mapStateToProps)(CompanyCreation)
 );

@@ -189,7 +189,7 @@ class CandidateListAll extends React.PureComponent {
               {total ? total : 0} {t('common:results')}
             </Typography>
             <AddTalentsToHotListButton talentIds={selected} {...props} t={t} />
-            <Tooltip title={t('common:Email to candidates')}>
+            <Tooltip title={'Email to candidates'}>
               <span>
                 <IconButton
                   disabled={selected.size === 0}
@@ -211,7 +211,7 @@ class CandidateListAll extends React.PureComponent {
                   color="primary"
                 />
               }
-              label={t('tab:Candidates with Resume')}
+              label={t('Candidates with Resume')}
             />
           </div>
 
@@ -227,7 +227,7 @@ class CandidateListAll extends React.PureComponent {
                   general: e.target.value,
                 });
               }}
-              placeholder={this.props.t('tab:Search Candidates')}
+              placeholder="Search Candidates"
               startAdornment={
                 <InputAdornment color="disabled" position="start">
                   <SearchIcon style={{ fontSize: 18 }} />
@@ -235,9 +235,7 @@ class CandidateListAll extends React.PureComponent {
               }
             />
             <span onClick={this.handleShow} style={{ ...styles.show }}>
-              {showFilter
-                ? this.props?.t('tab:Hide Filters')
-                : this.props?.t('tab:Show Filters')}
+              {showFilter ? 'Hide Filters' : 'Show Filters'}
             </span>
           </div>
         </div>

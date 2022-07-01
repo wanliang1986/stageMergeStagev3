@@ -179,6 +179,7 @@ class ResumePDF extends React.PureComponent {
 class ResumeFrame extends React.PureComponent {
   render() {
     const { resume, currentUser } = this.props;
+    console.log(resume.toJS());
     return (
       <AutoSizer>
         {({ width, height }) => {

@@ -59,29 +59,29 @@ const columns = [
     colName: 'Sales Lead Owner',
     colWidth: 200,
     flexGrow: 1,
-    col: 'salesLeadOwner',
+    col: 'salesLeadOwners',
     type: 'salesLeadOwner',
-    // sortable: true,
+    sortable: true,
   },
 
   {
     colName: 'Estimated Deal Time',
     colWidth: 240,
     flexGrow: 1,
-    col: 'estimatedDealTime',
+    col: 'dealTime',
     type: 'dealTime',
     disableSearch: true,
-    // sortable: true,
+    sortable: false,
   },
   {
     colName: 'Account Progress',
     colWidth: 240,
     flexGrow: 1,
-    col: 'accountProgress',
+    col: 'salesLeads',
     type: 'progress',
     // disableSearch: true,
-    // sortable: true,
-    // tooltip: true,
+    sortable: true,
+    tooltip: true,
   },
 
   //2
@@ -89,16 +89,16 @@ const columns = [
     colName: 'Service Type',
     colWidth: 420,
     flexGrow: 1,
-    col: 'serviceTypes',
-    type: 'serviceTypes',
+    type: 'companyServiceTypes',
+    col: 'companyServiceTypes',
     // disableSearch: true,
-    // sortable: true,
+    sortable: false,
   },
   {
     colName: 'Country',
     colWidth: 240,
     flexGrow: 1,
-    col: 'addresses',
+    col: 'country',
     // disableSearch: true,
     sortable: true,
   },
@@ -347,7 +347,7 @@ class Prospect extends React.PureComponent {
     if (companyListFromStore.size === 0 && requestType === false) {
       return (
         <div className="flex-child-auto container-padding">
-          <Typography variant="h5">{t('tab:There is no record')}</Typography>
+          <Typography variant="h5">There is no record</Typography>
         </div>
       );
     }

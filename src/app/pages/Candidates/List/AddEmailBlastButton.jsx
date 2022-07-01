@@ -36,7 +36,7 @@ class AddEmailBlastButton extends React.Component {
     const { talentIds, t, ...props } = this.props;
     return (
       <>
-        <Tooltip title={t('tab:Add to Email Blast Group')}>
+        <Tooltip title={'Add to Email Blast Group'}>
           <span>
             <IconButton
               disabled={talentIds.size === 0}
@@ -46,7 +46,6 @@ class AddEmailBlastButton extends React.Component {
             </IconButton>
           </span>
         </Tooltip>
-
         <Dialog
           open={openEmailBlast}
           fullWidth

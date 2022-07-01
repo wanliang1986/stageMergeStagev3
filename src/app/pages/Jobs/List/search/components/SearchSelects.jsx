@@ -19,7 +19,6 @@ import {
   currency as currencyOptions,
   payRateUnitTypes,
   GeneralType,
-  ipgPostingStatus,
 } from '../../../../../constants/formOptions';
 import FormReactSelectContainer from '../../../../../components/particial/FormReactSelectContainer';
 import FormInput from '../../../../../components/particial/FormInput';
@@ -474,7 +473,6 @@ export const SelectBox = ({
 
   // 回显
   useEffect(() => {
-    console.log(data);
     if (options) {
       setOption(options);
     }
@@ -492,11 +490,6 @@ export const SelectBox = ({
     }
     if (data == 'status') {
       setOption(jobStatusOptions);
-    }
-
-    // flag
-    if (data == 'published') {
-      setOption(ipgPostingStatus);
     }
   }, [options]);
 
@@ -1267,11 +1260,8 @@ export const RateSalary = ({ handleSave, data, msg, index, value, error }) => {
           setMax(value['money']['max']);
         }
       }
-      if (value['type']) {
-        setType(value['type']);
-      }
     }
-  }, []);
+  }, [value]);
 
   // 为salary判断
   useEffect(() => {
@@ -1325,7 +1315,6 @@ export const RateSalary = ({ handleSave, data, msg, index, value, error }) => {
   const handleMax = (e) => {
     setMax(isNum(e.target.value, 9));
   };
-  let [t] = useTranslation();
 
   return (
     <>
@@ -1426,13 +1415,13 @@ export const RateSalary = ({ handleSave, data, msg, index, value, error }) => {
               handleMin(e);
             }}
             value={min}
-            placeholder={'Min'}
+            placeholder="Min"
             errorMessage={errorMessage && errorMessage[0]}
           />
           <span className={classes.span}>-</span>
           <FormInput
             isRequired={false}
-            placeholder={'Max'}
+            placeholder="Max"
             onChange={(e) => {
               handleMax(e);
             }}

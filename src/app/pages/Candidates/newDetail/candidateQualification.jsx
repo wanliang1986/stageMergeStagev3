@@ -142,7 +142,7 @@ class CandidateQualification extends React.Component {
       <div>
         <div className={classes.box}>
           <Typography variant="h6" style={{ marginBottom: 20 }}>
-            {this.props.t('tab:Experience Information')}
+            {'Experience Information'}
           </Typography>
           {candidateDetail &&
             candidateDetail.experiences &&
@@ -180,7 +180,7 @@ class CandidateQualification extends React.Component {
         <Divider style={{ marginTop: 30, marginBottom: 30 }} />
         <div className={classes.box}>
           <Typography variant="h6" style={{ marginBottom: 20 }}>
-            {this.props.t('tab:Skills')}
+            {'Skills'}
           </Typography>
           {candidateDetail &&
             candidateDetail.skills &&
@@ -195,24 +195,33 @@ class CandidateQualification extends React.Component {
         <Divider style={{ marginTop: 30, marginBottom: 30 }} />
         <div className={classes.box}>
           <Typography variant="h6" style={{ marginBottom: 20 }}>
-            {this.props.t('tab:Candidate Preference')}
+            {'Candidate Preference'}
           </Typography>
           <div className="flex-container">
             <div className={classes.type}>{'Preferred Salary'}</div>
             <div className="flex-child-auto ">
               <div className={classes.font}>
-                {candidateDetail.preferredSalaryRange
-                  ? this.isCurrency(candidateDetail.preferredCurrency)
+                {candidateDetail.additionalInfo &&
+                candidateDetail.additionalInfo.preferredCurrency
+                  ? this.isCurrency(
+                      candidateDetail.additionalInfo.preferredCurrency
+                    )
                   : null}
-                {candidateDetail.preferredSalaryRange
-                  ? candidateDetail.preferredSalaryRange.gte
+                {candidateDetail.additionalInfo &&
+                candidateDetail.additionalInfo.preferredSalaryRange
+                  ? candidateDetail.additionalInfo.preferredSalaryRange.gte
                   : ''}
-                {candidateDetail.preferredSalaryRange ? ' - ' : null}
-                {candidateDetail.preferredSalaryRange
-                  ? candidateDetail.preferredSalaryRange.lte
+                {candidateDetail.additionalInfo &&
+                candidateDetail.additionalInfo.preferredSalaryRange
+                  ? ' - '
+                  : null}
+                {candidateDetail.additionalInfo &&
+                candidateDetail.additionalInfo.preferredSalaryRange
+                  ? candidateDetail.additionalInfo.preferredSalaryRange.lte
                   : ''}
-                {candidateDetail.preferredPayType
-                  ? '/' + candidateDetail.preferredPayType
+                {candidateDetail.additionalInfo &&
+                candidateDetail.additionalInfo.preferredPayType
+                  ? '/' + candidateDetail.additionalInfo.preferredPayType
                   : ''}
               </div>
             </div>
@@ -222,11 +231,21 @@ class CandidateQualification extends React.Component {
             <div className="flex-child-auto ">
               {candidateDetail.preferredLocations &&
                 candidateDetail.preferredLocations.map((item, index) => {
-                  let addressLine =
-                    item.city + ', ' + item.province + ', ' + item.country;
+                  let addressLine = [];
+                  if (item.city) {
+                    addressLine.push(item.city);
+                  }
+                  if (item.province) {
+                    addressLine.push(item.province);
+                  }
+                  if (item.country) {
+                    addressLine.push(item.country);
+                  }
                   return (
                     <div className={classes.font} key={index}>
-                      {item.location || addressLine}
+                      {item.location ||
+                        (addressLine.length > 0 && addressLine.join(', ')) ||
+                        'N/A'}
                     </div>
                   );
                 })}
@@ -236,7 +255,7 @@ class CandidateQualification extends React.Component {
         <Divider style={{ marginTop: 30, marginBottom: 30 }} />
         <div className={classes.box}>
           <Typography variant="h6" style={{ marginBottom: 20 }}>
-            {this.props.t('tab:Education Information')}
+            {'Education Information'}
           </Typography>
           {candidateDetail &&
             candidateDetail.educations &&
@@ -275,8 +294,7 @@ class CandidateQualification extends React.Component {
         <Divider style={{ marginTop: 30, marginBottom: 30 }} />
         <div className={classes.box}>
           <Typography variant="h6" style={{ marginBottom: 20 }}>
-            {''}
-            {this.props.t('tab:Project Experience')}
+            {'Project Experience'}
           </Typography>
           {candidateDetail &&
             candidateDetail.projects &&
@@ -302,10 +320,7 @@ class CandidateQualification extends React.Component {
                     </div>
                   </div>
                   <div>
-                    <div className={classes.type}>
-                      {' '}
-                      {this.props.t('tab:Project description')}
-                    </div>
+                    <div className={classes.type}>{'Project description'}</div>
                     <div className={classes.font}>{item.description}</div>
                   </div>
                 </div>

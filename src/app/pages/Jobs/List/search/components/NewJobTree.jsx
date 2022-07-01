@@ -53,7 +53,7 @@ const styles = {
   },
   dialog: {
     width: 320,
-    height: 220,
+    height: 300,
     overflowY: 'auto',
     position: 'absolute',
     left: 0,
@@ -106,7 +106,6 @@ const NewJobTree = ({
   const { newSearchOptions } = useSelector((state) => state.controller);
   const { functionOptions, functionOptionsZh } = newSearchOptions.toJS();
   const [selecteds, setSelecteds] = useState([]);
-  console.log('213124', functionOptionsZh);
 
   useEffect(() => {
     if (error) {
@@ -125,7 +124,7 @@ const NewJobTree = ({
       if (language) {
         List = functionOptions;
       } else {
-        List = functionOptionsZh;
+        List = functionOptions;
       }
     }
     filterOthers(List);
@@ -161,7 +160,7 @@ const NewJobTree = ({
       if (language) {
         List2 = functionOptions;
       } else {
-        List2 = functionOptionsZh;
+        List2 = functionOptions;
       }
     }
     if (data.length) {
@@ -257,10 +256,10 @@ const NewJobTree = ({
   };
 
   const showDialog = () => {
-    setOpen(true);
+    setOpen(!open);
   };
   const closeDialog = () => {
-    setOpen(false);
+    setOpen(!open);
   };
 
   // 回调获取实时选中id
@@ -296,9 +295,9 @@ const NewJobTree = ({
       ></div>
       <div className={classes.icondown}>
         {open ? (
-          <ArrowDropUpIcon style={{ color: '#999' }} />
+          <ArrowDropUpIcon onClick={showDialog} style={{ color: '#999' }} />
         ) : (
-          <ArrowDropDownIcon style={{ color: '#999' }} />
+          <ArrowDropDownIcon onClick={showDialog} style={{ color: '#999' }} />
         )}
       </div>
 

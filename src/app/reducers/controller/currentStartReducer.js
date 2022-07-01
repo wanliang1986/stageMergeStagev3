@@ -9,8 +9,7 @@ export default function (state = Immutable.Map(), action = {}) {
   switch (action.type) {
     case ActionTypes.SELECT_START:
       newState = state.set('start', action.start);
-      const newState_1 = newState.set('isShowStart', action.isShowStart);
-      return newState.equals(state) ? state : newState_1;
+      return newState.equals(state) ? state : newState;
 
     case ActionTypes.SELECT_EXTENSION:
       newState = state.set('extension', action.extension);

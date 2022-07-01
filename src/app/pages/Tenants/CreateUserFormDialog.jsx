@@ -45,7 +45,7 @@ class CreateUserFormDialog extends React.PureComponent {
       division: '',
       divisionOptions: props.divisionList.toJS(),
       resetDate:
-        `${props.t('tab:resets on')}` +
+        'resets on ' +
         moment(new Date()).add(1, 'M').format('MM') +
         '/' +
         '01' +
@@ -326,8 +326,10 @@ class CreateUserFormDialog extends React.PureComponent {
               <div className="small-6 medium-6 columns">
                 <FormInput
                   label={t('APN Pro Monthly Credits')}
-                  placeholder={t('tab:Enter a number')}
-                  toolTip={t('tab:TotalTip1')}
+                  placeholder={`Enter a number`}
+                  toolTip={
+                    'Total number of monthly credits for your entire organization.'
+                  }
                   name="credits"
                   errorMessage={errorMessage.get('credit')}
                   onBlur={() => this.removeErrorMessage('credit')}
@@ -347,16 +349,17 @@ class CreateUserFormDialog extends React.PureComponent {
                   paddingLeft: '5px',
                 }}
               >
-                {t('tab:Tenant’s total availabe monthly credits')}
-                {availableCredit}
+                Tenant’s total availabe monthly credits:{availableCredit}
               </span>
             </div>
             {/* )} */}
             <div className="small-12">
               <FormInput
                 label={t('APN Pro Bulk Credits')}
-                placeholder={t('tab:Enter a number')}
-                toolTip={t('tab:TotalTip2')}
+                placeholder={`Enter a number`}
+                toolTip={
+                  'Total number of bulk credits for your entire organization.'
+                }
                 name="bulkCredit"
                 onBlur={() => {
                   this.removeErrorMessage('bulkCredit');
@@ -370,8 +373,7 @@ class CreateUserFormDialog extends React.PureComponent {
                   color: '#939393',
                 }}
               >
-                {t('tab:Tenant’s total availabe bulk credits')}
-                {availableBulkCredit}
+                Tenant’s total availabe bulk credits:{availableBulkCredit}
               </span>
             </div>
             <div className="small-12">

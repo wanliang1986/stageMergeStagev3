@@ -25,7 +25,7 @@ import {
   ROW_HEIGHT,
   HEADER_WITHFILTER_HEIGHT,
 } from './params';
-import { withTranslation } from 'react-i18next';
+
 const FileCell = ({ rowIndex, data, col, onEdit, onView, ...props }) => {
   const id = data.getIn([rowIndex, 'id']);
 
@@ -44,7 +44,7 @@ const FileCell = ({ rowIndex, data, col, onEdit, onView, ...props }) => {
             right: '0px',
             top: '6px',
           }}
-          data-tip={props.t('tab:Preview Contract')}
+          data-tip={'Preview Contract'}
         >
           <ViewContract />
         </IconButton>
@@ -287,7 +287,6 @@ class ClientsTable extends React.Component {
       colSortDirs,
       columns,
       onStatusChange,
-      t,
     } = this.props;
 
     // console.log(':::', contractList.toJS());
@@ -328,7 +327,6 @@ class ClientsTable extends React.Component {
                       style={style.displayCell}
                       onEdit={onEdit}
                       onView={onView}
-                      t={t}
                     />
                   }
                   width={column.colWidth}
@@ -340,7 +338,7 @@ class ClientsTable extends React.Component {
                 header={
                   <Cell style={style.headerCell}>
                     <div style={style.headerText}>
-                      {t('tab:Action')}
+                      Action
                       {filterOpen && <br />}
                     </div>
                   </Cell>
@@ -394,4 +392,4 @@ class ClientsTable extends React.Component {
 //     onCandidateClick: PropTypes.func.isRequired
 // };
 
-export default withTranslation('tab')(withStyles(style)(ClientsTable));
+export default withStyles(style)(ClientsTable);

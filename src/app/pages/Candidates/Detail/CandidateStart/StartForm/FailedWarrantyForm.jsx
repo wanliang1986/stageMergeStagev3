@@ -77,14 +77,8 @@ class FailedWarrantyForm extends React.Component {
   };
 
   render() {
-    const {
-      errorMessage,
-      endDate,
-      reason,
-      actionPlan,
-      totalBillAmount,
-      note,
-    } = this.state;
+    const { errorMessage, endDate, reason, actionPlan, totalBillAmount, note } =
+      this.state;
     const { t, currency } = this.props;
     return (
       <div className="row expanded">

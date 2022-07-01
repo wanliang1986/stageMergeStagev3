@@ -340,7 +340,6 @@ class CandidateLeft extends React.PureComponent {
           ChildSorryClick={this.ChildSorryClick}
           RequeryData={this.RequeryData}
           addFlag={addFlag}
-          {...this.props}
         />
         <CandidateTabs />
         {unlockStatus && (

@@ -26,7 +26,6 @@ import BDInformation from './BDInformation';
 import CompanyLogo from './CompanyLogo';
 import { replace } from 'connected-react-router';
 import { showErrorMessage } from '../../../actions/index';
-
 class CompanyEdition extends Component {
   constructor(props) {
     super(props);
@@ -34,17 +33,7 @@ class CompanyEdition extends Component {
       errorMessage: Immutable.Map(),
       showAdditionalInfo: false,
       creating: false,
-      primaryAddresses: {
-        address: '',
-        address2: null,
-        addressType: 'COMPANY',
-        city: '',
-        country: '',
-        province: '',
-        cityId: null,
-        companyAddressType: 'PRIMARY',
-        language: null,
-      },
+      primaryAddresses: null,
       additionalAddresses: null,
       salesLead: null,
       organization: null,
@@ -70,14 +59,13 @@ class CompanyEdition extends Component {
             serviceType: [],
           },
         ];
-        if (!res.response.salesLead) {
-          res.response.salesLead = newSalesLead;
+        if (!res.response.salesLeadDetails) {
+          res.response.salesLeadDetails = newSalesLead;
         }
         this.setState({
           companyInfo: res.response,
-          salesLead: res.response.salesLead,
+          salesLead: res.response.salesLeadDetails,
           active: res.response.active,
-          primaryAddresses: res.response.primaryAddress,
         });
       })
       .catch((err) => {
@@ -114,7 +102,7 @@ class CompanyEdition extends Component {
     if (!form.website) {
       errorMessage = errorMessage.set(
         'CompanyWebsite',
-        t('message:companyWebsiteIsRequired')
+        t('message:CompanyWebsiteIsRequired')
       );
     }
     if (form.website) {
@@ -130,13 +118,14 @@ class CompanyEdition extends Component {
     if (!form.clientLevel) {
       errorMessage = errorMessage.set('level', t('message:levelIsRequired'));
     }
-    if (!form.primaryAddress.address) {
+
+    if (!form.primaryAddress || !form.primaryAddress.address) {
       errorMessage = errorMessage.set(
         'primaryAddressesAddress',
         t('message:primaryAddressesAddressIsRequired')
       );
     }
-    if (!form.primaryAddress || !form.primaryAddress.cityId) {
+    if (!form.primaryAddress || !form.primaryAddress.geoInfoEN.cityId) {
       errorMessage = errorMessage.set(
         'primaryAddressesCity',
         t('message:primaryAddressesCityIsRequired')
@@ -144,25 +133,24 @@ class CompanyEdition extends Component {
     }
     if (form.additionalAddresses.length > 0) {
       let status = form.additionalAddresses.filter((item, index) => {
-        return (
-          (item.address && !item.cityId) || (item.location && !item.cityId)
-        );
+        return item.geoInfoEN.location && !item.geoInfoEN.cityId;
       });
       let status_1 = form.additionalAddresses.filter((item, index) => {
-        return !item.address && item.cityId;
+        return !item.address;
       });
       let arr = [];
       let arr1 = [];
       form.additionalAddresses.forEach((item, index) => {
         if (
-          (item.address && item.cityId === null) ||
-          (item.location && !item.cityId)
+          item.geoInfoEN.location &&
+          item.geoInfoEN.location !== null &&
+          item.geoInfoEN.cityId === null
         ) {
           arr.push({ key: index, error: true });
         } else {
           arr.push({ key: index, error: false });
         }
-        if (!item.address && item.cityId) {
+        if (!item.address && item.geoInfoEN.cityId) {
           arr1.push({ key: index, error: true });
         } else {
           arr1.push({ key: index, error: false });
@@ -185,12 +173,12 @@ class CompanyEdition extends Component {
         );
       }
     }
-    // if (form.fortuneRank && !form.sourceLink) {
-    //   errorMessage = errorMessage.set(
-    //     'sourceLink',
-    //     t('message:sourceLinkIsRequired')
-    //   );
-    // }
+    if (form.fortuneRank && !form.sourceLink) {
+      errorMessage = errorMessage.set(
+        'sourceLink',
+        t('message:sourceLinkIsRequired')
+      );
+    }
     if (form.sourceLink) {
       let reg =
         /^(?:(http|https|ftp):\/\/)?((?:[\w-]+\.)+[a-z0-9]+)((?:\/[^/?#]*)+)?(\?[^#]+)?(#.+)?$/i;
@@ -206,10 +194,11 @@ class CompanyEdition extends Component {
       let accountManagerError = [];
       let ownerError = [];
       let percentageError = [];
-      // let bdError = []
-      // let bdPercentageError = []
       form.salesLead.forEach((item, index) => {
-        if (!item.serviceType || item.serviceType.length === 0) {
+        if (
+          !item.companyServiceTypes ||
+          item.companyServiceTypes.length === 0
+        ) {
           serviceTypeError.push({ salesLeadIndex: index, errorMessage: true });
           errorMessage = errorMessage.set(
             'serviceType',
@@ -219,7 +208,7 @@ class CompanyEdition extends Component {
           serviceTypeError.push({ salesLeadIndex: index, errorMessage: false });
         }
 
-        if (!item.accountManager || item.accountManager.length === 0) {
+        if (!item.accountManagers || item.accountManagers.length === 0) {
           accountManagerError.push({
             salesLeadIndex: index,
             errorMessage: true,
@@ -234,8 +223,10 @@ class CompanyEdition extends Component {
             errorMessage: false,
           });
         }
-        let ownersValidate = this.setOwnersErrorMessage(item.owners);
-        let bdValidate = this.setBdCommissionErrorMessage(item.bdManagers);
+        let ownersValidate = this.setOwnersErrorMessage(item.salesLeadsOwner);
+        let bdValidate = this.setBdCommissionErrorMessage(
+          item.businessDevelopmentOwner
+        );
         if (ownersValidate.hasOwners || bdValidate.hasbds) {
           ownerError.push({ salesLeadIndex: index, errorMessage: true });
           errorMessage = errorMessage.set(
@@ -258,6 +249,7 @@ class CompanyEdition extends Component {
         } else {
           percentageError.push({ salesLeadIndex: index, errorMessage: false });
         }
+
         this.setState({
           serviceTypeError,
           accountManagerError,
@@ -275,7 +267,7 @@ class CompanyEdition extends Component {
       return !item.userId;
     });
     owners.forEach((item, index) => {
-      ownersPercentage += item.percentage;
+      ownersPercentage += item.contribution;
     });
     return {
       hasOwners,
@@ -290,7 +282,7 @@ class CompanyEdition extends Component {
     });
     bd.forEach((item, index) => {
       console.log(item);
-      bdPercentage += item.percentage;
+      bdPercentage += item.contribution;
     });
     console.log(bdPercentage);
     return {
@@ -322,10 +314,14 @@ class CompanyEdition extends Component {
         editCompanyForm.CompanyWebsite && editCompanyForm.CompanyWebsite.value,
       primaryAddress: this.state.primaryAddresses
         ? this.state.primaryAddresses
-        : this.state.companyInfo.primaryAddress,
+        : this.state.companyInfo.companyAddresses.filter((item, index) => {
+            return item.companyAddressType === 'PRIMARY';
+          })[0],
       additionalAddresses: this.state.additionalAddresses
         ? this.state.additionalAddresses
-        : this.state.companyInfo.additionalAddresses,
+        : this.state.companyInfo.companyAddresses.filter((item, index) => {
+            return item.companyAddressType !== 'PRIMARY';
+          }),
       staffSizeType:
         editCompanyForm.size.value !== '' ? editCompanyForm.size.value : null,
       businessRevenue:
@@ -336,10 +332,7 @@ class CompanyEdition extends Component {
         editCompanyForm.organizationNameSelect.value !== ''
           ? editCompanyForm.organizationNameSelect.value
           : null,
-      fortuneRank:
-        editCompanyForm.fortuneRanking.value !== ''
-          ? editCompanyForm.fortuneRanking.value
-          : null,
+      fortuneRank: this.state.fortuneRank ? this.state.fortuneRank.value : null,
       linkedinCompanyProfile: editCompanyForm.linkedInCompanyProfile.value,
       crunchbaseCompanyProfile: editCompanyForm.crunchbaseCompanyProfile.value,
       description: editCompanyForm.note.value,
@@ -348,6 +341,7 @@ class CompanyEdition extends Component {
       sourceLink:
         editCompanyForm.sourceLink && editCompanyForm.sourceLink.value,
     };
+    console.log(company);
     let errorMessage = this._validateForm(company, this.props.t);
     if (errorMessage) {
       this.setState({ creating: false });
@@ -362,16 +356,36 @@ class CompanyEdition extends Component {
       }
     });
     newFormData.additionalAddresses = newAdditionalAddress;
-    this.props
-      .dispatch(putClientInfo(newFormData, this.props.match.params.id))
-      .then((id) => {
-        if (id) {
-          this.setState({ creating: false });
-          this.props.history.push(`/companies/detail/${id}/0`);
-        } else {
-          this.setState({ creating: false });
-        }
-      });
+    let _companyAddresses = [
+      newFormData.primaryAddress,
+      ...newFormData.additionalAddresses,
+    ];
+    let obj = {
+      id: this.props.match.params.id,
+      logo: newFormData.logo,
+      name: newFormData.name,
+      industry: newFormData.industry,
+      website: newFormData.website,
+      fortuneRank: newFormData.fortuneRank,
+      businessRevenue: newFormData.businessRevenue,
+      staffSizeType: newFormData.staffSizeType,
+      linkedinCompanyProfile: newFormData.linkedinCompanyProfile,
+      crunchbaseCompanyProfile: newFormData.crunchbaseCompanyProfile,
+      description: newFormData.description,
+      organizationName: newFormData.organizationName,
+      companyClientLevelType: newFormData.clientLevel,
+      salesLeadDetails: newFormData.salesLead,
+      companyAddresses: _companyAddresses,
+      active: this.state.active,
+    };
+    this.props.dispatch(putClientInfo(obj)).then((id) => {
+      if (id) {
+        this.setState({ creating: false });
+        this.props.history.push(`/companies/detail/${id}/0`);
+      } else {
+        this.setState({ creating: false });
+      }
+    });
   };
 
   toggleshowAdditionalInfo = () => {
@@ -390,6 +404,7 @@ class CompanyEdition extends Component {
     const file = fileInput.files[0];
     let index = file.name.lastIndexOf('.');
     let fileType = file.name.substring(index + 1, file.name.length);
+    //判断文件类型是否符合上传标准
     let status = fileTypes.includes(fileType.toLowerCase());
 
     if (status) {
@@ -404,24 +419,7 @@ class CompanyEdition extends Component {
 
   //////////////////////////////
   setPrimaryAddress = (address) => {
-    let _primaryAddresses = JSON.parse(
-      JSON.stringify(this.state.primaryAddresses)
-    );
-    if (typeof address !== 'string') {
-      _primaryAddresses.city = address.city;
-      _primaryAddresses.country = address.country;
-      _primaryAddresses.province = address.province;
-      _primaryAddresses.similarity = address.similarity;
-      _primaryAddresses.cityId = address.cityId;
-      _primaryAddresses.companyId = null;
-      _primaryAddresses.addressType = 'COMPANY';
-      _primaryAddresses.address = address.address;
-    } else {
-      _primaryAddresses.address2 = address;
-      _primaryAddresses.cityId = null;
-    }
-    console.log(_primaryAddresses);
-    this.setState({ primaryAddresses: _primaryAddresses });
+    this.setState({ primaryAddresses: address });
   };
 
   setAdditionalAddress = (address, index) => {
@@ -438,21 +436,6 @@ class CompanyEdition extends Component {
     });
   };
 
-  // addAddress = (index) => {
-  //   //
-  //   let _additionalAddressErrorArr = lodash.cloneDeep(
-  //     this.state.additionalAddressErrorArr
-  //   );
-  //   _additionalAddressErrorArr.push({ key: index, error: false });
-
-  //   let _addressError = lodash.cloneDeep(this.state.addressError);
-  //   _addressError.push({ key: index, error: false });
-  //   this.setState({
-  //     additionalAddressErrorArr: _additionalAddressErrorArr,
-  //     addressError: _addressError,
-  //   });
-  // };
-
   setBdCommission = (bd, index) => {
     let newSalesLead = lodash.cloneDeep(this.state.salesLead);
     let ownerError = lodash.cloneDeep(this.state.ownerError);
@@ -463,7 +446,7 @@ class CompanyEdition extends Component {
     if (percentageError.length > 0) {
       percentageError[index].errorMessage = false;
     }
-    newSalesLead[index].bdManagers = bd;
+    newSalesLead[index].businessDevelopmentOwner = bd;
     this.setState({
       salesLead: newSalesLead,
       ownerError,
@@ -481,7 +464,7 @@ class CompanyEdition extends Component {
     if (percentageError.length > 0) {
       percentageError[index].errorMessage = false;
     }
-    newSalesLead[index].owners = owners;
+    newSalesLead[index].salesLeadsOwner = owners;
     this.setState({
       salesLead: newSalesLead,
       ownerError,
@@ -495,7 +478,7 @@ class CompanyEdition extends Component {
     if (_accountManagerError.length > 0) {
       _accountManagerError[index].errorMessage = false;
     }
-    newSalesLead[index].accountManager = am;
+    newSalesLead[index].accountManagers = am;
     this.setState({
       salesLead: newSalesLead,
       accountManagerError: _accountManagerError,
@@ -555,8 +538,8 @@ class CompanyEdition extends Component {
       accountManagerError,
       percentageError,
       ownerError,
-      addressError,
       errorMessage,
+      addressError,
     } = this.state;
     if (!companyInfo) {
       return <Loading />;
@@ -565,7 +548,7 @@ class CompanyEdition extends Component {
       <Paper style={{ padding: '10px' }}>
         <div className="row expanded">
           <div className="small-10 columns">
-            <Typography>{t('tab:Edit Client')}</Typography>
+            <Typography>Edit Client</Typography>
           </div>
           <div className="small-2 columns">
             <FormControlLabel
@@ -577,7 +560,7 @@ class CompanyEdition extends Component {
                   color="primary"
                 />
               }
-              label={t('common:Active')}
+              label="Active"
               labelPlacement="start"
             />
           </div>
@@ -606,9 +589,6 @@ class CompanyEdition extends Component {
                 setAdditionalAddress={(address, index) => {
                   this.setAdditionalAddress(address, index);
                 }}
-                // addAddress={(index) => {
-                //   this.addAddress(index);
-                // }}
                 additionalAddressErrorArr={additionalAddressErrorArr}
                 addressError={addressError}
               />
@@ -622,17 +602,17 @@ class CompanyEdition extends Component {
                   }}
                 >
                   <Typography variant="h5" style={{ margin: '10px 0' }}>
-                    {t('common:Service Type & BD Information')}
+                    {`Service Type & BD Information`}
                   </Typography>
                   {/* <IconButton onClick={this.toggleshowAdditionalInfo}>
                     {!showAdditionalInfo ? <ArrowDown /> : <ArrowUp />}
                   </IconButton> */}
                 </section>
-                {companyInfo && companyInfo.salesLead
-                  ? companyInfo.salesLead.map((item, index) => {
+                {companyInfo && companyInfo.salesLeadDetails
+                  ? companyInfo.salesLeadDetails.map((item, index) => {
                       return (
                         <div key={index}>
-                          {companyInfo.salesLead.length > 1 ? (
+                          {companyInfo.salesLeadDetails.length > 1 ? (
                             <div
                               style={{
                                 width: '100%',
@@ -711,7 +691,7 @@ class CompanyEdition extends Component {
               <div style={{ padding: '0.25rem', margin: '10px 0' }}>
                 <Divider />
                 <Typography variant="h5" style={{ margin: '10px 0' }}>
-                  {t('tab:Additional Information')}
+                  Additional Information
                 </Typography>
                 <AdditionalInfo
                   t={t}

@@ -51,7 +51,9 @@ export default function (state = Immutable.Map(), action = {}) {
           )
       );
       return newState.equals(state) ? state : newState;
-
+    case ActionTypes.CLRAE_START:
+      newState = state.delete(String(action.id));
+      return newState;
     default:
       return state;
   }

@@ -70,6 +70,8 @@ class NextStepsButton extends React.Component {
 
   handleCloseForm = () => {
     this.setState({ formOpen: false }, () => {
+      console.log(123);
+      console.log(this.props);
       if (this.props.fetchData) {
         this.props.fetchData();
       } else if (this.props.props && this.props.props.props.fetchData) {
@@ -132,9 +134,7 @@ class NextStepsButton extends React.Component {
           onClick={this.handleToggleMenu}
         >
           <span style={{ verticalAlign: 'middle' }}>
-            {this.props.t(
-              `tab:${getApplicationStatusLabel(status).toLowerCase()}`
-            )}
+            {getApplicationStatusLabel(status)}
           </span>
           {step.menu.length > 0 ? (
             <CreateIcon
@@ -173,7 +173,7 @@ class NextStepsButton extends React.Component {
                 key={option.value}
                 onClick={() => this.handleOpenForm(option.value)}
               >
-                {this.props.t(`tab:${option.label.toLowerCase()}`)}
+                {option.label}
               </MenuItem>
             ))}
           </MenuList>
@@ -215,7 +215,7 @@ const getNextStepsByStatus = memoizeOne((status) => {
             value: 'Meet_Candidate_In_Person',
             label: 'Meet Candidate In Person',
           },
-          { value: 'Qualified', label: 'Qualified by AM' },
+          { value: 'Qualified', label: 'Qualified By AM' },
           { value: 'updateResume', label: 'Update Resume' },
           { value: 'addNote', label: 'Add Note To Current Status' },
           { value: 'updateUserRoles', label: 'Update User Roles' },

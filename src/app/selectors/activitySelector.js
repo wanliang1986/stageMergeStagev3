@@ -1,5 +1,5 @@
 import { createSelector } from 'reselect';
-import Immutable from 'immutable';
+// import Immutable from 'immutable';
 
 const getApplicationId = (_, applicationId) => applicationId;
 const getActivities = (state) => state.relationModel.activities;
@@ -20,7 +20,7 @@ export const getAllActivityList = createSelector(
           activity.get('status') !== 'Watching'
       )
       .map((activity) =>
-        activity.set('user', users.get(String(activity.get('userId'))))
+        activity.set('user', users.get(activity.get('userId').toString()))
       )
       .sortBy(
         (activity) => activity.get('createdDate'),
@@ -39,24 +39,8 @@ export const getAllActivityList = createSelector(
       .toList();
   }
 );
-
-export const getActivityList = createSelector(
-  [getAllActivityList],
-  (activities) => {
-    // console.log('getActivityList');
-    const { data } = activities.reduce(
-      (res, value) => {
-        if (!res.currentStatus || res.currentStatus !== value.get('status')) {
-          res.currentStatus = value.get('status');
-          res.data.push([value]);
-        } else {
-          res.data[res.data.length - 1].push(value);
-        }
-        return res;
-      },
-      { currentStatus: null, data: [] }
-    );
-    return Immutable.fromJS(data);
-  }
-);
+const getActivityList = createSelector([getAllActivityList], (activities) => {
+  console.log('getActivityList');
+  return activities.groupBy((activity) => activity.get('status')).toList();
+});
 export default getActivityList;

@@ -350,7 +350,7 @@ class InternalPerformanceReport extends Component {
           <Grid item xs={10}>
             <Paper variant="outlined">
               <div className={classes.title}>
-                {t('tab:Summary')}{' '}
+                Summary{' '}
                 {selectedUserId.length === 1 && selectedUserRole
                   ? `- ${selectedUser.fullName} (${selectedUserRole.label})`
                   : ''}
@@ -360,7 +360,7 @@ class InternalPerformanceReport extends Component {
                 {summary ? (
                   <Grid container>
                     <Grid item xs={2} style={{ padding: '10px' }}>
-                      <p className={classes.fontSty}>{t('tab:Submission')} </p>
+                      <p className={classes.fontSty}>Submission</p>
                       <h5>
                         {summary && summary.get('submitToAm')
                           ? summary.get('submitToAm')
@@ -368,9 +368,7 @@ class InternalPerformanceReport extends Component {
                       </h5>
                     </Grid>
                     <Grid item xs={2} style={{ padding: '10px' }}>
-                      <p className={classes.fontSty}>
-                        {t('tab:submitted to client')}
-                      </p>
+                      <p className={classes.fontSty}>Submitted to Client</p>
                       <h5>
                         {summary && summary.get('submitToClient')
                           ? summary.get('submitToClient')
@@ -378,7 +376,7 @@ class InternalPerformanceReport extends Component {
                       </h5>
                     </Grid>
                     <Grid item xs={2} style={{ padding: '10px' }}>
-                      <p className={classes.fontSty}>{t('tab:interview')}</p>
+                      <p className={classes.fontSty}>Interview</p>
                       <h5>
                         {summary && summary.get('interview')
                           ? summary.get('interview')
@@ -386,9 +384,7 @@ class InternalPerformanceReport extends Component {
                       </h5>
                     </Grid>
                     <Grid item xs={2} style={{ padding: '10px' }}>
-                      <p className={classes.fontSty}>
-                        {t('tab:offered by client')}
-                      </p>
+                      <p className={classes.fontSty}>Offered by Client</p>
                       <h5>
                         {summary && summary.get('offerByClient')
                           ? summary.get('offerByClient')
@@ -396,9 +392,7 @@ class InternalPerformanceReport extends Component {
                       </h5>
                     </Grid>
                     <Grid item xs={2} style={{ padding: '10px' }}>
-                      <p className={classes.fontSty}>
-                        {t('tab:offer accepted')}
-                      </p>
+                      <p className={classes.fontSty}>Offer Accepted</p>
                       <h5>
                         {summary && summary.get('offerAccept')
                           ? summary.get('offerAccept')
@@ -406,7 +400,7 @@ class InternalPerformanceReport extends Component {
                       </h5>
                     </Grid>
                     <Grid item xs={2} style={{ padding: '10px' }}>
-                      <p className={classes.fontSty}>{t('tab:on boarded')}</p>
+                      <p className={classes.fontSty}>Onboarded</p>
                       <h5>
                         {summary && summary.get('onBoard')
                           ? summary.get('onBoard')
@@ -427,14 +421,14 @@ class InternalPerformanceReport extends Component {
                 this.downLoad();
               }}
             >
-              {t('tab:Download')}
+              Download
             </PotentialButton>
           </Grid>
         </Grid>
         <Grid container spacing={3}>
           <Grid item xs={3}>
             <InternalDropDown
-              label={t('tab:Job Type')}
+              label={'Job Type'}
               options={AMJobType}
               selected={(arr) => {
                 this.jobTypeSelected(arr);

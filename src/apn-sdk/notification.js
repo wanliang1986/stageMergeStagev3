@@ -1,21 +1,21 @@
 import authRequest from './request';
 
 export const deleteNotification = (notificationId = '') => {
-    const config = {
-        method: 'DELETE',
-        headers: {},
-    };
+  const config = {
+    method: 'DELETE',
+    headers: {},
+  };
 
-    return authRequest.send(`/notifications/${notificationId}`, config);
+  return authRequest.send(`/notifications/${notificationId}`, config);
 };
 
 export const getMyNotifications = () => {
-    const config = {
-        method: 'GET',
-        headers: {},
-    };
+  const config = {
+    method: 'GET',
+    headers: {},
+  };
 
-    return authRequest.send(`/my-notifications?size=1000`, config);
+  return authRequest.send(`/my-notifications?size=1000`, config);
 };
 
 /*

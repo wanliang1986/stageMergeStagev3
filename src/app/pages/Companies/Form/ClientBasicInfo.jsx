@@ -7,7 +7,6 @@ import { validateProspectName } from '../../../../apn-sdk/client';
 import { industryList, levelList } from '../../../constants/formOptions';
 import AdditionalAddress from './AdditionalAddress/AdditionalAddress';
 import Location from '../../../components/Location';
-import lodash from 'lodash';
 
 class ClientBasicInfo extends Component {
   constructor(props) {
@@ -17,35 +16,21 @@ class ClientBasicInfo extends Component {
       industry: (props.companyInfo && props.companyInfo.industry) || '',
       accountManager:
         (props.companyInfo && props.companyInfo.accountManager) || '',
-      level: (props.companyInfo && props.companyInfo.type) || '',
+      level:
+        (props.companyInfo && props.companyInfo.companyClientLevelType) || '',
       website: (props.companyInfo && props.companyInfo.website) || '',
       primaryAddress:
-        (props.companyInfo && props.companyInfo.primaryAddress) || {},
+        (props.companyInfo &&
+          props.companyInfo.companyAddresses.filter((item, index) => {
+            return item.companyAddressType === 'PRIMARY';
+          }))[0] || {},
       additionalAddresses:
-        (props.companyInfo && props.companyInfo.additionalAddresses) || {},
+        (props.companyInfo &&
+          props.companyInfo.companyAddresses.filter((item, index) => {
+            return item.companyAddressType !== 'PRIMARY';
+          })) ||
+        {},
     };
-  }
-
-  componentDidMount() {
-    if (this.props.companyInfo.additionalAddresses.length === 0) {
-      let arr = [
-        {
-          address: null,
-          address2: null,
-          addressType: 'COMPANY',
-          city: null,
-          cityId: null,
-          companyAddressType: 'OTHER',
-          companyId: null,
-          country: null,
-          language: null,
-          province: null,
-        },
-      ];
-      this.setState({
-        additionalAddresses: arr,
-      });
-    }
   }
 
   websiteChange = (event) => {
@@ -90,21 +75,26 @@ class ClientBasicInfo extends Component {
     this.props.setPrimaryAddress(newPrimaryAddress);
   };
 
-  getPrimaryAddressCity = (address) => {
+  getPrimaryAddressCity = (value) => {
     let newPrimaryAddress = JSON.parse(
       JSON.stringify(this.state.primaryAddress)
     );
-    newPrimaryAddress.city = address.city;
-    newPrimaryAddress.cityId = address.cityId;
-    newPrimaryAddress.cityCN = address.cityCN;
-    newPrimaryAddress.country = address.country;
-    newPrimaryAddress.countryCN = address.countryCN;
-    newPrimaryAddress.countryCode = address.countryCode;
-    newPrimaryAddress.province = address.province;
-    newPrimaryAddress.provinceCN = address.provinceCN;
-    newPrimaryAddress.provinceCode = address.provinceCode;
-    newPrimaryAddress.show = address.show;
-    newPrimaryAddress.similarity = address.similarity;
+    if (typeof value === 'string') {
+      newPrimaryAddress.address = value;
+      newPrimaryAddress.geoInfoEN.city = null;
+      newPrimaryAddress.geoInfoEN.country = null;
+      newPrimaryAddress.geoInfoEN.province = null;
+      newPrimaryAddress.geoInfoEN.similarity = null;
+      newPrimaryAddress.geoInfoEN.cityId = null;
+      newPrimaryAddress.companyAddressType = 'PRIMARY';
+    } else {
+      newPrimaryAddress.geoInfoEN.city = value.city;
+      newPrimaryAddress.geoInfoEN.country = value.country;
+      newPrimaryAddress.geoInfoEN.province = value.province;
+      newPrimaryAddress.geoInfoEN.similarity = value.similarity;
+      newPrimaryAddress.geoInfoEN.cityId = value.cityId;
+      newPrimaryAddress.companyAddressType = 'PRIMARY';
+    }
     this.setState({
       primaryAddress: newPrimaryAddress,
     });
@@ -113,20 +103,34 @@ class ClientBasicInfo extends Component {
   };
 
   addAddress = () => {
+    // let address = {
+    //   address: '',
+    //   address2: '',
+    //   addressType: 'COMPANY',
+    //   cityId: null,
+    //   companyAddressType: 'OTHER',
+    //   language: '',
+    // };
     let address = {
-      address: '',
-      address2: '',
-      addressType: 'COMPANY',
-      cityId: null,
+      address: null,
+      address2: null,
+      city: null,
       companyAddressType: 'OTHER',
-      language: '',
+      geoInfoEN: {
+        cityId: null,
+        city: null,
+        country: null,
+        countryCode: null,
+        province: null,
+        provinceCode: null,
+      },
+      zipcode: null,
     };
     let newAdditionalAddresses = JSON.parse(
       JSON.stringify(this.state.additionalAddresses)
     );
     newAdditionalAddresses.push(address);
     this.setState({ additionalAddresses: newAdditionalAddresses });
-    // this.props.addAddress(newAdditionalAddresses.length - 1);
     this.props.setAdditionalAddress(
       newAdditionalAddresses,
       newAdditionalAddresses.length - 1
@@ -156,36 +160,66 @@ class ClientBasicInfo extends Component {
       JSON.stringify(this.state.additionalAddresses)
     );
     if (typeof val === 'string') {
-      newAdditionalAddresses[index].location = val;
-      newAdditionalAddresses[index].cityId = null;
-      newAdditionalAddresses[index].city = null;
-      newAdditionalAddresses[index].country = null;
-      newAdditionalAddresses[index].province = null;
+      newAdditionalAddresses[index].geoInfoEN.location = val;
+      newAdditionalAddresses[index].geoInfoEN.cityId = null;
+      newAdditionalAddresses[index].geoInfoEN.city = null;
+      newAdditionalAddresses[index].geoInfoEN.country = null;
+      newAdditionalAddresses[index].geoInfoEN.province = null;
     } else {
-      newAdditionalAddresses[index].city = val.city;
-      newAdditionalAddresses[index].country = val.country;
-      newAdditionalAddresses[index].province = val.province;
-      newAdditionalAddresses[index].similarity = val.similarity;
-      newAdditionalAddresses[index].cityId = val.cityId;
+      newAdditionalAddresses[index].geoInfoEN.city = val.city;
+      newAdditionalAddresses[index].geoInfoEN.country = val.country;
+      newAdditionalAddresses[index].geoInfoEN.province = val.province;
+      // newAdditionalAddresses[index].similarity = val.similarity;
+      newAdditionalAddresses[index].geoInfoEN.cityId = val.cityId;
       newAdditionalAddresses[index].companyId = null;
-      newAdditionalAddresses[index].addressType = 'COMPANY';
     }
     this.setState({ additionalAddresses: newAdditionalAddresses });
     this.props.setAdditionalAddress(newAdditionalAddresses, index);
   };
   getCurLocation = (newValue) => {
-    console.log(newValue);
-    let data;
-    let msg;
-    if (typeof newValue === 'string') {
-      data = { location: newValue, key: newValue };
-      msg = newValue;
-    } else if (newValue && newValue.inputValue) {
-      data = { location: newValue.inputValue, key: newValue.inputValue };
-      msg = newValue.inputValue;
-    } else {
-      if (newValue.similarity && newValue.cityId) {
-        if (newValue.similarity === 'city') {
+    if (newValue) {
+      let data;
+      let msg;
+      if (typeof newValue === 'string') {
+        data = { location: newValue, key: newValue };
+        msg = newValue;
+      } else if (newValue && newValue.inputValue) {
+        data = { location: newValue.inputValue, key: newValue.inputValue };
+        msg = newValue.inputValue;
+      } else {
+        if (
+          // newValue.similarity &&
+          newValue &&
+          newValue.geoInfoEN.cityId
+        ) {
+          // if (newValue.similarity === 'city') {
+          data = {
+            city: newValue.geoInfoEN.city,
+            province: newValue.geoInfoEN.province,
+            country: newValue.geoInfoEN.country,
+            key: newValue.geoInfoEN.show,
+          };
+          msg =
+            newValue.geoInfoEN.city +
+            ', ' +
+            newValue.geoInfoEN.province +
+            ', ' +
+            newValue.geoInfoEN.country;
+          // } else if (newValue.similarity === 'province') {
+          //   data = {
+          //     province: newValue.province,
+          //     country: newValue.country,
+          //     key: newValue.show,
+          //   };
+          //   msg = newValue.city + ', ' + newValue.province;
+          // } else {
+          //   data = {
+          //     country: newValue.country,
+          //     key: newValue.show,
+          //   };
+          //   msg = newValue.country;
+          // }
+        } else if (newValue && newValue.cityId) {
           data = {
             city: newValue.city,
             province: newValue.province,
@@ -194,25 +228,12 @@ class ClientBasicInfo extends Component {
           };
           msg =
             newValue.city + ', ' + newValue.province + ', ' + newValue.country;
-        } else if (newValue.similarity === 'province') {
-          data = {
-            province: newValue.province,
-            country: newValue.country,
-            key: newValue.show,
-          };
-          msg = newValue.city + ', ' + newValue.province;
         } else {
-          data = {
-            country: newValue.country,
-            key: newValue.show,
-          };
-          msg = newValue.country;
+          msg = null;
         }
-      } else {
-        msg = null;
       }
+      return msg;
     }
-    return msg;
   };
   render() {
     const {
@@ -220,10 +241,11 @@ class ClientBasicInfo extends Component {
       errorMessage,
       removeErrorMsgHandler,
       additionalAddressErrorArr,
-      addressError,
       t,
+      addressError,
     } = this.props;
-    let curLoaction = this.getCurLocation(companyInfo.primaryAddress);
+    console.log(this.state.primaryAddress);
+    let curLoaction = this.getCurLocation(this.state.primaryAddress);
     return (
       <div>
         <div className="row expanded">
@@ -242,6 +264,7 @@ class ClientBasicInfo extends Component {
                   removeErrorMsgHandler('erroFromServer');
                 }
               }}
+              maxLength={300}
             />
           </div>
           <div className="small-6 columns">
@@ -273,6 +296,29 @@ class ClientBasicInfo extends Component {
         </div>
         <div className="row expanded">
           <div className="small-6 columns">
+            {/* <FormReactSelectContainer
+                            label={t('field:Account Manager')}
+                            isRequired={true}
+                            errorMessage={errorMessage ? errorMessage.get('accountManager') : null}
+                        >
+                            <Select
+                                name="accountManager"
+                                value={this.state.accountManager}
+                                onChange={(accountManager) => this.setState({ accountManager })}
+                                simpleValue
+                                options={industryList}
+                                searchable
+                                clearable={false}
+                                autoBlur={true}
+                                onFocus={() => {
+                                    if (removeErrorMsgHandler) {
+                                        removeErrorMsgHandler('industry');
+                                    }
+                                }}
+                            />
+                        </FormReactSelectContainer>
+                        <input name="accountManager" type="hidden" value={this.state.accountManager} /> */}
+
             <FormInput
               name="CompanyWebsite"
               label={t('field:companyWebsite')}
@@ -285,6 +331,7 @@ class ClientBasicInfo extends Component {
               onFocus={() => {
                 if (removeErrorMsgHandler) {
                   removeErrorMsgHandler('CompanyWebsite');
+                  removeErrorMsgHandler('erroFromServer');
                 }
               }}
             />
@@ -315,6 +362,11 @@ class ClientBasicInfo extends Component {
             <input name="level" type="hidden" value={this.state.level} />
           </div>
         </div>
+        {/* <div className="row expanded">
+                    <div className="small-12 columns">
+                        
+                    </div>
+                </div> */}
         <div className="row expanded">
           <div className="small-6 columns">
             <FormInput
@@ -334,21 +386,19 @@ class ClientBasicInfo extends Component {
                   ? errorMessage.get('primaryAddressesAddress')
                   : null
               }
+              // onFocus={() => {
+              //   if (removeErrorMsgHandler) {
+              //     removeErrorMsgHandler('PrimaryAddress');
+              //     removeErrorMsgHandler('PrimaryAddress');
+              //   }
+              // }}
             />
           </div>
           <div className="small-6 columns" style={{ paddingTop: '4px' }}>
             <div className="row expanded">
               <div
                 className="small-9 columns"
-                style={
-                  errorMessage && errorMessage.get('primaryAddressesCity')
-                    ? {
-                        fontSize: '12px',
-                        padding: '0px',
-                        color: 'rgb(204, 75, 55)',
-                      }
-                    : { fontSize: '12px', padding: '0px' }
-                }
+                style={{ fontSize: '12px', padding: '0px' }}
               >
                 {t('field:PrimaryAddressCityStateCountry')}{' '}
                 <span style={{ color: '#cc4b37' }}>*</span>
@@ -366,8 +416,18 @@ class ClientBasicInfo extends Component {
                   getLocation={(value) => {
                     this.getPrimaryAddressCity(value);
                   }}
-                  errorMessage={errorMessage}
                 />
+                <span
+                  style={{
+                    color: '#cc4b37',
+                    fontSize: '12px',
+                    fontWeight: 'blod',
+                  }}
+                >
+                  {errorMessage
+                    ? errorMessage.get('primaryAddressesCity')
+                    : null}
+                </span>
               </div>
             </div>
           </div>

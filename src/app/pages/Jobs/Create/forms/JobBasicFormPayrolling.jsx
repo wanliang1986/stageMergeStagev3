@@ -129,7 +129,7 @@ class JobBasicForm extends React.PureComponent {
   };
 
   componentDidMount() {
-    // console.timeEnd('job form');
+    console.timeEnd('job form');
     // this.fetchClientList();
     this.fetchBriefUsersList();
   }
@@ -255,7 +255,7 @@ class JobBasicForm extends React.PureComponent {
   };
 
   render() {
-    //console.time('job form');
+    console.time('job form');
     const {
       t,
       classes,
@@ -364,12 +364,6 @@ class JobBasicForm extends React.PureComponent {
               name="department"
               label={t('field:department')}
               defaultValue={job.get('department') || ''}
-              errorMessage={
-                errorMessage ? errorMessage.get('department') : null
-              }
-              onBlur={() => {
-                if (removeErrorMsgHandler) removeErrorMsgHandler('department');
-              }}
             />
           </div>
         </div>
@@ -393,7 +387,7 @@ class JobBasicForm extends React.PureComponent {
                       removeErrorMsgHandler('clientcontact');
                   }}
                   simpleValue
-                  placeholder={t('tab:select')}
+                  placeholder="Select category"
                   noResultsText={''}
                   autoBlur={true}
                   clearable={false}

@@ -33,8 +33,8 @@ class CandidateTabs extends React.PureComponent {
       distSelect(65),
       distSelect(92),
       distSelect(117),
-      distSelectZh(1),
-      distSelectZh(117),
+      // distSelectZh(1),
+      // distSelectZh(117),
     ]).then((res) => {
       console.log(res);
       let briefUsers = this.props.briefUsers;
@@ -43,10 +43,10 @@ class CandidateTabs extends React.PureComponent {
       this.props.dispatch(getNewOptions(['degreeList', res[2].response]));
       this.props.dispatch(getNewOptions(['workAuthList', res[3].response]));
       this.props.dispatch(getNewOptions(['industryList', res[4].response]));
-      this.props.dispatch(
-        getNewOptions(['jobFounctionListZh', res[5].response])
-      );
-      this.props.dispatch(getNewOptions(['industryListZh', res[6].response]));
+      // this.props.dispatch(
+      //   getNewOptions(['jobFounctionListZh', res[5].response])
+      // );
+      // this.props.dispatch(getNewOptions(['industryListZh', res[6].response]));
       this.props.dispatch(getNewOptions(['allUserOptions', briefUsers]));
     });
   };
@@ -84,8 +84,8 @@ class CandidateTabs extends React.PureComponent {
                 <Tab label={t('tab:talentPool')} value={'all'} />
                 <Tab label={t('myCandidates')} value={'my'} />
                 <Tab label={t('nav:hotlists')} value={'hotlist'} />
-                <Tab label={t('MyPipeline')} value={'myPipeline'} />
-                <Tab label={t('CommonPool')} value={'CommonPool'} />
+                <Tab label={t('My Pipeline')} value={'myPipeline'} />
+                <Tab label={t('Common Pool')} value={'CommonPool'} />
               </Tabs>
             </div>
 

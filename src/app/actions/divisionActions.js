@@ -10,7 +10,7 @@ export const getAllDivisionList = () => (dispatch, getState) => {
     console.log('normalized', normalizedData);
     dispatch({
       type: ActionTypes.GET_DIVISIONS,
-      normalizedData
+      normalizedData,
     });
   });
   // .catch(err => {
@@ -32,24 +32,22 @@ export const getAllDivisionList = () => (dispatch, getState) => {
 //         })
 // };
 
-export const upsertDivision = (division, divisionId) => (
-  dispatch,
-  getState
-) => {
-  return apnSDK.updateDivision(division, divisionId).then(({ response }) => {
-    console.log('upsert division : ', response);
-    dispatch({
-      type: divisionId ? ActionTypes.EDIT_DIVISION : ActionTypes.ADD_DIVISION,
-      division: response
+export const upsertDivision =
+  (division, divisionId) => (dispatch, getState) => {
+    return apnSDK.updateDivision(division, divisionId).then(({ response }) => {
+      console.log('upsert division : ', response);
+      dispatch({
+        type: divisionId ? ActionTypes.EDIT_DIVISION : ActionTypes.ADD_DIVISION,
+        division: response,
+      });
     });
-  });
-};
+  };
 
-export const deleteDivision = divisionId => (dispatch, getState) => {
+export const deleteDivision = (divisionId) => (dispatch, getState) => {
   return apnSDK.deleteDivision(divisionId).then(() => {
     dispatch({
       type: ActionTypes.DELETE_DIVISION,
-      divisionId
+      divisionId,
     });
   });
 };

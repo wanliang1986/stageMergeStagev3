@@ -436,9 +436,6 @@ export const getPipelineReportBySourcerFilters = ({
 export const getPipelineReportByCompanyExcel = ({
   from_date = '',
   to_date = '',
-  selectedUserRole = '',
-  selectedUserId = '',
-  selectedJobCountry = '',
   fileName = 'PipelineReportByCompany',
 }) => {
   const config = {
@@ -447,8 +444,8 @@ export const getPipelineReportByCompanyExcel = ({
   };
 
   return authRequest
-    .send2V2(
-      `/report/p2-pipeline-analytics-by-company-excel?fromDate=${from_date}&toDate=${to_date}&userRole=${selectedUserRole}&userId=${selectedUserId}&jobCountry=${selectedJobCountry}`,
+    .send2(
+      `/report/pipeline/company-excel?from_date=${from_date}&to_date=${to_date}`,
       config
     )
     .then(({ response }) => {
@@ -471,50 +468,6 @@ export const getPipelineReportByCompany = ({
   return authRequest
     .send(
       `/report/pipeline/company?from_date=${from_date}&to_date=${to_date}&recruiter_id=${selectedRecruiter}&user_country=${selectedUserCountry}&job_country=${selectedJobCountry}`,
-      config
-    )
-    .then(({ response }) => {
-      console.log(response);
-      return response;
-    });
-};
-
-export const getPipelineReportByCompanyV2 = ({
-  from_date = '',
-  to_date = '',
-  selectedUserRole = '',
-  selectedUserId = '',
-  selectedJobCountry = '',
-}) => {
-  const config = {
-    method: 'GET',
-    headers: {},
-  };
-
-  return authRequest
-    .sendV2(
-      `/report/p2-pipeline-analytics-by-company?fromDate=${from_date}&toDate=${to_date}&userRole=${selectedUserRole}&userId=${selectedUserId}&jobCountry=${selectedJobCountry}`,
-      config
-    )
-    .then(({ response }) => {
-      console.log(response);
-      return response;
-    });
-};
-
-export const getPipelineReportByCompanyUsers = ({
-  from_date = '',
-  to_date = '',
-  selectedJobCountry = '',
-}) => {
-  const config = {
-    method: 'GET',
-    headers: {},
-  };
-
-  return authRequest
-    .sendV2(
-      `/report/p2-pipeline-analytics-by-company/user/filter?fromDate=${from_date}&toDate=${to_date}&jobCountry=${selectedJobCountry}`,
       config
     )
     .then(({ response }) => {

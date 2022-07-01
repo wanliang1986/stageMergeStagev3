@@ -12,9 +12,6 @@ import {
   getCommonId,
   getCommonTalentFrom,
 } from '../../../../actions/talentActions';
-
-import { getClientBriefList } from '../../../../actions/clientActions';
-import { getNewOptions } from '../../../../actions/newSearchOptions';
 import { getStartByTalentId } from '../../../../actions/startActions';
 import DetailLeft from './DetailLeft';
 import DetailRight from './DetailRight';
@@ -30,7 +27,7 @@ class CandidateDetail extends React.PureComponent {
     };
   }
   fetchData() {
-    const { dispatch, t } = this.props;
+    const { dispatch } = this.props;
     // get请求url参数有特俗字符如:+号 =号时用encodeURIComponent进行转义(左边的详情数据)
     // console.log(this.props.location.query.commonPoolDetailId);
     // let id;
@@ -75,14 +72,6 @@ class CandidateDetail extends React.PureComponent {
   }
   componentDidMount() {
     this.fetchData();
-    this.props.dispatch(getClientBriefList(null)).then(({ response }) => {
-      if (response) {
-        const createCompanyOptions = getCreateCompanyOptions(response);
-        this.props.dispatch(
-          getNewOptions(['companyOptions', createCompanyOptions])
-        );
-      }
-    });
   }
   render() {
     // 这里重新取url上面的id是因为，在详情页刷新的时候，AI推荐接口的参数id丢失了，子组件在父组件之前执行导致id丢失
@@ -93,7 +82,7 @@ class CandidateDetail extends React.PureComponent {
 
     return (
       <CandidateLayout>
-        <DetailLeft {...this.props} />
+        <DetailLeft />
         <DetailRight {...this.props} telentId={_telentId} />
       </CandidateLayout>
     );
@@ -114,19 +103,6 @@ function mapStoreStateToProps(state, { match }) {
     matchDetailsId,
   };
 }
-
-const getCreateCompanyOptions = (response) => {
-  const companyOptions = response.map((item, index) => {
-    return {
-      value: item.id,
-      label: item.name,
-      industry: item.industry,
-      country: item.country,
-      disabled: !item.active,
-    };
-  });
-  return companyOptions;
-};
 
 export default withTranslation(['tab', 'action', 'field', 'message'])(
   connect(mapStoreStateToProps)(CandidateDetail)

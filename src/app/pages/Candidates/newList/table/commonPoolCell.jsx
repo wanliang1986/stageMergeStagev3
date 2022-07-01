@@ -9,7 +9,6 @@ import { connect } from 'react-redux';
 import { Link, withRouter } from 'react-router-dom';
 import Dialog from '@material-ui/core/Dialog';
 import { LinkedIn } from '../../../../components/Icons';
-import { externalUrl } from '../../../../../utils';
 const style = {
   title: {
     display: 'block',
@@ -34,7 +33,8 @@ class LinkCell extends React.Component {
   handleChkeInIcon = (data) => {
     console.log(data);
     if (data.purchased) {
-      window.open(externalUrl(data.linkedInLink), '_blank');
+      const w = window.open('about:blank');
+      w.location.href = data.linkedInLink;
     } else {
       return apnSDK
         .getUserAccount()
@@ -55,35 +55,35 @@ class LinkCell extends React.Component {
   btnName = (data) => {
     //sessionStorage.setItem('emailStatus', JSON.stringify(data.emailStatus)); //存commonPool详情页getTalent需要的参数
     //sessionStorage.setItem('detailId', data._id); //存commonPool详情页getTalent需要的参数
-    // if (data.talentId) {
-    //   let dataTalentId = data.talentId;
-    //   this.props.history.push(`/candidates/detail/${dataTalentId}`);
-    // } else {
-    let dataId = data._id;
-    this.props.dispatch({
-      type: 'ADD_COMMON_POOL_DATA_ID',
-      payload: data._id,
-    });
-    this.props.dispatch({
-      type: 'ADD_COMMON_POOL_DATA_TENLENT_ID',
-      payload: data.talentId,
-    });
-    // 存储emailStatus，后面的购买接口，查详情接口都需要这个参数
-    this.props.dispatch({
-      type: 'ADD_COMMON_POOL_EMAIL_STATUS',
-      payload: data.emailStatus,
-    });
-    // 去除字符串中的斜杠
-    // dataId = dataId.replace('"', '').replace(/[//]/g, '');
-    // console.log('dataId', dataId);
-    // this.props.history.push({
-    //   pathname: '/candidates/commonPoolList/commonPoolDetail/',
-    //   state: { id: dataId },
-    // });
-    this.props.history.push(
-      `/candidates/commonPoolList/commonPoolDetail?id=${dataId}`
-    );
-    // }
+    if (data.talentId) {
+      let dataTalentId = data.talentId;
+      this.props.history.push(`/candidates/detail/${dataTalentId}`);
+    } else {
+      let dataId = data._id;
+      this.props.dispatch({
+        type: 'ADD_COMMON_POOL_DATA_ID',
+        payload: data._id,
+      });
+      this.props.dispatch({
+        type: 'ADD_COMMON_POOL_DATA_TENLENT_ID',
+        payload: data.talentId,
+      });
+      // 存储emailStatus，后面的购买接口，查详情接口都需要这个参数
+      this.props.dispatch({
+        type: 'ADD_COMMON_POOL_EMAIL_STATUS',
+        payload: data.emailStatus,
+      });
+      // 去除字符串中的斜杠
+      // dataId = dataId.replace('"', '').replace(/[//]/g, '');
+      // console.log('dataId', dataId);
+      // this.props.history.push({
+      //   pathname: '/candidates/commonPoolList/commonPoolDetail/',
+      //   state: { id: dataId },
+      // });
+      this.props.history.push(
+        `/candidates/commonPoolList/commonPoolDetail?id=${dataId}`
+      );
+    }
   };
   render() {
     const { classes, data, commonPoolList } = this.props;

@@ -15,8 +15,8 @@ gtag('config', 'UA-129111595-1', {
   cookie_expires: 2419200, // 28 days, in seconds
   custom_map: {
     dimension2: 'userInfo',
-    metric5: 'queryInfo'
-  }
+    metric5: 'queryInfo',
+  },
 });
 
 export default gtag;
@@ -26,13 +26,13 @@ export const trackPageView = () => {
   gtag('config', 'UA-129111595-1', {
     page_title: window.location.pathname,
     page_path: window.location.pathname,
-    page_location: window.location.href
+    page_location: window.location.href,
   });
 };
 
-export const setUserId = user_id => {
+export const setUserId = (user_id) => {
   gtag('config', 'UA-129111595-1', {
-    user_id: window.location.hostname + '-' + user_id
+    user_id: window.location.hostname + '-' + user_id,
   });
 };
 
@@ -40,37 +40,40 @@ export const setParams = (params = {}) => {
   gtag('set', params);
 };
 
-export const pageViewLogger = ({ dispatch, getState }) => next => action => {
-  console.log('%c Action ', 'color: green', action);
-  if (action.type === '@@router/LOCATION_CHANGE') {
-    trackPageView();
+export const pageViewLogger =
+  ({ dispatch, getState }) =>
+  (next) =>
+  (action) => {
+    console.log('%c Action ', 'color: green', action);
+    if (action.type === '@@router/LOCATION_CHANGE') {
+      trackPageView();
 
-    ReactTooltip.hide();
+      ReactTooltip.hide();
 
-    const currentRouter = action.payload;
-    if (currentRouter.isFirstRendering) {
-      dispatch({
-        type: 'SET_ROUTER',
-        router: currentRouter
-      });
-    } else {
-      const preRouter = getState().router;
-      const preInitRouter = getState().controller.routerStatus;
-
-      if (
-        preRouter.location.key === preInitRouter.location.key &&
-        action.payload.action === 'REPLACE'
-      ) {
-        // console.log('pageViewLogger', preRouter, preInitRouter, action.payload);
+      const currentRouter = action.payload;
+      if (currentRouter.isFirstRendering) {
         dispatch({
           type: 'SET_ROUTER',
-          router: currentRouter
+          router: currentRouter,
         });
+      } else {
+        const preRouter = getState().router;
+        const preInitRouter = getState().controller.routerStatus;
+
+        if (
+          preRouter.location.key === preInitRouter.location.key &&
+          action.payload.action === 'REPLACE'
+        ) {
+          // console.log('pageViewLogger', preRouter, preInitRouter, action.payload);
+          dispatch({
+            type: 'SET_ROUTER',
+            router: currentRouter,
+          });
+        }
       }
     }
-  }
-  return next(action);
-};
+    return next(action);
+  };
 
 export const trackCommonSearch = (query = {}, user = {}) => {
   // console.log(query, user);
@@ -79,6 +82,6 @@ export const trackCommonSearch = (query = {}, user = {}) => {
     event_label: JSON.stringify(query),
     value: JSON.stringify(user),
     userInfo: JSON.stringify(user),
-    queryInfo: JSON.stringify(query)
+    queryInfo: JSON.stringify(query),
   });
 };

@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import FormReactSelectContainer from '../../../components/particial/FormReactSelectContainer';
 import Select from 'react-select';
 import { withRouter } from 'react-router-dom';
-import { withTranslation } from 'react-i18next';
 const styles_inside = {
   typeBlock1: {
     display: 'inline-block',
@@ -99,7 +98,7 @@ class SaleTypeSelect extends Component {
 
   render() {
     const { periodOpt, serviceTypeOpt } = this.state;
-    const { perioType, serviceType, t } = this.props;
+    const { perioType, serviceType } = this.props;
     // CONTRACT 暂时只有Month
     // if (serviceType === 'CONTRACT') {
     //   let newPeriodOpt = [{ value: 'Month', label: 'Month' }];
@@ -112,7 +111,7 @@ class SaleTypeSelect extends Component {
         <div style={styles_inside.typeBlock1}>
           <FormReactSelectContainer
             style={{ color: '#aab1b8' }}
-            label={t('tab:View by')}
+            label="View by:"
           >
             <Select
               value={perioType}
@@ -127,7 +126,7 @@ class SaleTypeSelect extends Component {
         <div style={styles_inside.typeBlock2}>
           <FormReactSelectContainer
             style={{ color: '#aab1b8' }}
-            label={t('tab:Service Type') + ':'}
+            label="Service Type:"
           >
             <Select
               value={serviceType}
@@ -144,4 +143,4 @@ class SaleTypeSelect extends Component {
   }
 }
 
-export default withTranslation('tab')(withRouter(SaleTypeSelect));
+export default withRouter(SaleTypeSelect);

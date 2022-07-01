@@ -10,8 +10,6 @@ import {
 } from '../../../../constants/formOptions';
 import Divider from '@material-ui/core/Divider';
 import moment from 'moment-timezone';
-import EditIcon from '@material-ui/icons/Edit';
-import { connect } from 'react-redux';
 
 const styles = {
   root: {
@@ -79,7 +77,6 @@ const styles = {
     fontSize: 14,
     marginTop: 0,
     whiteSpace: 'pre-wrap',
-    wordBreak: 'break-word',
   },
 };
 
@@ -127,7 +124,6 @@ class CandidateNote extends React.Component {
                 {this.isStatus(noteCopy.noteStatus)}
               </p>
             ) : null}
-
             {noteCopy.noteStatus === notesStatus[1].value ? (
               <p className={classes.statusTwo}>
                 {this.isStatus(noteCopy.noteStatus)}
@@ -138,16 +134,6 @@ class CandidateNote extends React.Component {
                 {this.isStatus(noteCopy.noteStatus)}
               </p>
             ) : null}
-            <span>
-              {noteCopy.userId === this.props.currentUser.get('id') && (
-                <EditIcon
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => {
-                    this.props.openEdit(note);
-                  }}
-                />
-              )}
-            </span>
           </div>
           <div className={classes.flex}>
             <p className={classes.time}>
@@ -168,11 +154,4 @@ class CandidateNote extends React.Component {
   }
 }
 
-const mapStateToProps = (state) => {
-  const currentUser = state.controller.currentUser;
-  return {
-    currentUser: currentUser,
-  };
-};
-
-export default connect(mapStateToProps)(withStyles(styles)(CandidateNote));
+export default withStyles(styles)(CandidateNote);

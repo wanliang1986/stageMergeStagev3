@@ -9,7 +9,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { jobType as newJobType } from '../../../constants/formOptions';
 import { upDateStopFlag } from '../../../actions/newCandidate';
 // ../../../../actions/newCandidate
-import { connect } from 'react-redux';
+
 import {
   SelectsInput,
   CurrentSalary,
@@ -262,16 +262,7 @@ export const SelectInput = ({
   );
 };
 
-const Column = ({
-  onSave,
-  onDelete,
-  data,
-  index,
-  last,
-  onCopy,
-  keys,
-  language,
-}) => {
+const Column = ({ onSave, onDelete, data, index, last, onCopy, keys }) => {
   const { candidateSelect, newCandidateJob } = useSelector(
     (state) => state.controller
   );
@@ -362,10 +353,8 @@ const Column = ({
             if (items['andOr'] == 'na') {
               item['andOr'] = 'na';
             }
-            if (items['andOr'] == 'both' && !item['andOr']) {
+            if (items['andOr'] == 'both') {
               item['andOr'] = 'and';
-            } else if (items['andOr'] == 'both' && item['andOr']) {
-              item['andOr'] = item['andOr'];
             } else {
               item['andOr'] = items['andOr'];
             }
@@ -566,7 +555,6 @@ const Column = ({
           handleSave={handleChange}
           value={item['value']}
           error={item['errorMsg']}
-          language={language}
         />
       );
     } else if (type == 'salary') {
@@ -866,10 +854,4 @@ const Column = ({
   );
 };
 
-const mapStateToProps = (state) => {
-  return {
-    language: state.controller.language,
-  };
-};
-
-export default connect(mapStateToProps)(Column);
+export default Column;

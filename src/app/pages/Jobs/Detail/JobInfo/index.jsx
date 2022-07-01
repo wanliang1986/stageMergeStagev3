@@ -12,8 +12,6 @@ class JobInfo extends React.Component {
   render() {
     const { job, ...props } = this.props;
     //detail page always call get detail
-    console.log(job.get('jobType'));
-    console.log(job && job.toJS());
     if (job.get('jobType') === JOB_TYPES.Payrolling) {
       return <JobInfoPayrolling job={job} {...props} />;
     }

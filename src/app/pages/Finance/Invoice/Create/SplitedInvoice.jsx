@@ -5,24 +5,16 @@ import DatePicker from 'react-datepicker';
 import FormInput from '../../../../components/particial/FormInput';
 import NumberFormat from 'react-number-format';
 import FormReactSelectContainer from '../../../../components/particial/FormReactSelectContainer';
-import { currency as currencyOptions } from '../../../../constants/formOptions';
-import clsx from 'clsx';
-
-const currencyLabels = currencyOptions.reduce((res, v) => {
-  res[v.value] = v.label;
-  return res;
-}, {});
 
 class SplitedInvoice extends Component {
   state = {
     date: moment(),
-    dueDate: moment().add(30, 'days'),
+    dueDate: moment().add(1, 'months'),
     amount: null,
   };
 
   render() {
-    const { t, index, removeErrorMsgHandler, currency, errorMessage } =
-      this.props;
+    const { t, index, removeErrorMsgHandler, currency } = this.props;
 
     console.log('[child invoice]', index, this.state.amount);
 
@@ -37,13 +29,8 @@ class SplitedInvoice extends Component {
         <div className="flex-child-auto flex-container">
           <div className="small-4 columns">
             <DatePicker
-              customInput={
-                <FormInput
-                  label={t('field:invoiceDate')}
-                  isRequired
-                  errorMessage={t(errorMessage.get(`childInvoiceDate${index}`))}
-                />
-              }
+              customInput={<FormInput label={t('field:invoiceDate')} />}
+              // className={classes.fullWidth}
               selected={this.state.date}
               onChange={(date) => {
                 this.setState({ date });
@@ -60,15 +47,8 @@ class SplitedInvoice extends Component {
           </div>
           <div className="small-4 columns">
             <DatePicker
-              customInput={
-                <FormInput
-                  label={t('field:dueDate')}
-                  isRequired
-                  errorMessage={t(
-                    errorMessage.get(`childInvoiceDueDate${index}`)
-                  )}
-                />
-              }
+              customInput={<FormInput label={t('field:dueDate')} />}
+              // className={classes.fullWidth}
               selected={this.state.dueDate}
               onChange={(dueDate) => {
                 this.setState({ dueDate });
@@ -87,29 +67,16 @@ class SplitedInvoice extends Component {
           </div>
 
           <div className="small-4 columns">
-            <FormReactSelectContainer
-              label={t('field:amount')}
-              isRequired
-              errorMessage={
-                t(errorMessage.get(`childInvoiceAmount${index}`)) ||
-                !!errorMessage.get('subAmountSum')
-              }
-            >
+            <FormReactSelectContainer label={t('field:amount')} isRequired>
               <NumberFormat
-                decimalScale={2}
+                decimalScale={0}
                 thousandSeparator
-                prefix={currencyLabels[currency] || ''}
+                prefix={currency === 'USD' ? '$' : '¥'}
                 value={this.state.amount}
                 onValueChange={({ value }) => this.setState({ amount: value })}
                 onFocus={() => {
                   removeErrorMsgHandler('subAmountSum');
                 }}
-                allowNegative={false}
-                className={clsx({
-                  'is-invalid-input':
-                    !!errorMessage.get('subAmountSum') ||
-                    !!errorMessage.get(`childInvoiceAmount${index}`),
-                })}
               />
             </FormReactSelectContainer>
             <input

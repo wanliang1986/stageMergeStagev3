@@ -383,9 +383,7 @@ class ChartWithTable extends React.Component {
   getChartData = (data, type) => {
     return data
       ? {
-          labels: statusOptions.map((status) =>
-            this.props.t(`tab:${status.label.toLowerCase()}`)
-          ),
+          labels: statusOptions.map((status) => status.label),
           datasets: [
             {
               data: statusOptions.map(
@@ -549,10 +547,10 @@ class ChartWithTable extends React.Component {
         <div>
           <div className={classes.actionsContainer}>
             <Typography variant="h5">
-              {t('tab:Pipeline Analytics by Updated Date')}
+              {t('message:Pipeline Analytics by Updated Date')}
             </Typography>
             <PotentialButton component="a" onClick={this.downloadCanvas}>
-              {t('tab:Download as image')}
+              Download as image
             </PotentialButton>
           </div>
           <Divider />
@@ -626,7 +624,7 @@ class ChartWithTable extends React.Component {
                         disabled={!selectedUser}
                       />
                     }
-                    label={t('tab:Recruiter')}
+                    label="Recruiter"
                   />
                   <FormControlLabel
                     control={
@@ -638,7 +636,7 @@ class ChartWithTable extends React.Component {
                         disabled={!selectedUser}
                       />
                     }
-                    label={t('tab:AM')}
+                    label="AM"
                   />
                   <FormControlLabel
                     control={
@@ -650,7 +648,7 @@ class ChartWithTable extends React.Component {
                         disabled={!selectedUser}
                       />
                     }
-                    label={t('tab:Sourcer')}
+                    label="Sourcer"
                   />
                 </div>
               </FormControl>

@@ -3,7 +3,6 @@ import * as apnSDK from '../../../../apn-sdk';
 import * as ActionTypes from '../../../constants/actionTypes';
 import { render } from 'react-dom';
 import Dialog from '@material-ui/core/Dialog';
-
 import { withStyles } from '@material-ui/core';
 import {} from 'react-router-dom';
 import PropTypes from 'prop-types';
@@ -11,9 +10,6 @@ import { connect } from 'react-redux';
 import { withRouter, useHistory } from 'react-router-dom';
 import lodash from 'lodash';
 import { AgGridReact, AgGridColumn } from 'ag-grid-react';
-import { Alert } from '@material-ui/lab';
-import Snackbar from '@material-ui/core/Snackbar';
-
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 import clsx from 'clsx';
@@ -298,7 +294,6 @@ const LinkedInSorryDialog = (props) => {
     </div>
   );
 };
-
 class candidateAllTable extends Component {
   constructor(props) {
     super(props);
@@ -332,7 +327,6 @@ class candidateAllTable extends Component {
       getRowNodeId: function (data) {
         return data._id;
       },
-      orderStatusOpen: false,
     };
   }
 
@@ -350,7 +344,6 @@ class candidateAllTable extends Component {
     const { dispatch, pages } = this.props;
     // let type = 'CANDIDATE';
     let type = 'COMMON_POOL';
-
     getCandidateColumns(type)
       .then(({ response }) => {
         let { itemSortAll, pageSize } = response;
@@ -412,7 +405,6 @@ class candidateAllTable extends Component {
           },
           () => {
             this.candidateGetTableData();
-
             // this.gridApi.sizeColumnsToFit()
           }
         );
@@ -424,6 +416,7 @@ class candidateAllTable extends Component {
     this.gridApi = params.api;
     this.gridColumnApi = params.columnApi;
   };
+
   candidateGetTableData = () => {
     if (this.props.searchLevel == 'BASE') {
       this.props.dispatch(getCommonPoolSearchData());
@@ -513,147 +506,23 @@ class candidateAllTable extends Component {
 
   // 点击排序按钮
   onChangeSort = (columnKey, sortDir) => {
-    const {
-      orderStatus,
-      unSelectStatus,
-      commonPoolSelectListTo,
-      filterArrLength,
-      general,
-    } = this.props;
-    console.log(general);
-    // if (general === '') {
-    //   this.setState({
-    //     orderStatusOpen: true,
-    //   });
-    //   setTimeout(() => {
-    //     this.setState({
-    //       orderStatusOpen: false,
-    //     });
-    //   }, 2000);
-    //   return;
-    // }
-    if (
-      orderStatus && orderStatus.and
-        ? orderStatus.and.length === 0
-        : orderStatus.length === 0 && !unSelectStatus
-    ) {
-      this.setState({
-        orderStatusOpen: true,
-      });
-      setTimeout(() => {
-        this.setState({
-          orderStatusOpen: false,
-        });
-      }, 2000);
-    } else {
-      if (
-        commonPoolSelectListTo.length === 0 &&
-        !unSelectStatus &&
-        orderStatus
-      ) {
-        if (
-          orderStatus.and
-            ? orderStatus.and.length === 0
-            : orderStatus.length === 0
-        ) {
-          this.setState({
-            orderStatusOpen: true,
-          });
-          setTimeout(() => {
-            this.setState({
-              orderStatusOpen: false,
-            });
-          }, 2000);
-        } else {
-          let headerList = [...this.state.headerList];
-          headerList.map((item) => {
-            item.sort = null;
-            if (item.colId == columnKey) {
-              item.sort = sortDir;
-            }
-          });
-          this.setState(
-            {
-              headerList,
-              sortList: headerList,
-            },
-            () => {
-              this.props.dispatch(
-                commonPoolChagneSort({ [columnKey]: sortDir })
-              );
-            }
-          );
-        }
-      } else {
-        let reg = /^.{3,20}$/;
-        if (
-          !reg.test(general) && orderStatus && orderStatus.and
-            ? orderStatus.and.length === 0
-            : orderStatus.length === 0
-        ) {
-          this.setState({
-            orderStatusOpen: true,
-          });
-          setTimeout(() => {
-            this.setState({
-              orderStatusOpen: false,
-            });
-          }, 2000);
-        } else {
-          let headerList = [...this.state.headerList];
-          headerList.map((item) => {
-            item.sort = null;
-            if (item.colId == columnKey) {
-              item.sort = sortDir;
-            }
-          });
-          this.setState(
-            {
-              headerList,
-              sortList: headerList,
-            },
-            () => {
-              this.props.dispatch(
-                commonPoolChagneSort({ [columnKey]: sortDir })
-              );
-            }
-          );
-        }
+    console.log(columnKey, sortDir);
+    let headerList = [...this.state.headerList];
+    headerList.map((item) => {
+      item.sort = null;
+      if (item.colId == columnKey) {
+        item.sort = sortDir;
       }
-    }
-    // }
-    // if (
-    //   orderStatus.and.length === 0 &&
-    //   !unSelectStatus &&
-    //   commonPoolSelectListTo.length === 0
-    // ) {
-    //   this.setState({
-    //     orderStatusOpen: true,
-    //   });
-    //   setTimeout(() => {
-    //     this.setState({
-    //       orderStatusOpen: false,
-    //     });
-    //   }, 2000);
-    // } else {
-    //   console.log(columnKey, sortDir);
-    //   let headerList = [...this.state.headerList];
-    //   headerList.map((item) => {
-    //     item.sort = null;
-    //     if (item.colId == columnKey) {
-    //       item.sort = sortDir;
-    //     }
-    //   });
-    //   this.setState(
-    //     {
-    //       headerList,
-    //       sortList: headerList,
-    //     },
-    //     () => {
-    //       this.props.dispatch(commonPoolChagneSort({ [columnKey]: sortDir }));
-    //     }
-    //   );
-    // }
+    });
+    this.setState(
+      {
+        headerList,
+        sortList: headerList,
+      },
+      () => {
+        this.props.dispatch(commonPoolChagneSort({ [columnKey]: sortDir }));
+      }
+    );
   };
   //保存用户columns设置
   saveColumns = (data) => {
@@ -844,11 +713,8 @@ class candidateAllTable extends Component {
       chekInStatu,
       sorryStatu,
       NewData,
-      orderStatusOpen,
     } = this.state;
     console.log('headerList', headerList);
-    console.log('loading', loading);
-    console.log('tableData', tableData);
     if (loading && tableData) {
       return (
         <div
@@ -1234,17 +1100,7 @@ class candidateAllTable extends Component {
                 onPageChange={this.handleChange}
                 onRowsPerPageChange={this.handleChangeRowsPerPage}
               />
-
               {/*)}*/}
-              {/* <Snackbar open={orderStatusOpen} autoHideDuration={6000}>
-                <Alert severity="warning" sx={{ width: '100%' }}>
-                  You will be able to sort results after filtering!
-                </Alert>
-              </Snackbar> */}
-              <Snackbar
-                open={orderStatusOpen}
-                message={'You will be able to sort results after filtering.'}
-              />
             </div>
           );
         }}
@@ -1262,15 +1118,7 @@ const mapStateToProps = (state) => {
     loading: state.controller.newCandidateJob.toJS().loading,
     sizes: state.controller.newCandidateJob.toJS().size * 1,
     sort: state.controller.newCandidateJob.toJS().sort,
-    dropStatu: state.controller.newCandidateJob.toJS().defultStatus,
-    // dropStatu: state.controller.newCandidateJob.toJS().commonPoolDefultStatus,
-
-    orderStatus: state.controller.newCandidateJob.toJS().orderStatus,
-    unSelectStatus: state.controller.newCandidateJob.toJS().unSelectStatus,
-    commonPoolSelectListTo:
-      state.controller.newCandidateJob.toJS().selectToStatus,
-    filterArrLength: state.controller.newCandidateJob.toJS().filterArrIndex,
-    general: state.controller.newCandidateJob.toJS().general,
+    dropStatu: state.controller.newCandidateJob.toJS().commonPoolDefultStatus,
   };
 };
 

@@ -414,9 +414,7 @@ class PipelineLists extends Component {
                     this.filtersShow();
                   }}
                 >
-                  {filterShow
-                    ? this.props?.t('tab:Hide Filters')
-                    : this.props?.t('tab:Show Filters')}
+                  {filterShow ? 'Hide Filters' : 'Show Filters'}
                 </Button>
               </Grid>
             </Grid>
